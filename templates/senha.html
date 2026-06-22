@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Definir Senha</title>
+
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e9f1ff, #f7f9fc);
+    margin: 0;
+    padding: 0;
+}
+
+/* Container central */
+.container {
+    width: 100%;
+    max-width: 450px;
+    margin: 80px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Título */
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 20px;
+}
+
+/* Input */
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #dcdfe6;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+input[type="text"]:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 5px rgba(74,144,226,0.3);
+}
+
+/* Botões */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* Botão salvar */
+button[type="submit"] {
+    background: #4a90e2;
+    color: white;
+}
+
+button[type="submit"]:hover {
+    background: #3b7bd1;
+}
+
+/* Botão gerar senha */
+button[name="gerar"] {
+    background: #27ae60;
+    color: white;
+}
+
+button[name="gerar"]:hover {
+    background: #1f9a52;
+}
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Definir senha para {{ pedido.usuario }}</h2>
+
+    <form method="POST">
+
+        <input type="text" name="nova_senha" placeholder="Digite a senha manual">
+
+        <button type="submit">
+            Salvar senha manual
+        </button>
+
+        <button type="submit" name="gerar" value="1">
+            Gerar senha automática
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

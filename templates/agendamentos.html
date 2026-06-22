@@ -1,0 +1,598 @@
+Aqui está o código HTML completo, com todas as melhorias integradas.
+
+Eu apliquei a correção das **badges coloridas de status** (via classes dinâmicas), ajustei o JavaScript dos filtros para que a **busca por data funcione perfeitamente** (convertendo o formato brasileiro `DD/MM/AAAA` para o formato do input), e adicionei a lógica para exibir uma mensagem amigável caso nenhum paciente seja encontrado na busca em tempo real.
+
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos - ClínicaSys</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-main: #f8fafc;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: rgba(15, 118, 110, 0.15);
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            
+            /* Verde Oficial da Clínica */
+            --primary: #0f766e;
+            --primary-hover: #115e59;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --neutral-btn: #f1f5f9;
+            --neutral-btn-hover: #e2e8f0;
+            
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --radius: 8px;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            padding: 30px 20px;
+            position: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 35px;
+            padding-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--primary);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 6px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: var(--radius);
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .sidebar li.active a, .sidebar a:hover {
+            background: var(--sidebar-hover);
+            color: #2dd4bf;
+        }
+
+        .sidebar li.active a {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 40px 50px;
+            width: calc(100% - 260px);
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            color: var(--text-main);
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            margin-bottom: 32px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            color: var(--text-main);
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        /* FORMULÁRIO */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius);
+            background: #fff;
+            font-size: 14px;
+            color: #334155;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+            outline: none;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        .btn-agendar {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+            transition: var(--transition);
+        }
+
+        .btn-agendar:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* FILTROS ALINHADOS */
+        .filtros-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filtros {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            margin-bottom: 15px;
+        }
+
+        .filtros input[type="text"] {
+            flex: 2;
+            max-width: 300px;
+        }
+
+        .filtros input, .filtros button {
+            padding: 10px 14px;
+            font-size: 14px;
+            border-radius: var(--radius);
+        }
+
+        .filtros input {
+            border: 1px solid #cbd5e1;
+        }
+
+        .filtros button {
+            background: var(--neutral-btn);
+            color: var(--text-main);
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filtros button:hover {
+            background: var(--neutral-btn-hover);
+        }
+
+        .btn-print {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+            transition: var(--transition);
+        }
+
+        .btn-print:hover {
+            background: var(--success-hover);
+        }
+
+        /* TABELA PREMIUM */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 16px;
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .patient-name {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .doc-specialty {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* BADGES DE STATUS COM CORES FIXADAS */
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Classes dinâmicas baseadas no retorno do backend */
+        .status-confirmado, .status-finalizado { background: #dcfce7; color: #16a34a; }
+        .status-cancelado { background: #fee2e2; color: #dc2626; }
+        .status-pendente { background: #fef9c3; color: #713f12; }
+
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-chamar { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
+        .btn-chamar:hover { background: #2563eb; color: white; }
+
+        .btn-finalizar { background: rgba(22, 163, 74, 0.1); color: #16a34a; }
+        .btn-finalizar:hover { background: #16a34a; color: white; }
+
+        .btn-cancelar { background: rgba(220, 38, 38, 0.1); color: #dc2626; }
+        .btn-cancelar:hover { background: #dc2626; color: white; }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <i class="bi bi-heart-pulse-fill"></i> ClínicaSys
+    </div>
+    <ul>
+        <li><a href="/"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+        <li><a href="/profissionais"><i class="bi bi-person-md"></i> Profissionais</a></li>
+        <li><a href="/pacientes"><i class="bi bi-people"></i> Pacientes</a></li>
+        <li class="active"><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agenda</a></li>
+        <li><a href="/financeiro"><i class="bi bi-cash-stack"></i> Financeiro</a></li>
+        <li><a href="/logout"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
+    </ul>
+</div>
+
+<div class="main">
+
+    <div class="header">
+        <h1>Agendamentos</h1>
+        <p>Gerencie consultas e horários da clínica</p>
+    </div>
+
+    <div class="card">
+        <h2>Novo Agendamento</h2>
+        <form method="POST">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="bi bi-person"></i> Nome do Paciente</label>
+                    <input type="text" name="paciente" placeholder="Ex: João da Silva" autocomplete="off" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="bi bi-heart-pulse"></i> Profissional</label>
+                    <select name="profissional_id" required>
+                        <option value="">Selecione o profissional</option>
+                        {% for prof in profissionais %}
+                        <option value="{{ prof.id }}">{{ prof.nome }} - {{ prof.especialidade }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="bi bi-calendar-event"></i> Data da Consulta</label>
+                    <input type="date" name="data" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="bi bi-clock"></i> Horário</label>
+                    <input type="time" name="horario" required>
+                </div>
+
+                <div class="form-group full-width">
+                    <label><i class="bi bi-sticky"></i> Observações</label>
+                    <textarea name="observacoes" rows="3" placeholder="Digite alguma observação (opcional)"></textarea>
+                </div>
+            </div>
+
+            <div class="btn-container">
+                <button type="submit" class="btn-agendar">
+                    <i class="bi bi-check-circle"></i> Agendar Consulta
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="filtros-wrapper">
+            <h2>Consultas Agendadas</h2>
+            <button onclick="imprimirAgendamentos()" class="btn-print">
+                <i class="bi bi-printer"></i> Imprimir Agenda
+            </button>
+        </div>
+
+        <div class="filtros">
+            <input type="text" id="pesquisa" placeholder="🔍 Pesquisar paciente..." onkeyup="filtrarAgendamentos()">
+            <input type="date" id="pesquisaData">
+            <button onclick="filtrarData()"><i class="bi bi-search"></i> Buscar Data</button>
+            <button onclick="mostrarTodos()">Mostrar Todos</button>
+            <button onclick="ocultarTodos()">Ocultar Todos</button>
+        </div>
+
+        <div id="area-impressao">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Profissional</th>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-corpo">
+                    {% for ag in agendamentos %}
+                    <tr class="linha-agendamento">
+                        <td class="patient-name">{{ ag.paciente }}</td>
+                        <td>
+                            <strong>{{ ag.profissional.nome }}</strong><br>
+                            <span class="doc-specialty">{{ ag.profissional.especialidade }}</span>
+                        </td>
+                        <td class="data-consulta" data-raw-date="{{ ag.data }}">{{ ag.data }}</td>
+                        <td>{{ ag.horario }}</td>
+                        <td><span class="status status-{{ ag.status|lower }}">{{ ag.status }}</span></td>
+                        <td class="actions-cell">
+                            <a href="/chamar/{{ ag.id }}" class="btn-action btn-chamar">
+                                <i class="bi bi-bell"></i> Chamar
+                            </a>
+                            <a href="/finalizar/{{ ag.id }}" class="btn-action btn-finalizar">
+                                <i class="bi bi-check-lg"></i> Finalizar
+                            </a>
+                            <a href="/cancelar/{{ ag.id }}" class="btn-action btn-cancelar" onclick="return confirm('Deseja cancelar este agendamento?')">
+                                <i class="bi bi-x-lg"></i> Cancelar
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr id="linha-vazia-backend">
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            Nenhum agendamento encontrado para os critérios selecionados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <tr id="sem-resultados-js" style="display: none;">
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            Nenhum paciente corresponde à sua pesquisa.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Função para verificar se a tabela ficou vazia nos filtros dinâmicos
+function checarTabelaVazia(linhasVisiveis) {
+    const linhaSemResultado = document.getElementById("sem-resultados-js");
+    if (linhaSemResultado) {
+        linhaSemResultado.style.display = (linhasVisiveis === 0) ? "" : "none";
+    }
+}
+
+function filtrarAgendamentos() {
+    let pesquisa = document.getElementById("pesquisa").value.toLowerCase();
+    let linhas = document.querySelectorAll(".linha-agendamento");
+    let visiveis = 0;
+
+    linhas.forEach(function(linha){
+        let texto = linha.innerText.toLowerCase();
+        if(texto.includes(pesquisa)) {
+            linha.style.display = "";
+            visiveis++;
+        } else {
+            linha.style.display = "none";
+        }
+    });
+    checarTabelaVazia(visiveis);
+}
+
+function filtrarData() {
+    let dataSelecionada = document.getElementById("pesquisaData").value; // Retorna AAAA-MM-DD
+    if(!dataSelecionada) return;
+
+    let linhas = document.querySelectorAll(".linha-agendamento");
+    let visiveis = 0;
+
+    linhas.forEach(function(linha){
+        let tdData = linha.querySelector(".data-consulta");
+        let dataTabela = tdData.getAttribute("data-raw-date") || tdData.textContent.trim();
+
+        // Tratamento se a data na tabela estiver no formato brasileiro DD/MM/AAAA
+        if(dataTabela.includes("/")) {
+            let partes = dataTabela.split("/");
+            dataTabela = `${partes[2]}-${partes[1]}-${partes[0]}`; // Converte para AAAA-MM-DD
+        }
+
+        if(dataTabela === dataSelecionada) {
+            linha.style.display = "";
+            visiveis++;
+        } else {
+            linha.style.display = "none";
+        }
+    });
+    checarTabelaVazia(visiveis);
+}
+
+function mostrarTodos(){
+    document.querySelectorAll(".linha-agendamento").forEach(l => l.style.display = "");
+    checarTabelaVazia(1);
+}
+
+function ocultarTodos(){
+    document.querySelectorAll(".linha-agendamento").forEach(l => l.style.display = "none");
+    checarTabelaVazia(0);
+}
+
+function imprimirAgendamentos() {
+    let conteudo = document.getElementById("area-impressao").innerHTML;
+    let janela = window.open("", "", "width=900,height=700");
+    janela.document.write(`
+        <html>
+        <head>
+            <title>Agenda de Consultas - ClínicaSys</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+                h2 { text-align: center; margin-bottom: 20px; color: #0f766e; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 13px; }
+                th { background: #f8fafc; font-weight: bold; }
+                .actions-cell, #sem-resultados-js { display: none !important; }
+                .status { font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            <h2>Agenda de Consultas</h2>
+            ${conteudo}
+        </body>
+        </html>
+    `);
+    janela.document.close();
+    janela.print();
+}
+</script>
+</body>
+</html>
+
+```

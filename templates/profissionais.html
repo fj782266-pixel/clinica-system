@@ -1,0 +1,719 @@
+html
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profissionais - ClínicaSys</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-main: #f4f7f6;
+            --sidebar-bg: #112233;
+            --primary: #0f766e;
+            --primary-hover: #115e59;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            padding: 30px 20px;
+            position: fixed;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 35px;
+            padding-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: #2dd4bf;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 6px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all .2s ease;
+        }
+
+        .sidebar li.active a, .sidebar a:hover {
+            background: rgba(45, 212, 191, 0.1);
+            color: #2dd4bf; 
+        }
+        
+        .sidebar li.active a {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 40px 50px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .btn-novo {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-novo:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        /* METRIC CARDS */
+        .cards {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card-info {
+            background: white;
+            flex: 1;
+            padding: 24px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #e6fffb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .card-icon i {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .card-info-content {
+            z-index: 2;
+        }
+
+        .card-info h3 {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-info span {
+            display: block;
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 2px 0;
+        }
+
+        .card-info p {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* Marcas d'água decorativas de fundo nos cards */
+        .card-info::after {
+            content: "\f4ca";
+            font-family: "bootstrap-icons";
+            position: absolute;
+            right: 15px;
+            bottom: -15px;
+            font-size: 90px;
+            color: rgba(15, 118, 110, 0.04);
+            z-index: 1;
+        }
+
+        .card-info:nth-child(2)::after {
+            content: "\f57d";
+            font-size: 100px;
+        }
+
+        /* FORM CARD */
+        .form-card {
+            background: white;
+            padding: 32px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 32px;
+        }
+
+        .form-card h2 {
+            font-size: 18px;
+            color: #0f172a;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-card h2 i {
+            color: var(--primary);
+        }
+
+        .form-layout {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .form-content {
+            flex: 1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-wrapper label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        input {
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #334155;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-limpar {
+            background: white;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-limpar:hover {
+            background: #f8fafc;
+            color: #334155;
+        }
+
+        .btn-salvar {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-salvar:hover {
+            background: var(--primary-hover);
+        }
+
+        .form-image {
+            width: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .form-image i.main-img-icon {
+            font-size: 130px;
+            color: #ccfbf1;
+        }
+        
+        .form-image .plus-overlay {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            background: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border: 3px solid white;
+        }
+
+        /* TABELA PREMIUM */
+        .table-card {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .table-header h2 {
+            font-size: 18px;
+            color: #0f172a;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .table-header h2 i {
+            color: var(--primary);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #buscar {
+            width: 280px;
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+
+        .btn-filter {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: var(--primary);
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .btn-filter:hover {
+            background: #f4f7f6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            background: #f8fafc;
+            padding: 16px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        td {
+            padding: 16px;
+            color: #475569;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .usuario {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #ccfbf1;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .usuario strong {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: none;
+            font-size: 16px;
+        }
+
+        .btn-edit {
+            color: var(--primary);
+            background: rgba(15, 118, 110, 0.06);
+        }
+
+        .btn-edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-delete {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.06);
+        }
+
+        .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .page-link {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            cursor: pointer;
+            color: #475569;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .page-link.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .page-link:hover:not(.active) {
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <i class="bi bi-heart-pulse-fill"></i> ClínicaSys
+    </div>
+
+    <ul>
+        <li><a href="/"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+        <li class="active"><a href="/profissionais"><i class="bi bi-person-md"></i> Profissionais</a></li>
+        <li><a href="/pacientes"><i class="bi bi-people"></i> Pacientes</a></li>
+        <li><a href="/agenda"><i class="bi bi-calendar3"></i> Agenda</a></li>
+        <li><a href="/financeiro"><i class="bi bi-cash-stack"></i> Financeiro</a></li>
+    </ul>
+</div>
+
+<div class="main">
+
+    <div class="header-top">
+        <div class="header">
+            <h1>Profissionais</h1>
+            <p>Gerencie toda equipe da clínica</p>
+        </div>
+        <button class="btn-novo" onclick="document.getElementsByName('nome')[0].focus();">
+            <i class="bi bi-plus-lg"></i> Novo Profissional
+        </button>
+    </div>
+
+    <div class="cards">
+        <div class="card-info">
+            <div class="card-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="card-info-content">
+                <h3>Total de Profissionais</h3>
+                <span>{{ profissionais|length }}</span>
+                <p>profissionais cadastrados</p>
+            </div>
+        </div>
+
+        <div class="card-info">
+            <div class="card-icon">
+                <i class="bi bi-stethoscope"></i>
+            </div>
+            <div class="card-info-content">
+                <h3>Especialidades</h3>
+                <span>12</span>
+                <p>especialidades disponíveis</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <h2><i class="bi bi-person-plus"></i> Cadastrar novo profissional</h2>
+
+        <div class="form-layout">
+            <form method="POST" class="form-content">
+                <div class="grid">
+                    <div class="input-wrapper">
+                        <label>Nome completo</label>
+                        <input name="nome" placeholder="Digite o nome completo" required autocomplete="off">
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Especialidade</label>
+                        <input name="especialidade" placeholder="Selecione ou digite a especialidade" required autocomplete="off">
+                    </div>
+                    <div class="input-wrapper">
+                        <label>Telefone</label>
+                        <input name="telefone" placeholder="(11) 99999-9999" autocomplete="off">
+                    </div>
+                    <div class="input-wrapper">
+                        <label>E-mail</label>
+                        <input name="email" placeholder="email@exemplo.com" type="email" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <button type="reset" class="btn-limpar">Limpar campos</button>
+                    <button type="submit" class="btn-salvar">
+                        <i class="bi bi-check-lg"></i> Salvar profissional
+                    </button>
+                </div>
+            </form>
+
+            <div class="form-image">
+                <i class="bi bi-clipboard2-pulse main-img-icon"></i>
+                <div class="plus-overlay"><i class="bi bi-plus-lg"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header">
+            <h2><i class="bi bi-person-lines-fill"></i> Lista de profissionais</h2>
+            <div class="search-box">
+                <input type="text" id="buscar" placeholder="Buscar profissional...">
+                <button class="btn-filter"><i class="bi bi-funnel"></i></button>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Especialidade</th>
+                    <th>Telefone</th>
+                    <th>E-mail</th>
+                    <th style="text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in profissionais %}
+                <tr class="linha-tabela">
+                    <td>
+                        <div class="usuario">
+                            <div class="avatar">
+                                {{ p.nome[0]|upper }}
+                            </div>
+                            <strong>{{ p.nome }}</strong>
+                        </div>
+                    </td>
+                    <td>{{ p.especialidade }}</td>
+                    <td>{{ p.telefone if p.telefone else '-' }}</td>
+                    <td>{{ p.email if p.email else '-' }}</td>
+                    <td style="text-align: center;">
+                        <div class="actions-cell" style="justify-content: center;">
+                            <button class="btn-action btn-edit" title="Editar"><i class="bi bi-pencil"></i></button>
+                            <button class="btn-action btn-delete" title="Excluir"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align: center; color: #94a3b8; padding: 40px;">
+                        <i class="bi bi-folder-x" style="font-size: 24px; display:block; margin-bottom: 8px;"></i>
+                        Nenhum profissional cadastrado no sistema.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="table-footer">
+            <span>Mostrando 1 a {{ profissionais|length }} de {{ profissionais|length }} profissionais</span>
+            <div class="pagination">
+                <button class="page-link"><i class="bi bi-chevron-left"></i></button>
+                <button class="page-link active">1</button>
+                <button class="page-link"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+document.getElementById("buscar").addEventListener("keyup", function () {
+    let valor = this.value.toLowerCase();
+    let linhas = document.querySelectorAll("table tbody tr.linha-tabela");
+
+    linhas.forEach(linha => {
+        let texto = inline.innerText.toLowerCase();
+        linha.style.display = texto.includes(valor) ? "" : "none";
+    });
+});
+</script>
+</body>
+</html>
+

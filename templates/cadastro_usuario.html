@@ -1,0 +1,88 @@
+<html>
+<head>
+
+    <style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #e9f1ff, #f7f9fc);
+    margin: 0;
+    padding: 0;
+}
+
+/* Caixa central */
+.container {
+    width: 100%;
+    max-width: 400px;
+    margin: 80px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Título */
+h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 25px;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #dcdfe6;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus {
+    border-color: #4a90e2;
+    box-shadow: 0 0 5px rgba(74,144,226,0.3);
+}
+
+/* Botão principal */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #1f9a52;
+    transform: scale(1.03);
+}
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Cadastrar Usuário</h2>
+
+    <form method="POST">
+
+        <input type="text" name="usuario" placeholder="Usuário">
+
+        <input type="password" name="senha" placeholder="Senha">
+
+        <button type="submit">Cadastrar</button>
+
+    </form>
+
+</div>
+
+</body>
+</html>
