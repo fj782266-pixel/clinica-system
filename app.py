@@ -60,7 +60,8 @@ class Paciente(db.Model):
 class Agendamento(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    paciente = db.Column(db.String(100), nullable=False)
+    paciente_id = db.Column(db.Integer, db.ForeignKey("paciente.id"))
+    paciente = db.relationship("Paciente", backref="agendamentos")
 
     profissional_id = db.Column(db.Integer, db.ForeignKey("profissional.id"))
     profissional = db.relationship("Profissional", backref="agendamentos")
@@ -93,7 +94,34 @@ class RecuperacaoSenha(db.Model):
     status = db.Column(db.String(20), default="Pendente")
     nova_senha = db.Column(db.String(100))
 
+class Paciente(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
 
+    nome = db.Column(db.String(100), nullable=False)
+    data_nascimento = db.Column(db.String(20))
+    estado_civil = db.Column(db.String(50))
+    telefone = db.Column(db.String(20))
+    cidade = db.Column(db.String(100))
+    endereco = db.Column(db.String(200))
+    idade = db.Column(db.Integer)
+    profissao = db.Column(db.String(100))
+    email = db.Column(db.String(120))
+    sexo = db.Column(db.String(20))
+
+
+class Autorizacao(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    paciente_id = db.Column(db.Integer, db.ForeignKey("paciente.id"))
+    paciente = db.relationship("Paciente", backref="autorizacoes")
+
+    agendamento_id = db.Column(db.Integer, db.ForeignKey("agendamento.id"))
+
+    data = db.Column(db.String(20))
+    texto = db.Column(db.Text)
+
+    assinatura = db.Column(db.Text)  # ou LargeBinary
+    aceite = db.Column(db.Boolean, default=False)
 # ==========================
 # VERIFICAR USUARIO
 # ==========================
@@ -329,6 +357,11 @@ def criar_admin():
         db.session.commit()
 
     return "ok"
+
+@app.route("/paciente/<int:id>")
+def ficha_paciente(id):
+    paciente = Paciente.query.get_or_404(id)
+    return render_template("ficha_paciente.html", paciente=paciente)
 # ==========================
 # INICIAR APP
 # ==========================

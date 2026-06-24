@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Ficha do Paciente</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .box {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .historico {
+            margin-top: 20px;
+        }
+
+        .agendamento {
+            background: #eef3ff;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .btn {
+            margin-top: 15px;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>🏥 Ficha do Paciente</h2>
+
+    <!-- DADOS DO PACIENTE -->
+    <div class="grid">
+
+        <div class="box">
+            <div class="label">Nome:</div>
+            {{ paciente.nome }}
+        </div>
+
+        <div class="box">
+            <div class="label">Telefone:</div>
+            {{ paciente.telefone }}
+        </div>
+
+        <div class="box">
+            <div class="label">Email:</div>
+            {{ paciente.email }}
+        </div>
+
+        <div class="box">
+            <div class="label">Cidade:</div>
+            {{ paciente.cidade }}
+        </div>
+
+        <div class="box">
+            <div class="label">Endereço:</div>
+            {{ paciente.endereco }}
+        </div>
+
+        <div class="box">
+            <div class="label">Profissão:</div>
+            {{ paciente.profissao }}
+        </div>
+
+        <div class="box">
+            <div class="label">Sexo:</div>
+            {{ paciente.sexo }}
+        </div>
+
+        <div class="box">
+            <div class="label">Estado Civil:</div>
+            {{ paciente.estado_civil }}
+        </div>
+
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="historico">
+
+        <h3>📅 Histórico de Agendamentos</h3>
+
+        {% for ag in paciente.agendamentos %}
+        <div class="agendamento">
+            <b>Data:</b> {{ ag.data }} <br>
+            <b>Horário:</b> {{ ag.horario }} <br>
+            <b>Status:</b> {{ ag.status }} <br>
+            <b>Valor:</b> R$ {{ ag.valor }}
+        </div>
+        {% endfor %}
+
+    </div>
+
+    <!-- BOTÃO FUTURO -->
+    <button class="btn">
+        ✍️ Criar Autorização
+    </button>
+
+</div>
+
+</body>
+</html>
