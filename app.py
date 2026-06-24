@@ -328,7 +328,7 @@ def criar_admin():
         db.session.add(admin)
         db.session.commit()
 
-    return "admin criado com sucesso"
+    return "ok"
 # ==========================
 # INICIAR APP
 # ==========================
