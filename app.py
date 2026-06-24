@@ -49,14 +49,6 @@ class Servico(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     especialidade = db.Column(db.String(100), nullable=False)
 
-
-class Paciente(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100), nullable=False)
-    telefone = db.Column(db.String(20))
-    email = db.Column(db.String(100))
-
-
 class Agendamento(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
