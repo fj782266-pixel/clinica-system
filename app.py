@@ -17,13 +17,13 @@ if not os.path.exists(app.instance_path):
     os.makedirs(app.instance_path)
 
 db_url = os.environ.get("DATABASE_URL")
-print("DATABASE_URL:", db_url)
 
+# se NÃO tiver variável (local), usa sqlite
 if not db_url:
     db_url = "sqlite:///clinica.db"
-
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+else:
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
