@@ -315,6 +315,20 @@ def init_db():
     with app.app_context():
         db.create_all()
     return "DB criado com sucesso"
+
+@app.route("/criar-admin")
+def criar_admin():
+    admin = Usuario.query.filter_by(usuario="admin felipe").first()
+
+    if not admin:
+        admin = Usuario(
+            usuario="admin felipe",
+            senha=generate_password_hash("felipegk@18")
+        )
+        db.session.add(admin)
+        db.session.commit()
+
+    return "admin criado com sucesso"
 # ==========================
 # INICIAR APP
 # ==========================
