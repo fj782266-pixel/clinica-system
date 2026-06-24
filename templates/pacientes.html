@@ -282,20 +282,24 @@
                 </tr>
             </thead>
             <tbody>
-                {% for paciente in pacientes %}
-                <tr>
-                    <td><strong>{{ paciente.nome }}</strong></td>
-                    <td>{{ paciente.telefone if paciente.telefone else '-' }}</td>
-                    <td>{{ paciente.email if paciente.email else '-' }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="text-align: center; color: #94a3b8; padding: 25px;">
-                        Nenhum paciente cadastrado.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
+    {% for p in profissionais %}
+    <tr>
+        <td><strong>{{ p.nome }}</strong></td>
+        <td>{{ p.especialidade }}</td>
+
+        <td>
+            <i class="bi bi-pencil-square editar"></i>
+            <i class="bi bi-trash excluir"></i>
+        </td>
+    </tr>
+    {% else %}
+    <tr>
+        <td colspan="3" style="text-align: center; color: #94a3b8;">
+            Nenhum profissional cadastrado.
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
         </table>
     </div>
 

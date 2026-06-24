@@ -249,12 +249,12 @@ def agendamentos():
 
     if request.method == "POST":
         novo = Agendamento(
-            paciente=request.form.get("paciente"),
-            profissional_id=request.form.get("profissional_id"),
-            servico_id=request.form.get("servico_id"),
-            data=request.form.get("data"),
-            horario=request.form.get("horario")
-        )
+    paciente_id=request.form.get("paciente_id"),
+    profissional_id=request.form.get("profissional_id"),
+    servico_id=request.form.get("servico_id"),
+    data=request.form.get("data"),
+    horario=request.form.get("horario")
+)
 
         db.session.add(novo)
         db.session.commit()
@@ -360,7 +360,7 @@ def ficha_paciente(id):
 if __name__ == "__main__":
 
     with app.app_context():
-        db.create_all()
+
 
         admin = Usuario.query.filter_by(usuario="admin felipe").first()
 
