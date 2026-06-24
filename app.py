@@ -11,7 +11,7 @@ import os
 # APP CONFIG
 # ==========================
 app = Flask(__name__, instance_relative_config=True)
-app.secret_key = "clinica_secret_key"
+app.secret_key = os.environ.get("SECRET_KEY", "fallback-inseguro")
 
 if not os.path.exists(app.instance_path):
     os.makedirs(app.instance_path)
@@ -124,9 +124,16 @@ def login():
 
         user = Usuario.query.filter_by(usuario=usuario).first()
 
+          # 👇 COLOCA AQUI
+        print("USER:", user)
+        print("USUARIO DIGITADO:", usuario)
+        print("SENHA DIGITADA:", senha)
+
         if user and check_password_hash(user.senha, senha):
+            session.clear()
             session["logado"] = True
             session["usuario"] = user.usuario
+            session.permanent = True
             return redirect("/")
 
         flash("Usuário ou senha incorretos!", "erro")
