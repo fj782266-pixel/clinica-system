@@ -562,30 +562,279 @@ function ocultarTodos(){
 }
 
 function imprimirAgendamentos() {
-    let conteudo = document.getElementById("area-impressao").innerHTML;
-    let janela = window.open("", "", "width=900,height=700");
+
+    let linhas = document.querySelectorAll(".linha-agendamento");
+
+    let tabelaHTML = "";
+
+    linhas.forEach(linha => {
+
+        if(linha.style.display !== "none") {
+
+            let colunas = linha.querySelectorAll("td");
+
+            tabelaHTML += `
+            <tr>
+                <td>${colunas[0].innerText}</td>
+                <td>${colunas[1].innerText}</td>
+                <td>${colunas[2].innerText}</td>
+                <td>${colunas[3].innerText}</td>
+                <td>${colunas[4].innerText}</td>
+            </tr>
+            `;
+        }
+    });
+
+    let janela = window.open('', '', 'width=1200,height=900');
+
     janela.document.write(`
-        <html>
-        <head>
-            <title>Agenda de Consultas - ClínicaSys</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-                h2 { text-align: center; margin-bottom: 20px; color: #0f766e; }
-                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-                th, td { border: 1px solid #cbd5e1; padding: 12px; text-align: left; font-size: 13px; }
-                th { background: #f8fafc; font-weight: bold; }
-                .actions-cell, #sem-resultados-js { display: none !important; }
-                .status { font-weight: bold; }
-            </style>
-        </head>
-        <body>
-            <h2>Agenda de Consultas</h2>
-            ${conteudo}
-        </body>
-        </html>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Agenda de Consultas</title>
+
+        <style>
+
+            *{
+                margin:0;
+                padding:0;
+                box-sizing:border-box;
+                font-family: 'Segoe UI', sans-serif;
+            }
+
+            body{
+                background:white;
+                padding:40px;
+                color:#1e293b;
+            }
+
+            .header{
+                text-align:center;
+                margin-bottom:40px;
+            }
+
+            .logo{
+                width:140px;
+                height:140px;
+                object-fit:contain;
+                margin-bottom:15px;
+            }
+
+            .titulo{
+                font-size:42px;
+                font-weight:800;
+                color:#0f766e;
+                margin-bottom:10px;
+            }
+
+            .subtitulo{
+                color:#64748b;
+                font-size:15px;
+            }
+
+            .info{
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:35px;
+                gap:20px;
+            }
+
+            .box{
+                flex:1;
+                border:2px solid #e2e8f0;
+                border-radius:15px;
+                padding:20px;
+            }
+
+            .box h3{
+                color:#0f766e;
+                margin-bottom:8px;
+                font-size:14px;
+                text-transform:uppercase;
+            }
+
+            .box p{
+                font-size:22px;
+                font-weight:700;
+            }
+
+            table{
+                width:100%;
+                border-collapse:collapse;
+                margin-top:20px;
+                border-radius:15px;
+                overflow:hidden;
+            }
+
+            thead{
+                background:#0f766e;
+                color:white;
+            }
+
+            th{
+                padding:18px;
+                text-align:left;
+                font-size:14px;
+                text-transform:uppercase;
+            }
+
+            td{
+                padding:18px;
+                border-bottom:1px solid #e2e8f0;
+                font-size:14px;
+            }
+
+            tbody tr:nth-child(even){
+                background:#f8fafc;
+            }
+
+            .resumo{
+                margin-top:35px;
+                display:flex;
+                justify-content:space-between;
+                gap:20px;
+            }
+
+            .card{
+                flex:1;
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+                border-radius:15px;
+                padding:20px;
+                text-align:center;
+            }
+
+            .card .numero{
+                font-size:34px;
+                font-weight:800;
+                color:#0f766e;
+            }
+
+            .card .texto{
+                margin-top:5px;
+                color:#64748b;
+            }
+
+            .footer{
+                margin-top:50px;
+                border-top:2px solid #e2e8f0;
+                padding-top:20px;
+                text-align:center;
+                color:#64748b;
+            }
+
+            @media print{
+
+                body{
+                    padding:20px;
+                }
+
+                .logo{
+                    width:120px;
+                    height:120px;
+                }
+
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div class="header">
+
+            <img
+                src="/static/img/logo.png"
+                class="logo"
+            >
+
+            <div class="titulo">
+                ECENSSIAL CLÍNICA
+            </div>
+
+            <div class="subtitulo">
+                Relatório de Consultas Agendadas
+            </div>
+
+        </div>
+
+        <div class="info">
+
+            <div class="box">
+                <h3>Data do Relatório</h3>
+                <p>${new Date().toLocaleDateString('pt-BR')}</p>
+            </div>
+
+            <div class="box">
+                <h3>Hora da Emissão</h3>
+                <p>${new Date().toLocaleTimeString('pt-BR')}</p>
+            </div>
+
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Paciente</th>
+                    <th>Profissional</th>
+                    <th>Data</th>
+                    <th>Horário</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                ${tabelaHTML}
+            </tbody>
+
+        </table>
+
+        <div class="resumo">
+
+            <div class="card">
+                <div class="numero">
+                    ${document.querySelectorAll(".linha-agendamento").length}
+                </div>
+                <div class="texto">
+                    Consultas Agendadas
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="numero">
+                    ${document.querySelectorAll(".linha-agendamento").length}
+                </div>
+                <div class="texto">
+                    Pacientes
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="numero">
+                    ${document.querySelectorAll(".linha-agendamento").length}
+                </div>
+                <div class="texto">
+                    Atendimentos
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            ECENSSIAL CLÍNICA • Sistema de Gestão Clínica
+        </div>
+
+    </body>
+    </html>
     `);
+
     janela.document.close();
-    janela.print();
+
+    setTimeout(() => {
+        janela.print();
+    }, 500);
 }
 </script>
 </body>
