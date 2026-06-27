@@ -7,6 +7,7 @@ import string
 import os
 from datetime import datetime
 from sqlalchemy import func
+from datetime import datetime
 
 
 # ==========================
@@ -83,9 +84,34 @@ class Agendamento(db.Model):
 
 
 class Financeiro(db.Model):
+    __tablename__ = "financeiro"
+
     id = db.Column(db.Integer, primary_key=True)
-    descricao = db.Column(db.String(200))
-    valor = db.Column(db.Float, default=0)
+
+    descricao = db.Column(db.String(200), nullable=False)
+    tipo = db.Column(db.String(20), nullable=False)
+    categoria = db.Column(db.String(100))
+
+    valor = db.Column(db.Float, nullable=False)
+
+    data = db.Column(db.Date)
+    data_vencimento = db.Column(db.Date)
+
+    forma_pagamento = db.Column(db.String(50))
+    status = db.Column(db.String(30), default="Recebido")
+
+    paciente_id = db.Column(db.Integer, db.ForeignKey("paciente.id"), nullable=True)
+    paciente = db.relationship("Paciente", backref="financeiros")
+
+    profissional_id = db.Column(db.Integer, db.ForeignKey("profissional.id"), nullable=True)
+    profissional = db.relationship("Profissional", backref="financeiros")
+
+    agendamento_id = db.Column(db.Integer, db.ForeignKey("agendamento.id"), nullable=True)
+    agendamento = db.relationship("Agendamento", backref="financeiros")
+
+    observacoes = db.Column(db.Text)
+
+    criado_em = db.Column(db.DateTime, default=db.func.now())
 
 
 class Usuario(db.Model):
@@ -341,9 +367,15 @@ def agendamentos():
 
         if novo.valor and novo.valor > 0:
             financeiro = Financeiro(
-                descricao=f"Consulta - {novo.cliente_nome}",
-                valor=novo.valor
-            )
+    descricao=f"Consulta - {novo.cliente_nome}",
+    tipo="Receita",
+    categoria="Consultas",
+    valor=novo.valor,
+    data=datetime.strptime(novo.data, "%Y-%m-%d").date() if novo.data else None,
+    forma_pagamento="Não informado",
+    status="Pendente",
+    observacoes="Lançamento criado automaticamente pelo agendamento."
+)
             db.session.add(financeiro)
 
         db.session.commit()
@@ -372,21 +404,85 @@ def financeiro():
         return redirect("/login")
 
     if request.method == "POST":
-        novo = Financeiro(
-            descricao=request.form.get("descricao"),
-            valor=float(request.form.get("valor"))
+        descricao = request.form.get("descricao")
+        tipo = request.form.get("tipo")
+        categoria = request.form.get("categoria")
+        valor = request.form.get("valor")
+        data = request.form.get("data")
+        data_vencimento = request.form.get("data_vencimento")
+        forma_pagamento = request.form.get("forma_pagamento")
+        status = request.form.get("status")
+        paciente_id = request.form.get("paciente_id")
+        profissional_id = request.form.get("profissional_id")
+        agendamento_id = request.form.get("agendamento_id")
+        observacoes = request.form.get("observacoes")
+
+        novo_lancamento = Financeiro(
+            descricao=descricao,
+            tipo=tipo,
+            categoria=categoria,
+            valor=float(valor) if valor else 0,
+            data=datetime.strptime(data, "%Y-%m-%d").date() if data else None,
+            data_vencimento=datetime.strptime(data_vencimento, "%Y-%m-%d").date() if data_vencimento else None,
+            forma_pagamento=forma_pagamento,
+            status=status if status else "Recebido",
+            paciente_id=int(paciente_id) if paciente_id else None,
+            profissional_id=int(profissional_id) if profissional_id else None,
+            agendamento_id=int(agendamento_id) if agendamento_id else None,
+            observacoes=observacoes
         )
 
-        db.session.add(novo)
+        db.session.add(novo_lancamento)
         db.session.commit()
 
         return redirect("/financeiro")
 
-    registros = Financeiro.query.all()
-    total = db.session.query(db.func.sum(Financeiro.valor)).scalar() or 0
+    registros = Financeiro.query.order_by(Financeiro.id.desc()).all()
 
-    return render_template("financeiro.html", registros=registros, total=total)
+    total_recebido = db.session.query(
+        db.func.sum(Financeiro.valor)
+    ).filter(
+        Financeiro.tipo == "Receita",
+        Financeiro.status == "Recebido"
+    ).scalar() or 0
 
+    total_a_receber = db.session.query(
+        db.func.sum(Financeiro.valor)
+    ).filter(
+        Financeiro.tipo == "Receita",
+        Financeiro.status == "Pendente"
+    ).scalar() or 0
+
+    total_despesas = db.session.query(
+        db.func.sum(Financeiro.valor)
+    ).filter(
+        Financeiro.tipo == "Despesa"
+    ).scalar() or 0
+
+    saldo_liquido = total_recebido - total_despesas
+
+    receitas_mes = Financeiro.query.filter(
+        Financeiro.tipo == "Receita",
+        Financeiro.status == "Recebido"
+    ).count()
+
+    pacientes = Paciente.query.order_by(Paciente.nome.asc()).all()
+    profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
+    agendamentos = Agendamento.query.order_by(Agendamento.id.desc()).all()
+
+    return render_template(
+        "financeiro.html",
+        registros=registros,
+        total=total_recebido,
+        total_recebido=total_recebido,
+        total_a_receber=total_a_receber,
+        total_despesas=total_despesas,
+        saldo_liquido=saldo_liquido,
+        receitas_mes=receitas_mes,
+        pacientes=pacientes,
+        profissionais=profissionais,
+        agendamentos=agendamentos
+    )
 
 # ==========================
 # FINALIZAR / CANCELAR

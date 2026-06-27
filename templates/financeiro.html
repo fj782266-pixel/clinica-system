@@ -17,33 +17,44 @@
         }
 
         body {
-            background: #f8fafc; /* Fundo limpo e corporativo */
+            background: #f8fafc;
             display: flex;
+            color: #0f172a;
         }
 
-        /* SIDEBAR PREMIUM UNIFICADA */
         .sidebar {
             width: 260px;
             min-height: 100vh;
-            background: #1e293b; /* Tom escuro elegante */
-            padding: 30px 20px;
+            background: linear-gradient(180deg, #064e5f 0%, #083344 55%, #042f3a 100%);
+            padding: 24px 14px;
             position: fixed;
-            border-right: 1px solid #e2e8f0;
+            left: 0;
+            top: 0;
+            box-shadow: 8px 0 30px rgba(15, 23, 42, 0.12);
         }
 
         .logo {
             color: white;
-            font-size: 22px;
+            font-size: 25px;
             font-weight: 700;
             margin-bottom: 35px;
-            padding-left: 10px;
+            padding: 0 10px 25px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
         }
 
         .logo i {
-            color: #0f766e;
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            color: white;
+            font-size: 23px;
         }
 
         .sidebar ul {
@@ -51,177 +62,639 @@
         }
 
         .sidebar li {
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .sidebar a {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 14px 18px;
+            gap: 13px;
+            padding: 15px 16px;
             border-radius: 10px;
-            color: #94a3b8;
+            color: #e2e8f0;
             text-decoration: none;
             font-weight: 500;
             font-size: 15px;
-            transition: all .3s ease;
+            transition: .3s;
         }
 
-        .sidebar li.active a, .sidebar a:hover {
-            background: rgba(15, 118, 110, 0.15);
-            color: #2dd4bf;
+        .sidebar a i {
+            font-size: 18px;
         }
 
+        .sidebar a:hover,
         .sidebar li.active a {
-            background: #0f766e;
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
             color: white;
+            box-shadow: 0 10px 24px rgba(20, 184, 166, .25);
         }
 
-        /* MAIN CONTENT */
+        .logout-area {
+            position: absolute;
+            bottom: 25px;
+            left: 14px;
+            right: 14px;
+            border-top: 1px solid rgba(255,255,255,.08);
+            padding-top: 18px;
+        }
+
         .main {
-            flex: 1;
             margin-left: 260px;
-            padding: 40px 50px;
             width: calc(100% - 260px);
+            padding: 28px 32px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
         }
 
         .header h1 {
-            font-size: 30px;
-            color: #0f172a;
+            font-size: 32px;
+            color: #020617;
             font-weight: 700;
         }
 
         .header p {
-            color: #64748b;
+            color: #475569;
             font-size: 14px;
             margin-top: 4px;
         }
 
-        /* CARDS */
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            margin-top: 32px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
-        .card h2 {
-            font-size: 18px;
+        .notification,
+        .date-filter {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
             color: #0f172a;
+            font-size: 14px;
+            box-shadow: 0 6px 18px rgba(15,23,42,.05);
+        }
+
+        .notification {
+            width: 44px;
+            justify-content: center;
+            position: relative;
+        }
+
+        .notification span {
+            position: absolute;
+            top: -7px;
+            right: -5px;
+            background: #0f766e;
+            color: white;
+            font-size: 10px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-main {
+            height: 44px;
+            background: linear-gradient(135deg, #0f766e, #059669);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 22px;
             font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(15,118,110,.25);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 8px 25px rgba(15,23,42,.05);
+        }
+
+        .summary-icon {
+            min-width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .green { background: #ccfbf1; color: #0f766e; }
+        .blue { background: #dbeafe; color: #2563eb; }
+        .red { background: #fee2e2; color: #ef4444; }
+
+        .summary-info small {
+            color: #334155;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .summary-info h2 {
+            font-size: 24px;
+            margin: 4px 0;
+            color: #020617;
+        }
+
+        .summary-info p {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .positive { color: #059669 !important; font-weight: 700; }
+        .negative { color: #ef4444 !important; font-weight: 700; }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 1.1fr;
+            gap: 20px;
             margin-bottom: 20px;
         }
 
-        .card h3 {
-            color: #64748b;
-            font-size: 14px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 25px rgba(15,23,42,.05);
         }
 
-        /* Cor de destaque financeiro baseada no verde principal */
-        .total {
-            font-size: 32px;
-            font-weight: 700;
-            color: #10b981; /* Verde esmeralda mais vivo para saldo/valores positivos */
-            margin-top: 12px;
+        .card-title {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 13px;
+            margin-bottom: 22px;
         }
 
-        /* FORMULÁRIO EM GRID LATERAL */
+        .card-title i {
+            width: 44px;
+            height: 44px;
+            background: #ccfbf1;
+            color: #0f766e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .card-title h2 {
+            font-size: 18px;
+            color: #020617;
+        }
+
+        .card-title p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
         form {
             display: grid;
-            grid-template-columns: 2fr 1fr; /* Descrição maior, valor menor */
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
         }
 
-        input {
-            padding: 12px 16px;
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        label span {
+            color: #ef4444;
+        }
+
+        input, select, textarea {
+            width: 100%;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            font-size: 14px;
+            padding: 12px 14px;
+            font-size: 13px;
             color: #334155;
-            transition: all 0.2s ease;
-        }
-
-        input:focus {
             outline: none;
-            border-color: #0f766e;
-            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+            background: white;
         }
 
-        .btn-container {
+        textarea {
+            min-height: 58px;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #0f766e;
+            box-shadow: 0 0 0 3px rgba(15,118,110,.12);
+        }
+
+        .btn-form {
             grid-column: 1 / -1;
             display: flex;
             justify-content: flex-end;
         }
 
-        button {
-            background: #0f766e;
+        .btn-form button {
+            background: linear-gradient(135deg, #0f766e, #059669);
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 9px;
+            padding: 13px 24px;
             cursor: pointer;
-            font-size: 14px;
             font-weight: 600;
-            min-width: 200px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+            box-shadow: 0 8px 20px rgba(15,118,110,.22);
         }
 
-        button:hover {
-            background: #115e59;
-            transform: translateY(-1px);
+        .chart-card {
+            min-height: 380px;
         }
 
-        /* TABELA ULTRA CLEAN */
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chart-filter {
+            border: 1px solid #e2e8f0;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 35px;
+            margin: 18px 0;
+            font-size: 12px;
+            color: #334155;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .dot.green-dot { background: #0f9f87; }
+        .dot.red-dot { background: #ef4444; }
+        .dot.blue-dot { background: #3b82f6; }
+
+        .fake-chart {
+            height: 245px;
+            display: flex;
+            align-items: end;
+            gap: 26px;
+            padding: 20px 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+            background: repeating-linear-gradient(
+                to top,
+                transparent,
+                transparent 48px,
+                #eef2f7 49px
+            );
+        }
+
+        .month {
+            flex: 1;
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            gap: 7px;
+            height: 100%;
+            position: relative;
+        }
+
+        .bar {
+            width: 14px;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .bar.receita { background: #0f9f87; }
+        .bar.despesa { background: #ef4444; }
+        .bar.lucro { background: #3b82f6; }
+
+        .month-name {
+            position: absolute;
+            bottom: -28px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        .table-card {
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .table-top {
+            padding: 22px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box,
+        .mini-btn {
+            height: 38px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 12px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .search-box input {
+            border: none;
+            padding: 0;
+            box-shadow: none;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
         }
 
         th {
             background: #f8fafc;
-            padding: 16px;
+            padding: 14px;
             text-align: left;
             color: #475569;
             font-weight: 600;
-            font-size: 14px;
-            border-bottom: 2px solid #edf2f7;
+            font-size: 12px;
         }
 
         td {
-            padding: 16px;
+            padding: 14px;
             border-bottom: 1px solid #f1f5f9;
-            color: #334155;
-            font-size: 14px;
+            color: #0f172a;
+            font-size: 13px;
         }
 
         tr:hover td {
             background: #f8fafc;
         }
 
-        .valor-positivo {
-            color: #10b981;
+        .badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 11px;
             font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-receita {
+            background: #ccfbf1;
+            color: #0f766e;
+        }
+
+        .badge-despesa {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-consulta {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-status {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .valor-positivo {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .valor-negativo {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .view { color: #0f766e; border-color: #99f6e4; }
+        .edit { color: #f59e0b; border-color: #fde68a; }
+        .trash { color: #ef4444; border-color: #fecaca; }
+
+        .side-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .small-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 8px 25px rgba(15,23,42,.05);
+        }
+
+        .small-card h3 {
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+
+        .donut {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: conic-gradient(#0f9f87 0 68%, #3b82f6 68% 86%, #f59e0b 86% 100%);
+            margin: 5px auto 15px;
+            position: relative;
+        }
+
+        .donut::after {
+            content: "";
+            width: 78px;
+            height: 78px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            inset: 26px;
+        }
+
+        .side-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            margin-bottom: 10px;
+            color: #334155;
+        }
+
+        .side-row strong {
+            color: #0f172a;
+        }
+
+        .progress {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress span {
+            display: block;
+            height: 100%;
+            background: #0f9f87;
+        }
+
+        .pagination {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #475569;
+            font-size: 12px;
+        }
+
+        .pages {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pages span {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pages .active-page {
+            background: #0f766e;
+            color: white;
+        }
+
+        @media(max-width: 1200px) {
+            .summary-grid,
+            .content-grid,
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .table-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
         }
     </style>
-
 </head>
+
 <body>
 
 <div class="sidebar">
-
     <div class="logo">
-        <i class="bi bi-heart-pulse-fill"></i> ClínicaSys
+        <i class="bi bi-heart-pulse-fill"></i>
+        ClínicaSys
     </div>
 
     <ul>
@@ -230,78 +703,475 @@
         <li><a href="/pacientes"><i class="bi bi-people"></i> Pacientes</a></li>
         <li><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agenda</a></li>
         <li class="active"><a href="/financeiro"><i class="bi bi-cash-stack"></i> Financeiro</a></li>
-        <li><a href="/logout"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
+        <li><a href="#"><i class="bi bi-file-earmark-bar-graph"></i> Relatórios</a></li>
+        <li><a href="#"><i class="bi bi-gear"></i> Configurações</a></li>
     </ul>
 
+    <div class="logout-area">
+        <ul>
+            <li><a href="/logout"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
+        </ul>
+    </div>
 </div>
 
 <div class="main">
 
-    <div class="header">
-        <h1>Financeiro</h1>
-        <p>Controle financeiro da clínica</p>
-    </div>
+    <div class="topbar">
+        <div class="header">
+            <h1>Financeiro</h1>
+            <p>Controle financeiro da clínica</p>
+        </div>
 
-    <div class="card">
-        <h3>Total Recebido</h3>
-        <div class="total">
-            <i class="bi bi-wallet2"></i> R$ {{ "%.2f"|format(total) }}
+        <div class="top-actions">
+            <div class="notification">
+                <i class="bi bi-bell-fill"></i>
+                <span>3</span>
+            </div>
+
+            <div class="date-filter">
+                <i class="bi bi-calendar3"></i>&nbsp;
+                01/06/2026 - 27/06/2026
+            </div>
+
+            <button class="btn-main">
+                <i class="bi bi-plus-lg"></i>
+                Novo Lançamento
+            </button>
         </div>
     </div>
 
-    <div class="card">
-        <h2>Novo Lançamento</h2>
-
-        <form method="POST">
-            <input
-                type="text"
-                name="descricao"
-                placeholder="Descrição do lançamento (Ex: Consulta Particular)"
-                required>
-
-            <input
-                type="number"
-                step="0.01"
-                name="valor"
-                placeholder="Valor (R$)"
-                required>
-
-            <div class="btn-container">
-                <button type="submit">
-                    <i class="bi bi-plus-circle"></i> Salvar Lançamento
-                </button>
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-icon green">
+                <i class="bi bi-wallet2"></i>
             </div>
-        </form>
+            <div class="summary-info">
+                <small>Total Recebido</small>
+                <h2>R$ {{ "%.2f"|format(total_recebido) }}</h2>
+                <p><span class="positive">Receitas recebidas</span></p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon blue">
+                <i class="bi bi-clock"></i>
+            </div>
+            <div class="summary-info">
+                <small>Total a Receber</small>
+                <h2>R$ {{ "%.2f"|format(total_a_receber) }}</h2>
+                <p>Lançamentos pendentes</p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon red">
+                <i class="bi bi-arrow-down"></i>
+            </div>
+            <div class="summary-info">
+                <small>Total Despesas</small>
+                <h2>R$ {{ "%.2f"|format(total_despesas) }}</h2>
+                <p><span class="negative">Saídas registradas</span></p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon green">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="summary-info">
+                <small>Saldo Líquido</small>
+                <h2>R$ {{ "%.2f"|format(saldo_liquido) }}</h2>
+                <p>Receitas - Despesas</p>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon green">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="summary-info">
+                <small>Receitas este mês</small>
+                <h2>{{ receitas_mes }}</h2>
+                <p>Lançamentos recebidos</p>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <h2>Histórico Financeiro</h2>
+    <div class="content-grid">
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in registros %}
-                <tr>
-                    <td>{{ item.descricao }}</td>
-                    <td class="valor-positivo">R$ {{ "%.2f"|format(item.valor) }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="2" style="text-align: center; color: #94a3b8; padding: 25px;">
-                        Nenhum lançamento registrado até o momento.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="card">
+            <div class="card-title">
+                <i class="bi bi-wallet-fill"></i>
+                <div>
+                    <h2>Novo Lançamento</h2>
+                    <p>Registre receitas ou despesas da clínica</p>
+                </div>
+            </div>
+
+            <form method="POST">
+                <div class="form-group">
+                    <label>Tipo <span>*</span></label>
+                    <select name="tipo" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="Receita">Receita</option>
+                        <option value="Despesa">Despesa</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição <span>*</span></label>
+                    <input type="text" name="descricao" placeholder="Ex: Consulta particular" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select name="categoria">
+                        <option value="">Selecione a categoria</option>
+                        <option value="Consultas">Consultas</option>
+                        <option value="Procedimentos">Procedimentos</option>
+                        <option value="Administrativo">Administrativo</option>
+                        <option value="Aluguel">Aluguel</option>
+                        <option value="Materiais">Materiais</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Valor (R$) <span>*</span></label>
+                    <input type="number" step="0.01" name="valor" placeholder="0,00" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" name="data">
+                </div>
+
+                <div class="form-group">
+                    <label>Vencimento</label>
+                    <input type="date" name="data_vencimento">
+                </div>
+
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <select name="forma_pagamento">
+                        <option value="">Selecione a forma</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Boleto">Boleto</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="Recebido">Recebido</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Pago">Pago</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Paciente</label>
+                    <select name="paciente_id">
+                        <option value="">Nenhum paciente</option>
+                        {% for paciente in pacientes %}
+                            <option value="{{ paciente.id }}">{{ paciente.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Profissional</label>
+                    <select name="profissional_id">
+                        <option value="">Nenhum profissional</option>
+                        {% for profissional in profissionais %}
+                            <option value="{{ profissional.id }}">{{ profissional.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Agendamento</label>
+                    <select name="agendamento_id">
+                        <option value="">Nenhum agendamento</option>
+                        {% for agendamento in agendamentos %}
+                            <option value="{{ agendamento.id }}">
+                                {{ agendamento.paciente }} - {{ agendamento.data }} {{ agendamento.horario }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group full">
+                    <label>Observações</label>
+                    <textarea name="observacoes" placeholder="Informações adicionais sobre o lançamento"></textarea>
+                </div>
+
+                <div class="btn-form">
+                    <button type="submit">
+                        <i class="bi bi-check-circle"></i>
+                        Salvar Lançamento
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card chart-card">
+            <div class="chart-header">
+                <div class="card-title">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <div>
+                        <h2>Resumo Financeiro</h2>
+                        <p>Visão geral do período selecionado</p>
+                    </div>
+                </div>
+
+                <div class="chart-filter">
+                    Mensal <i class="bi bi-chevron-down"></i>
+                </div>
+            </div>
+
+            <div class="legend">
+                <span><i class="dot green-dot"></i> Receitas</span>
+                <span><i class="dot red-dot"></i> Despesas</span>
+                <span><i class="dot blue-dot"></i> Lucro Líquido</span>
+            </div>
+
+            <div class="fake-chart">
+                <div class="month">
+                    <div class="bar receita" style="height: 62%;"></div>
+                    <div class="bar despesa" style="height: 35%;"></div>
+                    <div class="bar lucro" style="height: 50%;"></div>
+                    <span class="month-name">Jan</span>
+                </div>
+
+                <div class="month">
+                    <div class="bar receita" style="height: 68%;"></div>
+                    <div class="bar despesa" style="height: 36%;"></div>
+                    <div class="bar lucro" style="height: 45%;"></div>
+                    <span class="month-name">Fev</span>
+                </div>
+
+                <div class="month">
+                    <div class="bar receita" style="height: 62%;"></div>
+                    <div class="bar despesa" style="height: 37%;"></div>
+                    <div class="bar lucro" style="height: 42%;"></div>
+                    <span class="month-name">Mar</span>
+                </div>
+
+                <div class="month">
+                    <div class="bar receita" style="height: 68%;"></div>
+                    <div class="bar despesa" style="height: 38%;"></div>
+                    <div class="bar lucro" style="height: 40%;"></div>
+                    <span class="month-name">Abr</span>
+                </div>
+
+                <div class="month">
+                    <div class="bar receita" style="height: 80%;"></div>
+                    <div class="bar despesa" style="height: 42%;"></div>
+                    <div class="bar lucro" style="height: 55%;"></div>
+                    <span class="month-name">Mai</span>
+                </div>
+
+                <div class="month">
+                    <div class="bar receita" style="height: 72%;"></div>
+                    <div class="bar despesa" style="height: 40%;"></div>
+                    <div class="bar lucro" style="height: 56%;"></div>
+                    <span class="month-name">Jun</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-grid">
+
+        <div class="card table-card">
+            <div class="table-top">
+                <div class="card-title" style="margin-bottom: 0;">
+                    <i class="bi bi-receipt"></i>
+                    <div>
+                        <h2>Histórico Financeiro</h2>
+                        <p>Todos os lançamentos registrados</p>
+                    </div>
+                </div>
+
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="buscar" placeholder="Buscar lançamento...">
+                    </div>
+
+                    <div class="mini-btn">
+                        <i class="bi bi-funnel"></i>
+                        Filtros
+                    </div>
+
+                    <div class="mini-btn">
+                        <i class="bi bi-download"></i>
+                        Exportar
+                    </div>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Categoria</th>
+                        <th>Tipo</th>
+                        <th>Forma de Pagamento</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelaFinanceiro">
+                    {% for item in registros %}
+                    <tr>
+                        <td>{{ item.data.strftime('%d/%m/%Y') if item.data else '-' }}</td>
+                        <td>{{ item.descricao }}</td>
+                        <td><span class="badge badge-consulta">{{ item.categoria if item.categoria else '-' }}</span></td>
+                        <td>
+                            {% if item.tipo == "Despesa" %}
+                                <span class="badge badge-despesa"><i class="bi bi-arrow-down"></i> {{ item.tipo }}</span>
+                            {% else %}
+                                <span class="badge badge-receita"><i class="bi bi-arrow-up"></i> {{ item.tipo }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.forma_pagamento if item.forma_pagamento else '-' }}</td>
+                        <td class="{{ 'valor-negativo' if item.tipo == 'Despesa' else 'valor-positivo' }}">
+                            R$ {{ "%.2f"|format(item.valor) }}
+                        </td>
+                        <td><span class="badge badge-status">{{ item.status if item.status else '-' }}</span></td>
+                        <td>
+                            <span class="action-btn view"><i class="bi bi-eye"></i></span>
+                            <span class="action-btn edit"><i class="bi bi-pencil"></i></span>
+                            <span class="action-btn trash"><i class="bi bi-trash"></i></span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; color:#94a3b8; padding:30px;">
+                            Nenhum lançamento registrado até o momento.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <span>Mostrando {{ registros|length }} lançamento(s)</span>
+
+                <div class="pages">
+                    <span><i class="bi bi-chevron-left"></i></span>
+                    <span class="active-page">1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>...</span>
+                    <span><i class="bi bi-chevron-right"></i></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-cards">
+
+            <div class="small-card">
+                <h3>Recebimentos por Categoria</h3>
+                <div class="donut"></div>
+
+                <div class="side-row">
+                    <span>Consultas</span>
+                    <strong>68%</strong>
+                </div>
+
+                <div class="side-row">
+                    <span>Procedimentos</span>
+                    <strong>18%</strong>
+                </div>
+
+                <div class="side-row">
+                    <span>Outros</span>
+                    <strong>14%</strong>
+                </div>
+            </div>
+
+            <div class="small-card">
+                <h3>Contas a Receber</h3>
+
+                <div class="side-row">
+                    <span>João Pedro Santos<br><small>Consulta - 27/06/2026</small></span>
+                    <strong>R$ 200,00</strong>
+                </div>
+
+                <div class="side-row">
+                    <span>Ana Flávia Oliveira<br><small>Retorno - 29/06/2026</small></span>
+                    <strong>R$ 150,00</strong>
+                </div>
+
+                <div class="side-row">
+                    <span>Rafael Souza Lima<br><small>Consulta - 01/07/2026</small></span>
+                    <strong>R$ 250,00</strong>
+                </div>
+
+                <p style="font-size:12px; color:#0f766e; font-weight:600; margin-top:10px;">
+                    Ver todas as pendências <i class="bi bi-arrow-right"></i>
+                </p>
+            </div>
+
+            <div class="small-card">
+                <h3>Formas de Pagamento</h3>
+
+                <div class="side-row">
+                    <span>PIX</span>
+                    <strong>45%</strong>
+                </div>
+                <div class="progress"><span style="width:45%;"></span></div>
+
+                <br>
+
+                <div class="side-row">
+                    <span>Cartão de Crédito</span>
+                    <strong>32%</strong>
+                </div>
+                <div class="progress"><span style="width:32%;"></span></div>
+
+                <br>
+
+                <div class="side-row">
+                    <span>Dinheiro</span>
+                    <strong>15%</strong>
+                </div>
+                <div class="progress"><span style="width:15%;"></span></div>
+            </div>
+
+        </div>
+
     </div>
 
 </div>
+
+<script>
+    const buscar = document.getElementById("buscar");
+    const linhas = document.querySelectorAll("#tabelaFinanceiro tr");
+
+    if (buscar) {
+        buscar.addEventListener("keyup", function () {
+            let texto = this.value.toLowerCase();
+
+            linhas.forEach(function (linha) {
+                let conteudo = linha.innerText.toLowerCase();
+                linha.style.display = conteudo.includes(texto) ? "" : "none";
+            });
+        });
+    }
+</script>
 
 </body>
 </html>
