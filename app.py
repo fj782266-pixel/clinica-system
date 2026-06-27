@@ -32,7 +32,6 @@ print("SQLALCHEMY_DATABASE_URI:", app.config['SQLALCHEMY_DATABASE_URI'])
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
 # ==========================
 # MODELOS
 # ==========================
@@ -112,8 +111,12 @@ class Autorizacao(db.Model):
     data = db.Column(db.String(20))
     texto = db.Column(db.Text)
 
-    assinatura = db.Column(db.Text)  # ou LargeBinary
+    assinatura = db.Column(db.Text)
     aceite = db.Column(db.Boolean, default=False)
+
+
+with app.app_context():
+    db.create_all()
 # ==========================
 # VERIFICAR USUARIO
 # ==========================
