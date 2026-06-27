@@ -57,13 +57,23 @@ class Servico(db.Model):
 class Agendamento(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    paciente_id = db.Column(db.Integer, db.ForeignKey("paciente.id"))
+    paciente_id = db.Column(db.Integer, db.ForeignKey("paciente.id"), nullable=True)
     paciente = db.relationship("Paciente", backref="agendamentos")
 
     profissional_id = db.Column(db.Integer, db.ForeignKey("profissional.id"))
     profissional = db.relationship("Profissional", backref="agendamentos")
 
     servico_id = db.Column(db.Integer, db.ForeignKey("servico.id"))
+    servico = db.relationship("Servico", backref="agendamentos")
+
+    cliente_nome = db.Column(db.String(100))
+    cliente_telefone = db.Column(db.String(20))
+    cliente_email = db.Column(db.String(120))
+    cliente_cpf = db.Column(db.String(20))
+    cliente_data_nascimento = db.Column(db.String(20))
+
+    observacoes_paciente = db.Column(db.Text)
+    observacoes_consulta = db.Column(db.Text)
 
     data = db.Column(db.String(20), nullable=False)
     horario = db.Column(db.String(20), nullable=False)
@@ -304,24 +314,46 @@ def agendamentos():
     if not session.get("logado"):
         return redirect("/login")
 
-    profissionais = Profissional.query.all()
-    servicos = Servico.query.all()
+    profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
+    servicos = Servico.query.order_by(Servico.nome.asc()).all()
 
     if request.method == "POST":
+        valor = request.form.get("valor") or 0
+
         novo = Agendamento(
-    paciente_id=request.form.get("paciente_id"),
-    profissional_id=request.form.get("profissional_id"),
-    servico_id=request.form.get("servico_id"),
-    data=request.form.get("data"),
-    horario=request.form.get("horario")
-)
+            cliente_nome=request.form.get("cliente_nome"),
+            cliente_telefone=request.form.get("cliente_telefone"),
+            cliente_email=request.form.get("cliente_email"),
+            cliente_cpf=request.form.get("cliente_cpf"),
+            cliente_data_nascimento=request.form.get("cliente_data_nascimento"),
+            observacoes_paciente=request.form.get("observacoes_paciente"),
+
+            profissional_id=request.form.get("profissional_id"),
+            servico_id=request.form.get("servico_id"),
+            data=request.form.get("data"),
+            horario=request.form.get("horario"),
+            valor=float(valor),
+            observacoes_consulta=request.form.get("observacoes_consulta"),
+            status="Aguardando"
+        )
 
         db.session.add(novo)
+
+        if novo.valor and novo.valor > 0:
+            financeiro = Financeiro(
+                descricao=f"Consulta - {novo.cliente_nome}",
+                valor=novo.valor
+            )
+            db.session.add(financeiro)
+
         db.session.commit()
 
         return redirect("/agendamentos")
 
-    agendamentos_lista = Agendamento.query.all()
+    agendamentos_lista = Agendamento.query.order_by(
+        Agendamento.data.desc(),
+        Agendamento.horario.desc()
+    ).all()
 
     return render_template(
         "agendamentos.html",

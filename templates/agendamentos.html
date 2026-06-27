@@ -1,34 +1,37 @@
-html
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendamentos - ClínicaSys</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
         :root {
-            --bg-main: #f8fafc;
-            --sidebar-bg: #1e293b;
-            --sidebar-hover: rgba(15, 118, 110, 0.15);
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            
-            /* Verde Oficial da Clínica */
             --primary: #0f766e;
-            --primary-hover: #115e59;
+            --primary-light: #14b8a6;
+            --primary-dark: #0f4f4a;
+
+            --sidebar: #063f46;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+
+            --green-soft: #ccfbf1;
+            --blue-soft: #dbeafe;
+            --purple-soft: #ede9fe;
+            --yellow-soft: #fef3c7;
+            --red-soft: #fee2e2;
+
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --blue: #2563eb;
             --success: #16a34a;
-            --success-hover: #15803d;
-            --neutral-btn: #f1f5f9;
-            --neutral-btn-hover: #e2e8f0;
-            
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --radius: 8px;
-            --transition: all 0.2s ease-in-out;
         }
 
         * {
@@ -39,813 +42,1653 @@ html
         }
 
         body {
-            background: var(--bg-main);
-            color: var(--text-main);
-            display: flex;
             min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(20, 184, 166, 0.08), transparent 35%),
+                linear-gradient(135deg, #f8fafc 0%, #ffffff 45%, #f1f5f9 100%);
+            color: var(--text);
+            display: flex;
         }
 
-        /* SIDEBAR */
         .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            padding: 30px 20px;
-            position: fixed;
+            width: 270px;
             min-height: 100vh;
+            background: linear-gradient(180deg, #064e55 0%, #063f46 45%, #052e34 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 30px 18px;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--border-color);
+            justify-content: space-between;
+            box-shadow: 10px 0 35px rgba(15, 23, 42, 0.12);
+            z-index: 10;
         }
 
         .logo {
-            color: white;
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 35px;
-            padding-left: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo i {
-            color: var(--primary);
-        }
-
-        .sidebar ul {
-            list-style: none;
-        }
-
-        .sidebar li {
-            margin-bottom: 6px;
-        }
-
-        .sidebar a {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 18px;
-            border-radius: var(--radius);
-            color: #94a3b8;
+            color: #ffffff;
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 45px;
+            padding-left: 12px;
+        }
+
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 18px rgba(20, 184, 166, 0.35);
+        }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 12px;
+            color: #d1e7e8;
             text-decoration: none;
             font-size: 15px;
-            font-weight: 500;
-            transition: var(--transition);
+            font-weight: 600;
+            transition: 0.25s ease;
         }
 
-        .sidebar li.active a, .sidebar a:hover {
-            background: var(--sidebar-hover);
-            color: #2dd4bf;
+        .menu a i {
+            font-size: 18px;
         }
 
-        .sidebar li.active a {
-            background: var(--primary);
+        .menu a:hover {
+            background: rgba(255, 255, 255, 0.09);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .menu li.active a {
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            color: white;
+            box-shadow: 0 10px 25px rgba(20, 184, 166, 0.35);
+        }
+
+        .sidebar-line {
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+            margin: 18px 0;
+        }
+
+        .user-box {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
             color: white;
         }
 
-        /* CONTEÚDO PRINCIPAL */
-        .main {
-            flex: 1;
-            margin-left: 260px;
-            padding: 40px 50px;
-            width: calc(100% - 260px);
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
         }
 
-        .header {
-            margin-bottom: 32px;
-        }
-
-        .header h1 {
-            color: var(--text-main);
-            font-size: 30px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
-        .header p {
-            color: var(--text-muted);
+        .user-info strong {
+            display: block;
             font-size: 14px;
-            margin-top: 4px;
+            margin-bottom: 3px;
         }
 
-        .card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-            margin-bottom: 32px;
+        .user-info span {
+            color: #cbd5e1;
+            font-size: 12px;
         }
 
-        .card h2 {
-            font-size: 18px;
-            color: var(--text-main);
-            font-weight: 600;
+        .user-box .bi-chevron-down {
+            margin-left: auto;
+            color: #cbd5e1;
+        }
+
+        .main {
+            margin-left: 270px;
+            width: calc(100% - 270px);
+            padding: 30px 40px 40px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
             margin-bottom: 24px;
         }
 
-        /* FORMULÁRIO */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+        .page-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.8px;
+            margin-bottom: 6px;
         }
 
-        .full-width {
+        .page-title p {
+            color: var(--muted);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .notification {
+            position: relative;
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: white;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            cursor: pointer;
+        }
+
+        .notification span {
+            position: absolute;
+            top: -8px;
+            right: -7px;
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 800;
+            width: 21px;
+            height: 21px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-new {
+            height: 46px;
+            padding: 0 24px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            color: white;
+            border: none;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            box-shadow: 0 10px 22px rgba(20, 184, 166, 0.28);
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px rgba(20, 184, 166, 0.35);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            padding: 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        }
+
+        .stat-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 27px;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.green {
+            background: var(--green-soft);
+            color: #0f766e;
+        }
+
+        .stat-icon.purple {
+            background: var(--purple-soft);
+            color: #7c3aed;
+        }
+
+        .stat-icon.blue {
+            background: var(--blue-soft);
+            color: #2563eb;
+        }
+
+        .stat-info span {
+            display: block;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .stat-info strong {
+            display: block;
+            font-size: 28px;
+            color: #0f172a;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-info p {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            padding: 22px 22px 12px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .section-header-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--green-soft);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .section-header p {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-area {
+            padding: 0 18px 18px;
+        }
+
+        .form-box-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .inner-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px;
+            background: #ffffff;
+        }
+
+        .inner-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #0f766e;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px 18px;
+        }
+
+        .form-grid.consulta {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group.full {
             grid-column: 1 / -1;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-main);
+            font-size: 12px;
+            font-weight: 800;
+            color: #0f172a;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .required {
+            color: #ef4444;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+        }
+
+        input,
+        select,
+        textarea {
             width: 100%;
-            padding: 12px 14px;
             border: 1px solid #cbd5e1;
-            border-radius: var(--radius);
-            background: #fff;
-            font-size: 14px;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 0 13px;
             color: #334155;
-            transition: var(--transition);
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+            font-size: 13px;
+            font-weight: 500;
             outline: none;
+            transition: 0.2s ease;
         }
 
-        .btn-container {
+        input,
+        select {
+            height: 42px;
+        }
+
+        textarea {
+            min-height: 58px;
+            padding-top: 12px;
+            resize: vertical;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+        }
+
+        .form-footer {
             display: flex;
             justify-content: flex-end;
-            margin-top: 24px;
+            gap: 14px;
+            margin-top: 14px;
         }
 
-        .btn-agendar {
-            background: var(--primary);
+        .btn-clear,
+        .btn-save {
+            height: 40px;
+            border-radius: 8px;
+            padding: 0 22px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: 0.2s ease;
+        }
+
+        .btn-clear {
+            background: white;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-save {
+            min-width: 170px;
+            background: linear-gradient(135deg, #0f766e, #0f766e);
             color: white;
             border: none;
-            padding: 12px 30px;
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
-            transition: var(--transition);
+            box-shadow: 0 10px 20px rgba(15, 118, 110, 0.22);
         }
 
-        .btn-agendar:hover {
-            background: var(--primary-hover);
+        .btn-save:hover,
+        .btn-clear:hover {
             transform: translateY(-1px);
         }
 
-        /* FILTROS ALINHADOS */
-        .filtros-wrapper {
+        .list-top {
+            padding: 18px 20px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            gap: 15px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
         }
 
-        .filtros {
+        .list-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .list-title-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--green-soft);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .list-title h2 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .list-title p {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .list-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-box {
+            width: 290px;
+            height: 42px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
             display: flex;
             align-items: center;
             gap: 10px;
-            flex: 1;
-            margin-bottom: 15px;
+            padding: 0 14px;
         }
 
-        .filtros input[type="text"] {
-            flex: 2;
-            max-width: 300px;
+        .search-box i {
+            color: #64748b;
+            font-size: 16px;
         }
 
-        .filtros input, .filtros button {
-            padding: 10px 14px;
-            font-size: 14px;
-            border-radius: var(--radius);
+        .search-box input {
+            height: auto;
+            border: none;
+            box-shadow: none;
+            padding: 0;
+            font-size: 13px;
         }
 
-        .filtros input {
+        .search-box input:focus {
+            box-shadow: none;
+            border: none;
+        }
+
+        .tool-btn {
+            height: 42px;
+            padding: 0 18px;
+            border-radius: 8px;
             border: 1px solid #cbd5e1;
-        }
-
-        .filtros button {
-            background: var(--neutral-btn);
-            color: var(--text-main);
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .filtros button:hover {
-            background: var(--neutral-btn-hover);
-        }
-
-        .btn-print {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius);
-            cursor: pointer;
+            background: white;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
-            transition: var(--transition);
+            gap: 9px;
+            cursor: pointer;
+            text-decoration: none;
         }
 
-        .btn-print:hover {
-            background: var(--success-hover);
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
         }
 
-        /* TABELA PREMIUM */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            min-width: 1200px;
+        }
+
+        thead {
+            background: #f8fafc;
         }
 
         th {
-            background: #f8fafc;
-            padding: 16px;
+            padding: 12px 18px;
             text-align: left;
-            color: var(--text-muted);
+            color: #475569;
             font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            border-bottom: 2px solid var(--border-color);
+            font-weight: 800;
+            border-top: 1px solid #edf2f7;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
         }
 
         td {
-            padding: 16px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
+            padding: 12px 18px;
             color: #334155;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 1px solid #eaf0f6;
+            white-space: nowrap;
             vertical-align: middle;
         }
 
-        tr:hover td {
-            background-color: #f8fafc;
+        tbody tr:hover {
+            background: #f8fafc;
         }
 
-        .patient-name {
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .doc-specialty {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        /* BADGES DE STATUS COM CORES FIXADAS */
-        .status {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: capitalize;
-            background: #f1f5f9;
-            color: #475569;
-        }
-
-        /* Classes dinâmicas baseadas no retorno do backend */
-        .status-confirmado, .status-finalizado { background: #dcfce7; color: #16a34a; }
-        .status-cancelado { background: #fee2e2; color: #dc2626; }
-        .status-pendente { background: #fef9c3; color: #713f12; }
-
-        .actions-cell {
+        .date-cell,
+        .time-cell {
             display: flex;
-            gap: 6px;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-action {
+        .subtext {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .person-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #ccfbf1;
+            color: #0f766e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .avatar.blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .avatar.pink {
+            background: #fce7f3;
+            color: #db2777;
+        }
+
+        .name-main {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .status {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: var(--transition);
-            border: none;
-            cursor: pointer;
+            justify-content: center;
+            padding: 7px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
         }
 
-        .btn-chamar { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
-        .btn-chamar:hover { background: #2563eb; color: white; }
+        .status-aguardando,
+        .status-pendente {
+            background: var(--yellow-soft);
+            color: #d97706;
+        }
 
-        .btn-finalizar { background: rgba(22, 163, 74, 0.1); color: #16a34a; }
-        .btn-finalizar:hover { background: #16a34a; color: white; }
+        .status-confirmado,
+        .status-finalizado {
+            background: #dcfce7;
+            color: #16a34a;
+        }
 
-        .btn-cancelar { background: rgba(220, 38, 38, 0.1); color: #dc2626; }
-        .btn-cancelar:hover { background: #dc2626; color: white; }
+        .status-cancelado {
+            background: var(--red-soft);
+            color: #dc2626;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .action-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 7px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+            font-size: 15px;
+        }
+
+        .action-btn.view {
+            border: 1px solid #14b8a6;
+            color: #0f766e;
+        }
+
+        .action-btn.edit {
+            border: 1px solid #f59e0b;
+            color: #f59e0b;
+        }
+
+        .action-btn.delete {
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+        }
+
+        .pagination-area {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .pagination-info {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #334155;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 8px 18px rgba(15, 118, 110, 0.25);
+        }
+
+        .per-page {
+            height: 38px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            color: #334155;
+            padding: 0 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #94a3b8;
+            padding: 35px !important;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-box-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 25px 16px;
+            }
+
+            .topbar,
+            .list-top,
+            .pagination-area {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .top-actions,
+            .list-actions {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .stats-grid,
+            .form-grid,
+            .form-grid.consulta {
+                grid-template-columns: 1fr;
+            }
+
+            .form-footer {
+                flex-direction: column;
+            }
+
+            .btn-clear,
+            .btn-save {
+                width: 100%;
+            }
+
+            .pagination {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-    <div class="logo">
-        <i class="bi bi-heart-pulse-fill"></i> ClínicaSys
+<aside class="sidebar">
+
+    <div>
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="bi bi-heart-pulse-fill"></i>
+            </div>
+            ClínicaSys
+        </div>
+
+        <ul class="menu">
+            <li>
+                <a href="/">
+                    <i class="bi bi-grid-1x2"></i>
+                    Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a href="/profissionais">
+                    <i class="bi bi-people"></i>
+                    Profissionais
+                </a>
+            </li>
+
+            <li>
+                <a href="/pacientes">
+                    <i class="bi bi-people"></i>
+                    Pacientes
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="/agendamentos">
+                    <i class="bi bi-calendar3"></i>
+                    Agenda
+                </a>
+            </li>
+
+            <li>
+                <a href="/financeiro">
+                    <i class="bi bi-wallet2"></i>
+                    Financeiro
+                </a>
+            </li>
+
+            <li>
+                <a href="/relatorios">
+                    <i class="bi bi-bar-chart"></i>
+                    Relatórios
+                </a>
+            </li>
+
+            <li>
+                <a href="/configuracoes">
+                    <i class="bi bi-gear"></i>
+                    Configurações
+                </a>
+            </li>
+
+            <div class="sidebar-line"></div>
+
+            <li>
+                <a href="/logout">
+                    <i class="bi bi-box-arrow-left"></i>
+                    Sair
+                </a>
+            </li>
+        </ul>
     </div>
-    <ul>
-        <li><a href="/"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
-        <li><a href="/profissionais"><i class="bi bi-person-md"></i> Profissionais</a></li>
-        <li><a href="/pacientes"><i class="bi bi-people"></i> Pacientes</a></li>
-        <li class="active"><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agenda</a></li>
-        <li><a href="/financeiro"><i class="bi bi-cash-stack"></i> Financeiro</a></li>
-        <li><a href="/logout"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
-    </ul>
-</div>
 
-<div class="main">
+    <div class="user-box">
+        <div class="user-avatar">
+            <i class="bi bi-person-fill"></i>
+        </div>
 
-    <div class="header">
-        <h1>Agendamentos</h1>
-        <p>Gerencie consultas e horários da clínica</p>
+        <div class="user-info">
+            <strong>Olá, Felipe!</strong>
+            <span>Administrador</span>
+        </div>
+
+        <i class="bi bi-chevron-down"></i>
     </div>
 
-    <div class="card">
-        <h2>Novo Agendamento</h2>
-        <form method="POST">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label><i class="bi bi-person"></i> Nome do Paciente</label>
-                    <input type="text" name="paciente" placeholder="Ex: João da Silva" autocomplete="off" required>
+</aside>
+
+<main class="main">
+
+    <div class="topbar">
+        <div class="page-title">
+            <h1>Agendamentos</h1>
+            <p>Gerencie consultas e horários da clínica</p>
+        </div>
+
+        <div class="top-actions">
+            <div class="notification">
+                <i class="bi bi-bell"></i>
+                <span>3</span>
+            </div>
+
+            <a href="#novo-agendamento" class="btn-new">
+                <i class="bi bi-plus-lg"></i>
+                Novo Agendamento
+            </a>
+        </div>
+    </div>
+
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="bi bi-calendar2-week"></i>
+            </div>
+
+            <div class="stat-info">
+                <span>Total Agendamentos</span>
+                <strong>{{ agendamentos|length }}</strong>
+                <p>consultas agendadas</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="bi bi-calendar2-check"></i>
+            </div>
+
+            <div class="stat-info">
+                <span>Hoje</span>
+                <strong>{{ agendamentos|length }}</strong>
+                <p>consultas hoje</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="bi bi-clock"></i>
+            </div>
+
+            <div class="stat-info">
+                <span>Próximos 7 dias</span>
+                <strong>{{ agendamentos|length }}</strong>
+                <p>consultas próximas</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="bi bi-check-circle"></i>
+            </div>
+
+            <div class="stat-info">
+                <span>Concluídas este mês</span>
+                <strong>0</strong>
+                <p>consultas realizadas</p>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="section-card" id="novo-agendamento">
+
+        <div class="section-header">
+            <div class="section-header-icon">
+                <i class="bi bi-calendar2-plus"></i>
+            </div>
+
+            <div>
+                <h2>Novo Agendamento</h2>
+                <p>Preencha os dados do paciente e da consulta</p>
+            </div>
+        </div>
+
+        <div class="form-area">
+            <form method="POST">
+
+                <div class="form-box-grid">
+
+                    <div class="inner-box">
+                        <div class="inner-title">
+                            <i class="bi bi-person"></i>
+                            Dados do Paciente
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label>Nome do Paciente <span class="required">*</span></label>
+                                <input type="text" name="cliente_nome" placeholder="Digite o nome completo" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Telefone <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <input type="text" name="cliente_telefone" placeholder="(11) 99999-9999" required>
+                                    <i class="bi bi-telephone"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" name="cliente_email" placeholder="email@exemplo.com">
+                            </div>
+
+                            <div class="form-group">
+                                <label>CPF</label>
+                                <input type="text" name="cliente_cpf" placeholder="000.000.000-00">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Data de Nascimento</label>
+                                <div class="input-wrapper">
+                                    <input type="text" name="cliente_data_nascimento" placeholder="dd/mm/aaaa">
+                                    <i class="bi bi-calendar"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Observações do Paciente</label>
+                                <textarea name="observacoes_paciente" placeholder="Informações adicionais (opcional)"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="inner-box">
+                        <div class="inner-title">
+                            <i class="bi bi-calendar2-week"></i>
+                            Dados da Consulta
+                        </div>
+
+                        <div class="form-grid consulta">
+
+                            <div class="form-group">
+                                <label>Profissional <span class="required">*</span></label>
+                                <select name="profissional_id" required>
+                                    <option value="">Selecione o profissional</option>
+                                    {% for prof in profissionais %}
+                                        <option value="{{ prof.id }}">
+                                            {{ prof.nome }} - {{ prof.especialidade }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Serviço / Especialidade <span class="required">*</span></label>
+                                <select name="servico_id" required>
+                                    <option value="">Selecione o serviço</option>
+                                    {% for servico in servicos %}
+                                        <option value="{{ servico.id }}">
+                                            {{ servico.nome }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Data da Consulta <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <input type="date" name="data" required>
+                                    <i class="bi bi-calendar"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Horário <span class="required">*</span></label>
+                                <div class="input-wrapper">
+                                    <input type="time" name="horario" required>
+                                    <i class="bi bi-clock"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Valor (R$) <span class="required">*</span></label>
+                                <input type="number" step="0.01" min="0" name="valor" placeholder="0,00">
+                            </div>
+
+                            <div class="form-group full">
+                                <label>Observações da Consulta</label>
+                                <textarea name="observacoes_consulta" placeholder="Observações sobre a consulta (opcional)"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="form-group">
-                    <label><i class="bi bi-heart-pulse"></i> Profissional</label>
-                    <select name="profissional_id" required>
-                        <option value="">Selecione o profissional</option>
-                        {% for prof in profissionais %}
-                        <option value="{{ prof.id }}">{{ prof.nome }} - {{ prof.especialidade }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="form-footer">
+                    <button type="reset" class="btn-clear">
+                        <i class="bi bi-eraser"></i>
+                        Limpar Campos
+                    </button>
+
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle"></i>
+                        Agendar Consulta
+                    </button>
                 </div>
 
-                <div class="form-group">
-                    <label><i class="bi bi-calendar-event"></i> Data da Consulta</label>
-                    <input type="date" name="data" required>
+            </form>
+        </div>
+
+    </section>
+
+    <section class="section-card">
+
+        <div class="list-top">
+            <div class="list-title">
+                <div class="list-title-icon">
+                    <i class="bi bi-calendar2-week"></i>
                 </div>
 
-                <div class="form-group">
-                    <label><i class="bi bi-clock"></i> Horário</label>
-                    <input type="time" name="horario" required>
-                </div>
-
-                <div class="form-group full-width">
-                    <label><i class="bi bi-sticky"></i> Observações</label>
-                    <textarea name="observacoes" rows="3" placeholder="Digite alguma observação (opcional)"></textarea>
+                <div>
+                    <h2>Agenda de Consultas</h2>
+                    <p>Visualize e gerencie todos os agendamentos</p>
                 </div>
             </div>
 
-            <div class="btn-container">
-                <button type="submit" class="btn-agendar">
-                    <i class="bi bi-check-circle"></i> Agendar Consulta
+            <div class="list-actions">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="pesquisa" placeholder="Buscar por paciente, telefone ou CPF...">
+                </div>
+
+                <button type="button" class="tool-btn">
+                    <i class="bi bi-funnel"></i>
+                    Filtros
+                </button>
+
+                <button type="button" class="tool-btn" onclick="imprimirAgendamentos()">
+                    <i class="bi bi-printer"></i>
+                    Exportar
                 </button>
             </div>
-        </form>
-    </div>
-
-    <div class="card">
-        <div class="filtros-wrapper">
-            <h2>Consultas Agendadas</h2>
-            <button onclick="imprimirAgendamentos()" class="btn-print">
-                <i class="bi bi-printer"></i> Imprimir Agenda
-            </button>
         </div>
 
-        <div class="filtros">
-            <input type="text" id="pesquisa" placeholder="🔍 Pesquisar paciente..." onkeyup="filtrarAgendamentos()">
-            <input type="date" id="pesquisaData">
-            <button onclick="filtrarData()"><i class="bi bi-search"></i> Buscar Data</button>
-            <button onclick="mostrarTodos()">Mostrar Todos</button>
-            <button onclick="ocultarTodos()">Ocultar Todos</button>
-        </div>
-
-        <div id="area-impressao">
-            <table>
+        <div class="table-wrapper" id="area-impressao">
+            <table id="tabelaAgendamentos">
                 <thead>
                     <tr>
-                        <th>Paciente</th>
-                        <th>Profissional</th>
                         <th>Data</th>
                         <th>Horário</th>
-                        <th>Status</th>
+                        <th>Paciente</th>
+                        <th>Contato</th>
+                        <th>CPF</th>
+                        <th>Profissional</th>
+                        <th>Serviço</th>
+                        <th>Valor</th>
+                        <th>Situação</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
+
                 <tbody id="tabela-corpo">
+
                     {% for ag in agendamentos %}
                     <tr class="linha-agendamento">
-                        <td class="patient-name">{{ ag.paciente }}</td>
+
+                        <td class="data-consulta" data-raw-date="{{ ag.data }}">
+                            <div class="date-cell">
+                                <i class="bi bi-calendar-event"></i>
+                                <div>
+                                    {{ ag.data if ag.data else '-' }}
+                                    <span class="subtext">Consulta</span>
+                                </div>
+                            </div>
+                        </td>
+
                         <td>
-                            <strong>{{ ag.profissional.nome }}</strong><br>
-                            <span class="doc-specialty">{{ ag.profissional.especialidade }}</span>
+                            <div class="time-cell">
+                                <i class="bi bi-clock"></i>
+                                {{ ag.horario if ag.horario else '-' }}
+                            </div>
                         </td>
-                        <td class="data-consulta" data-raw-date="{{ ag.data }}">{{ ag.data }}</td>
-                        <td>{{ ag.horario }}</td>
-                        <td><span class="status status-{{ ag.status|lower }}">{{ ag.status }}</span></td>
-                        <td class="actions-cell">
-                            <a href="/chamar/{{ ag.id }}" class="btn-action btn-chamar">
-                                <i class="bi bi-bell"></i> Chamar
-                            </a>
-                            <a href="/finalizar/{{ ag.id }}" class="btn-action btn-finalizar">
-                                <i class="bi bi-check-lg"></i> Finalizar
-                            </a>
-                            <a href="/cancelar/{{ ag.id }}" class="btn-action btn-cancelar" onclick="return confirm('Deseja cancelar este agendamento?')">
-                                <i class="bi bi-x-lg"></i> Cancelar
-                            </a>
+
+                        <td>
+                            <div class="person-cell">
+                                <div class="avatar">
+                                    {% if ag.cliente_nome %}
+                                        {{ ag.cliente_nome[:1] }}{% if ag.cliente_nome.split()|length > 1 %}{{ ag.cliente_nome.split()[1][:1] }}{% endif %}
+                                    {% else %}
+                                        P
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <span class="name-main">
+                                        {{ ag.cliente_nome if ag.cliente_nome else ag.paciente }}
+                                    </span>
+                                    <span class="subtext">
+                                        {{ ag.cliente_data_nascimento if ag.cliente_data_nascimento else '-' }}
+                                    </span>
+                                </div>
+                            </div>
                         </td>
+
+                        <td>
+                            {{ ag.cliente_telefone if ag.cliente_telefone else '-' }}
+                            <span class="subtext">
+                                {{ ag.cliente_email if ag.cliente_email else '-' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ ag.cliente_cpf if ag.cliente_cpf else '-' }}
+                        </td>
+
+                        <td>
+                            <div class="person-cell">
+                                <div class="avatar blue">
+                                    {% if ag.profissional %}
+                                        {{ ag.profissional.nome[:1] }}{% if ag.profissional.nome.split()|length > 1 %}{{ ag.profissional.nome.split()[1][:1] }}{% endif %}
+                                    {% else %}
+                                        DR
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <span class="name-main">
+                                        {{ ag.profissional.nome if ag.profissional else '-' }}
+                                    </span>
+                                    <span class="subtext">
+                                        {{ ag.profissional.especialidade if ag.profissional else '-' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            {% if ag.servico %}
+                                {{ ag.servico.nome }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            R$ {{ "%.2f"|format(ag.valor if ag.valor else 0) }}
+                        </td>
+
+                        <td>
+                            <span class="status status-{{ ag.status|lower }}">
+                                {{ ag.status if ag.status else 'Aguardando' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="action-btn view" title="Visualizar">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a href="/finalizar/{{ ag.id }}" class="action-btn edit" title="Finalizar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <a href="/cancelar/{{ ag.id }}" class="action-btn delete" title="Cancelar" onclick="return confirm('Deseja cancelar este agendamento?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+
                     </tr>
+
                     {% else %}
-                    <tr id="linha-vazia-backend">
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                            Nenhum agendamento encontrado para os critérios selecionados.
+                    <tr>
+                        <td colspan="10" class="empty-message">
+                            Nenhum agendamento encontrado.
                         </td>
                     </tr>
                     {% endfor %}
-                    
-                    <tr id="sem-resultados-js" style="display: none;">
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                            Nenhum paciente corresponde à sua pesquisa.
+
+                    <tr id="sem-resultados-js" style="display:none;">
+                        <td colspan="10" class="empty-message">
+                            Nenhum agendamento corresponde à sua pesquisa.
                         </td>
                     </tr>
+
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
+
+        <div class="pagination-area">
+            <div class="pagination-info">
+                Mostrando 1 a {{ agendamentos|length }} de {{ agendamentos|length }} agendamentos
+            </div>
+
+            <div class="pagination">
+                <a href="#" class="page-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+
+                <a href="#" class="page-btn active">1</a>
+                <a href="#" class="page-btn">2</a>
+                <a href="#" class="page-btn">3</a>
+                <a href="#" class="page-btn">...</a>
+                <a href="#" class="page-btn">26</a>
+
+                <a href="#" class="page-btn">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <select class="per-page">
+                <option>10 por página</option>
+                <option>20 por página</option>
+                <option>50 por página</option>
+            </select>
+        </div>
+
+    </section>
+
+</main>
 
 <script>
-// Função para verificar se a tabela ficou vazia nos filtros dinâmicos
-function checarTabelaVazia(linhasVisiveis) {
+    const campoPesquisa = document.getElementById("pesquisa");
+    const linhas = document.querySelectorAll(".linha-agendamento");
     const linhaSemResultado = document.getElementById("sem-resultados-js");
-    if (linhaSemResultado) {
-        linhaSemResultado.style.display = (linhasVisiveis === 0) ? "" : "none";
+
+    campoPesquisa.addEventListener("keyup", function () {
+        const termo = campoPesquisa.value.toLowerCase();
+        let encontrados = 0;
+
+        linhas.forEach(function (linha) {
+            const texto = linha.innerText.toLowerCase();
+
+            if (texto.includes(termo)) {
+                linha.style.display = "";
+                encontrados++;
+            } else {
+                linha.style.display = "none";
+            }
+        });
+
+        if (linhaSemResultado) {
+            linhaSemResultado.style.display = encontrados === 0 ? "" : "none";
+        }
+    });
+
+    function imprimirAgendamentos() {
+        let tabelaHTML = "";
+        let total = 0;
+
+        document.querySelectorAll(".linha-agendamento").forEach(function (linha) {
+            if (linha.style.display !== "none") {
+                const colunas = linha.querySelectorAll("td");
+
+                tabelaHTML += `
+                    <tr>
+                        <td>${colunas[0].innerText}</td>
+                        <td>${colunas[1].innerText}</td>
+                        <td>${colunas[2].innerText}</td>
+                        <td>${colunas[3].innerText}</td>
+                        <td>${colunas[4].innerText}</td>
+                        <td>${colunas[5].innerText}</td>
+                        <td>${colunas[6].innerText}</td>
+                        <td>${colunas[7].innerText}</td>
+                        <td>${colunas[8].innerText}</td>
+                    </tr>
+                `;
+
+                total++;
+            }
+        });
+
+        let janela = window.open("", "", "width=1400,height=900");
+
+        janela.document.write(`
+            <!DOCTYPE html>
+            <html lang="pt-br">
+            <head>
+                <meta charset="UTF-8">
+                <title>Relatório de Agendamentos</title>
+
+                <style>
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                        font-family: Arial, Helvetica, sans-serif;
+                    }
+
+                    body {
+                        padding: 30px;
+                        background: #f4f8f9;
+                        color: #1f2937;
+                    }
+
+                    .topo {
+                        background: linear-gradient(135deg, #0f766e, #14b8a6);
+                        padding: 35px;
+                        border-radius: 25px;
+                        text-align: center;
+                        color: white;
+                        margin-bottom: 30px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,.15);
+                    }
+
+                    .logo {
+                        width: 120px;
+                        height: 120px;
+                        background: white;
+                        border-radius: 50%;
+                        padding: 12px;
+                        margin: auto;
+                        margin-bottom: 18px;
+                        object-fit: contain;
+                    }
+
+                    .topo h1 {
+                        font-size: 36px;
+                        margin-bottom: 8px;
+                    }
+
+                    .topo p {
+                        font-size: 16px;
+                        opacity: .95;
+                    }
+
+                    .cards {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: 20px;
+                        margin-bottom: 30px;
+                    }
+
+                    .card {
+                        background: white;
+                        border-radius: 20px;
+                        padding: 24px;
+                        text-align: center;
+                        box-shadow: 0 8px 20px rgba(0,0,0,.08);
+                    }
+
+                    .numero {
+                        font-size: 40px;
+                        font-weight: bold;
+                        color: #0f766e;
+                    }
+
+                    .texto {
+                        margin-top: 8px;
+                        color: #64748b;
+                        font-size: 15px;
+                    }
+
+                    .info {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 20px;
+                        margin-bottom: 30px;
+                    }
+
+                    .info-box {
+                        background: white;
+                        padding: 20px;
+                        border-radius: 15px;
+                        box-shadow: 0 5px 15px rgba(0,0,0,.05);
+                    }
+
+                    .info-box h3 {
+                        font-size: 13px;
+                        color: #64748b;
+                        margin-bottom: 8px;
+                        text-transform: uppercase;
+                    }
+
+                    .info-box p {
+                        font-size: 20px;
+                        font-weight: bold;
+                        color: #0f766e;
+                    }
+
+                    .tabela {
+                        background: white;
+                        border-radius: 20px;
+                        overflow: hidden;
+                        box-shadow: 0 10px 25px rgba(0,0,0,.08);
+                    }
+
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+
+                    thead {
+                        background: #0f766e;
+                        color: white;
+                    }
+
+                    th {
+                        padding: 14px;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        text-align: left;
+                    }
+
+                    td {
+                        padding: 13px;
+                        border-bottom: 1px solid #e5e7eb;
+                        font-size: 13px;
+                    }
+
+                    tbody tr:nth-child(even) {
+                        background: #f8fafc;
+                    }
+
+                    .rodape {
+                        margin-top: 30px;
+                        background: #0f766e;
+                        color: white;
+                        padding: 20px;
+                        border-radius: 15px;
+                        text-align: center;
+                        font-weight: bold;
+                    }
+                </style>
+            </head>
+
+            <body>
+                <div class="topo">
+                    <img src="${window.location.origin}/static/img/logo2.png" class="logo">
+                    <h1>ESSENCIAL CLÍNICA</h1>
+                    <p>Relatório Oficial de Agendamentos</p>
+                </div>
+
+                <div class="cards">
+                    <div class="card">
+                        <div class="numero">${total}</div>
+                        <div class="texto">Consultas</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="numero">${total}</div>
+                        <div class="texto">Pacientes</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="numero">${total}</div>
+                        <div class="texto">Atendimentos</div>
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="info-box">
+                        <h3>Data do Relatório</h3>
+                        <p>${new Date().toLocaleDateString("pt-BR")}</p>
+                    </div>
+
+                    <div class="info-box">
+                        <h3>Hora da Emissão</h3>
+                        <p>${new Date().toLocaleTimeString("pt-BR")}</p>
+                    </div>
+                </div>
+
+                <div class="tabela">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Horário</th>
+                                <th>Paciente</th>
+                                <th>Contato</th>
+                                <th>CPF</th>
+                                <th>Profissional</th>
+                                <th>Serviço</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            ${tabelaHTML}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="rodape">
+                    ESSENCIAL CLÍNICA • Sistema de Gestão Clínica
+                </div>
+            </body>
+            </html>
+        `);
+
+        janela.document.close();
+
+        setTimeout(function () {
+            janela.print();
+        }, 800);
     }
-}
-
-function filtrarAgendamentos() {
-    let pesquisa = document.getElementById("pesquisa").value.toLowerCase();
-    let linhas = document.querySelectorAll(".linha-agendamento");
-    let visiveis = 0;
-
-    linhas.forEach(function(linha){
-        let texto = linha.innerText.toLowerCase();
-        if(texto.includes(pesquisa)) {
-            linha.style.display = "";
-            visiveis++;
-        } else {
-            linha.style.display = "none";
-        }
-    });
-    checarTabelaVazia(visiveis);
-}
-
-function filtrarData() {
-    let dataSelecionada = document.getElementById("pesquisaData").value; // Retorna AAAA-MM-DD
-    if(!dataSelecionada) return;
-
-    let linhas = document.querySelectorAll(".linha-agendamento");
-    let visiveis = 0;
-
-    linhas.forEach(function(linha){
-        let tdData = linha.querySelector(".data-consulta");
-        let dataTabela = tdData.getAttribute("data-raw-date") || tdData.textContent.trim();
-
-        // Tratamento se a data na tabela estiver no formato brasileiro DD/MM/AAAA
-        if(dataTabela.includes("/")) {
-            let partes = dataTabela.split("/");
-            dataTabela = `${partes[2]}-${partes[1]}-${partes[0]}`; // Converte para AAAA-MM-DD
-        }
-
-        if(dataTabela === dataSelecionada) {
-            linha.style.display = "";
-            visiveis++;
-        } else {
-            linha.style.display = "none";
-        }
-    });
-    checarTabelaVazia(visiveis);
-}
-
-function mostrarTodos(){
-    document.querySelectorAll(".linha-agendamento").forEach(l => l.style.display = "");
-    checarTabelaVazia(1);
-}
-
-function ocultarTodos(){
-    document.querySelectorAll(".linha-agendamento").forEach(l => l.style.display = "none");
-    checarTabelaVazia(0);
-}
-
-function imprimirAgendamentos() {
-
-    let linhas = document.querySelectorAll(".linha-agendamento");
-    let total = 0;
-    let tabelaHTML = "";
-
-    linhas.forEach(linha => {
-
-        if(linha.style.display !== "none") {
-
-            total++;
-
-            let colunas = linha.querySelectorAll("td");
-
-            tabelaHTML += `
-            <tr>
-                <td>${colunas[0].innerText}</td>
-                <td>${colunas[1].innerText}</td>
-                <td>${colunas[2].innerText}</td>
-                <td>${colunas[3].innerText}</td>
-                <td>${colunas[4].innerText}</td>
-            </tr>
-            `;
-        }
-    });
-
-    let janela = window.open('', '', 'width=1400,height=900');
-
-    janela.document.write(`
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-
-<title>Agenda Essencial Clínica</title>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, Helvetica, sans-serif;
-}
-
-body{
-padding:30px;
-background:#f4f8f9;
-color:#1f2937;
-}
-
-.topo{
-background:linear-gradient(135deg,#0f766e,#14b8a6);
-padding:35px;
-border-radius:25px;
-text-align:center;
-color:white;
-margin-bottom:30px;
-box-shadow:0 10px 30px rgba(0,0,0,.15);
-}
-
-.logo{
-width:130px;
-height:130px;
-background:white;
-border-radius:50%;
-padding:12px;
-margin:auto;
-margin-bottom:20px;
-object-fit:contain;
-}
-
-.topo h1{
-font-size:38px;
-margin-bottom:10px;
-}
-
-.topo p{
-font-size:16px;
-opacity:.95;
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-margin-bottom:30px;
-}
-
-.card{
-background:white;
-border-radius:20px;
-padding:25px;
-text-align:center;
-box-shadow:0 8px 20px rgba(0,0,0,.08);
-}
-
-.numero{
-font-size:42px;
-font-weight:bold;
-color:#0f766e;
-}
-
-.texto{
-margin-top:8px;
-color:#64748b;
-font-size:15px;
-}
-
-.info{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px;
-margin-bottom:30px;
-}
-
-.info-box{
-background:white;
-padding:20px;
-border-radius:15px;
-box-shadow:0 5px 15px rgba(0,0,0,.05);
-}
-
-.info-box h3{
-font-size:13px;
-color:#64748b;
-margin-bottom:8px;
-text-transform:uppercase;
-}
-
-.info-box p{
-font-size:20px;
-font-weight:bold;
-color:#0f766e;
-}
-
-.tabela{
-background:white;
-border-radius:20px;
-overflow:hidden;
-box-shadow:0 10px 25px rgba(0,0,0,.08);
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-}
-
-thead{
-background:#0f766e;
-color:white;
-}
-
-th{
-padding:18px;
-font-size:14px;
-text-transform:uppercase;
-text-align:left;
-}
-
-td{
-padding:16px;
-border-bottom:1px solid #e5e7eb;
-}
-
-tbody tr:nth-child(even){
-background:#f8fafc;
-}
-
-tbody tr:hover{
-background:#ecfeff;
-}
-
-.rodape{
-margin-top:30px;
-background:#0f766e;
-color:white;
-padding:20px;
-border-radius:15px;
-text-align:center;
-font-weight:bold;
-}
-
-@media print{
-
-body{
-padding:10px;
-}
-
-.topo{
-break-inside:avoid;
-}
-
-.cards{
-break-inside:avoid;
-}
-
-}
-
-</style>
-</head>
-
-<body>
-
-<div class="topo">
-
-<img
-src="${window.location.origin}/static/img/logo2.png"
-class="logo">
-
-<h1>ESSENCIAL CLÍNICA</h1>
-
-<p>Relatório Oficial de Agendamentos</p>
-
-</div>
-
-<div class="cards">
-
-<div class="card">
-<div class="numero">${total}</div>
-<div class="texto">Consultas</div>
-</div>
-
-<div class="card">
-<div class="numero">${total}</div>
-<div class="texto">Pacientes</div>
-</div>
-
-<div class="card">
-<div class="numero">${total}</div>
-<div class="texto">Atendimentos</div>
-</div>
-
-</div>
-
-<div class="info">
-
-<div class="info-box">
-<h3>Data do Relatório</h3>
-<p>${new Date().toLocaleDateString('pt-BR')}</p>
-</div>
-
-<div class="info-box">
-<h3>Hora da Emissão</h3>
-<p>${new Date().toLocaleTimeString('pt-BR')}</p>
-</div>
-
-</div>
-
-<div class="tabela">
-
-<table>
-
-<thead>
-<tr>
-<th>Paciente</th>
-<th>Profissional</th>
-<th>Data</th>
-<th>Horário</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody>
-${tabelaHTML}
-</tbody>
-
-</table>
-
-</div>
-
-<div class="rodape">
-ESSENCIAL CLÍNICA • Sistema de Gestão Clínica
-</div>
-
-</body>
-</html>
-`);
-
-    janela.document.close();
-
-    setTimeout(() => {
-        janela.print();
-    }, 800);
-}
 </script>
+
 </body>
 </html>
