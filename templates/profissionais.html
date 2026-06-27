@@ -786,6 +786,63 @@
         </div>
     </div>
 
+    </head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <i class="bi bi-heart-pulse-fill"></i>
+        ClínicaSys
+    </div>
+
+    <ul>
+        <li><a href="/"><i class="bi bi-house-door"></i> Dashboard</a></li>
+        <li class="active"><a href="/profissionais"><i class="bi bi-people"></i> Profissionais</a></li>
+        <li><a href="/pacientes"><i class="bi bi-person"></i> Pacientes</a></li>
+        <li><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agenda</a></li>
+        <li><a href="/financeiro"><i class="bi bi-currency-dollar"></i> Financeiro</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-box">
+            <div class="user-avatar">
+                <i class="bi bi-person"></i>
+            </div>
+            <div>
+                <strong>Olá, Felipe!</strong>
+                <span>Administrador</span>
+            </div>
+        </div>
+
+        <a href="/logout" class="logout">
+            <i class="bi bi-box-arrow-left"></i>
+            Sair
+        </a>
+    </div>
+</div>
+
+<div class="main">
+
+    <div class="header-top">
+        <div class="header">
+            <h1>Profissionais</h1>
+            <p>Gerencie toda equipe da clínica</p>
+        </div>
+
+        <div class="top-actions">
+            <div class="bell">
+                <i class="bi bi-bell"></i>
+                <span>3</span>
+            </div>
+
+            <button class="btn-novo" onclick="document.getElementsByName('nome')[0].focus();">
+                <i class="bi bi-plus-lg"></i>
+                Novo Profissional
+            </button>
+        </div>
+    </div>
+
     <div class="cards">
         <div class="card-info">
             <div class="card-icon">
@@ -831,6 +888,171 @@
             </div>
         </div>
     </div>
+
+    <div class="form-card">
+        <div class="form-title">
+            <div class="circle">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <div>
+                <h2>Cadastrar novo profissional</h2>
+                <p>Preencha os dados abaixo para adicionar um novo membro à equipe</p>
+            </div>
+        </div>
+
+        <div class="form-layout">
+            <form method="POST" class="form-content">
+                <div class="grid">
+                    <div class="input-wrapper">
+                        <label>Nome completo</label>
+                        <div class="input-box">
+                            <i class="bi bi-person"></i>
+                            <input name="nome" placeholder="Digite o nome completo" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label>Especialidade</label>
+                        <div class="input-box">
+                            <i class="bi bi-stethoscope"></i>
+                            <input name="especialidade" placeholder="Selecione ou digite a especialidade" required autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label>Telefone</label>
+                        <div class="input-box">
+                            <i class="bi bi-telephone"></i>
+                            <input name="telefone" placeholder="(11) 99999-9999" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <label>E-mail</label>
+                        <div class="input-box">
+                            <i class="bi bi-envelope"></i>
+                            <input name="email" placeholder="email@exemplo.com" type="email" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-container">
+                    <button type="reset" class="btn-limpar">
+                        <i class="bi bi-eraser"></i>
+                        Limpar campos
+                    </button>
+
+                    <button type="submit" class="btn-salvar">
+                        <i class="bi bi-check-lg"></i>
+                        Salvar profissional
+                    </button>
+                </div>
+            </form>
+
+            <div class="form-image">
+                <i class="bi bi-clipboard2-pulse main-img-icon"></i>
+                <div class="plus-overlay">
+                    <i class="bi bi-plus-lg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header">
+            <div class="table-title">
+                <div class="table-title-icon">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+                <div>
+                    <h2>Lista de profissionais</h2>
+                    <p>Visualize e gerencie os profissionais cadastrados</p>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <div class="search-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="buscar" placeholder="Buscar profissional...">
+                </div>
+
+                <button class="btn-filter">
+                    <i class="bi bi-funnel"></i>
+                    Filtrar
+                </button>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Especialidade</th>
+                    <th>Telefone</th>
+                    <th>E-mail</th>
+                    <th style="text-align: center;">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for p in profissionais %}
+                <tr class="linha-tabela">
+                    <td>
+                        <div class="usuario">
+                            <div class="avatar">
+                                {{ p.nome[0]|upper }}
+                            </div>
+                            <strong>{{ p.nome }}</strong>
+                        </div>
+                    </td>
+
+                    <td>{{ p.especialidade }}</td>
+                    <td>{{ p.telefone if p.telefone else '-' }}</td>
+                    <td>{{ p.email if p.email else '-' }}</td>
+
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn-action btn-edit" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <button class="btn-action btn-view" title="Visualizar">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <button class="btn-action btn-delete" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="text-align:center; color:#94a3b8; padding:42px;">
+                        <i class="bi bi-folder-x" style="font-size:28px; display:block; margin-bottom:10px;"></i>
+                        Nenhum profissional cadastrado no sistema.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="table-footer">
+            <span>Mostrando {{ profissionais|length }} profissionais cadastrados</span>
+
+            <div class="pagination">
+                <button class="page-link">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="page-link active">1</button>
+                <button class="page-link">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
 
     <div class="form-card">
         <div class="form-title">

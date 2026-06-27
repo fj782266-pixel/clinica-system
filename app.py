@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import random
 import string
 import os
+from datetime import datetime
+from sqlalchemy import func
 
 
 # ==========================
@@ -215,7 +217,47 @@ def profissionais():
 
     lista = Profissional.query.all()
 
-    return render_template("profissionais.html", profissionais=lista)
+    total_profissionais = Profissional.query.count()
+    total_pacientes = Paciente.query.count()
+
+    total_especialidades = db.session.query(
+        func.count(func.distinct(Profissional.especialidade))
+    ).scalar() or 0
+
+    hoje = datetime.now().strftime("%Y-%m-%d")
+
+    consultas_hoje = Agendamento.query.filter_by(data=hoje).count()
+
+    consultas_pendentes = Agendamento.query.filter(
+        Agendamento.status.in_(["Aguardando", "Pendente"])
+    ).count()
+
+    proximo_atendimento = Agendamento.query.filter(
+        Agendamento.data >= hoje
+    ).order_by(
+        Agendamento.data.asc(),
+        Agendamento.horario.asc()
+    ).first()
+
+    faturamento_mes = db.session.query(
+        func.sum(Financeiro.valor)
+    ).scalar() or 0
+
+    capacidade_dia = 20
+    taxa_ocupacao = int((consultas_hoje / capacidade_dia) * 100) if capacidade_dia else 0
+
+    return render_template(
+        "profissionais.html",
+        profissionais=lista,
+        total_profissionais=total_profissionais,
+        total_especialidades=total_especialidades,
+        consultas_hoje=consultas_hoje,
+        faturamento_mes=faturamento_mes,
+        total_pacientes=total_pacientes,
+        proximo_atendimento=proximo_atendimento,
+        taxa_ocupacao=taxa_ocupacao,
+        consultas_pendentes=consultas_pendentes
+    )
 
 
 # ==========================
