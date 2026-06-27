@@ -96,13 +96,19 @@ class Paciente(db.Model):
 
     nome = db.Column(db.String(100), nullable=False)
     data_nascimento = db.Column(db.String(20))
-    estado_civil = db.Column(db.String(50))
     telefone = db.Column(db.String(20))
+    email = db.Column(db.String(120))
+
+    cpf = db.Column(db.String(20))
+    convenio = db.Column(db.String(100))
+    plano = db.Column(db.String(100))
+    observacoes = db.Column(db.Text)
+
+    estado_civil = db.Column(db.String(50))
     cidade = db.Column(db.String(100))
     endereco = db.Column(db.String(200))
     idade = db.Column(db.Integer)
     profissao = db.Column(db.String(100))
-    email = db.Column(db.String(120))
     sexo = db.Column(db.String(20))
 
 
@@ -271,8 +277,13 @@ def pacientes():
     if request.method == "POST":
         novo = Paciente(
             nome=request.form.get("nome"),
+            data_nascimento=request.form.get("data_nascimento"),
             telefone=request.form.get("telefone"),
-            email=request.form.get("email")
+            email=request.form.get("email"),
+            cpf=request.form.get("cpf"),
+            convenio=request.form.get("convenio"),
+            plano=request.form.get("plano"),
+            observacoes=request.form.get("observacoes")
         )
 
         db.session.add(novo)
@@ -280,7 +291,7 @@ def pacientes():
 
         return redirect("/pacientes")
 
-    lista = Paciente.query.all()
+    lista = Paciente.query.order_by(Paciente.id.desc()).all()
 
     return render_template("pacientes.html", pacientes=lista)
 
