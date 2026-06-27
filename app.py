@@ -13,6 +13,10 @@ import os
 app = Flask(__name__, instance_relative_config=True)
 app.secret_key = os.environ.get("SECRET_KEY", "fallback-inseguro")
 
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
 if not os.path.exists(app.instance_path):
     os.makedirs(app.instance_path)
 
