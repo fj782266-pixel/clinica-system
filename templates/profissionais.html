@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
         :root {
             --bg-main: #f6faf9;
@@ -49,7 +49,7 @@
 
         .logo {
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 42px;
             padding: 0 12px;
             display: flex;
@@ -78,7 +78,7 @@
             border-radius: 14px;
             color: #cbd5e1;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 15px;
             transition: .25s;
         }
@@ -143,7 +143,7 @@
             gap: 12px;
             padding: 12px 16px;
             border-radius: 12px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .logout:hover {
@@ -166,7 +166,7 @@
 
         .header h1 {
             font-size: 34px;
-            font-weight: 700;
+            font-weight: 800;
             color: #0f172a;
         }
 
@@ -219,7 +219,7 @@
             padding: 15px 24px;
             border-radius: 12px;
             font-size: 15px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -227,77 +227,58 @@
             box-shadow: 0 12px 28px rgba(15, 118, 110, .25);
         }
 
-        .btn-novo:hover {
-            transform: translateY(-1px);
-        }
-
         .cards {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
             margin-bottom: 24px;
         }
 
         .card-info {
             background: white;
-            padding: 24px;
+            padding: 22px;
             border-radius: var(--radius);
             border: 1px solid var(--border-color);
             box-shadow: var(--card-shadow);
             display: flex;
-            gap: 18px;
+            gap: 15px;
             align-items: center;
-            position: relative;
+            min-height: 128px;
             overflow: hidden;
-            min-height: 132px;
         }
 
         .card-icon {
-            width: 58px;
-            height: 58px;
+            width: 54px;
+            height: 54px;
             border-radius: 50%;
             background: #ccfbf1;
             color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
+            font-size: 24px;
             flex-shrink: 0;
-        }
-
-        .card-info:nth-child(2) .card-icon {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-
-        .card-info:nth-child(3) .card-icon {
-            background: #ede9fe;
-            color: #7c3aed;
-        }
-
-        .card-info:nth-child(4) .card-icon {
-            background: #dcfce7;
-            color: #16a34a;
         }
 
         .card-info h3 {
             color: #475569;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 800;
             text-transform: uppercase;
             margin-bottom: 6px;
         }
 
         .card-info span {
             display: block;
-            font-size: 28px;
+            font-size: 25px;
             font-weight: 800;
             color: #020617;
+            word-break: break-word;
         }
 
         .card-info p {
             color: var(--text-muted);
-            font-size: 13px;
+            font-size: 12px;
             margin-top: 4px;
         }
 
@@ -321,7 +302,8 @@
             margin-bottom: 28px;
         }
 
-        .form-title .circle {
+        .form-title .circle,
+        .table-title-icon {
             width: 54px;
             height: 54px;
             border-radius: 50%;
@@ -331,15 +313,18 @@
             align-items: center;
             justify-content: center;
             font-size: 26px;
+            flex-shrink: 0;
         }
 
-        .form-title h2 {
+        .form-title h2,
+        .table-title h2 {
             font-size: 21px;
             color: #064e4a;
             margin-bottom: 4px;
         }
 
-        .form-title p {
+        .form-title p,
+        .table-title p {
             color: var(--text-muted);
             font-size: 14px;
         }
@@ -369,14 +354,15 @@
         .input-wrapper label {
             font-size: 14px;
             color: #334155;
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .input-box {
             position: relative;
         }
 
-        .input-box i {
+        .input-box i,
+        .search-wrapper i {
             position: absolute;
             left: 15px;
             top: 50%;
@@ -384,7 +370,8 @@
             color: #64748b;
         }
 
-        .input-box input {
+        .input-box input,
+        #buscar {
             padding-left: 42px;
         }
 
@@ -416,7 +403,7 @@
         .btn-salvar {
             padding: 13px 26px;
             border-radius: 10px;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 14px;
             cursor: pointer;
             display: flex;
@@ -469,7 +456,6 @@
             align-items: center;
             justify-content: center;
             font-size: 26px;
-            box-shadow: 0 10px 20px rgba(15, 118, 110, .25);
         }
 
         .table-card {
@@ -481,35 +467,13 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 22px;
+            gap: 20px;
         }
 
         .table-title {
             display: flex;
             align-items: center;
             gap: 12px;
-        }
-
-        .table-title-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: #ccfbf1;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-        }
-
-        .table-title h2 {
-            font-size: 20px;
-            color: #064e4a;
-        }
-
-        .table-title p {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 3px;
         }
 
         .search-box {
@@ -522,17 +486,8 @@
             position: relative;
         }
 
-        .search-wrapper i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-        }
-
         #buscar {
             width: 290px;
-            padding-left: 42px;
         }
 
         .btn-filter {
@@ -546,7 +501,12 @@
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
         }
 
         table {
@@ -606,7 +566,7 @@
 
         .usuario strong {
             color: #0f172a;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .actions-cell {
@@ -643,10 +603,6 @@
             background: #fef2f2;
         }
 
-        .btn-action:hover {
-            transform: translateY(-2px);
-        }
-
         .table-footer {
             display: flex;
             justify-content: space-between;
@@ -656,44 +612,13 @@
             font-size: 13px;
         }
 
-        .pagination {
-            display: flex;
-            gap: 6px;
-        }
-
-        .page-link {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            border: 1px solid #cbd5e1;
-            background: white;
-            cursor: pointer;
-            color: #475569;
-            font-weight: 700;
-        }
-
-        .page-link.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        @media (max-width: 1100px) {
+        @media (max-width: 1300px) {
             .cards {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .form-layout {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .form-image {
-                display: none;
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
             .sidebar {
                 display: none;
             }
@@ -709,22 +634,24 @@
                 grid-template-columns: 1fr;
             }
 
+            .form-layout {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .form-image {
+                display: none;
+            }
+
             .header-top,
             .table-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 16px;
             }
 
+            .search-box,
+            .search-wrapper,
             #buscar {
-                width: 100%;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            .search-wrapper {
                 width: 100%;
             }
         }
@@ -776,64 +703,7 @@
         <div class="top-actions">
             <div class="bell">
                 <i class="bi bi-bell"></i>
-                <span>3</span>
-            </div>
-
-            <button class="btn-novo" onclick="document.getElementsByName('nome')[0].focus();">
-                <i class="bi bi-plus-lg"></i>
-                Novo Profissional
-            </button>
-        </div>
-    </div>
-
-    </head>
-
-<body>
-
-<div class="sidebar">
-    <div class="logo">
-        <i class="bi bi-heart-pulse-fill"></i>
-        ClínicaSys
-    </div>
-
-    <ul>
-        <li><a href="/"><i class="bi bi-house-door"></i> Dashboard</a></li>
-        <li class="active"><a href="/profissionais"><i class="bi bi-people"></i> Profissionais</a></li>
-        <li><a href="/pacientes"><i class="bi bi-person"></i> Pacientes</a></li>
-        <li><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agenda</a></li>
-        <li><a href="/financeiro"><i class="bi bi-currency-dollar"></i> Financeiro</a></li>
-    </ul>
-
-    <div class="sidebar-footer">
-        <div class="user-box">
-            <div class="user-avatar">
-                <i class="bi bi-person"></i>
-            </div>
-            <div>
-                <strong>Olá, Felipe!</strong>
-                <span>Administrador</span>
-            </div>
-        </div>
-
-        <a href="/logout" class="logout">
-            <i class="bi bi-box-arrow-left"></i>
-            Sair
-        </a>
-    </div>
-</div>
-
-<div class="main">
-
-    <div class="header-top">
-        <div class="header">
-            <h1>Profissionais</h1>
-            <p>Gerencie toda equipe da clínica</p>
-        </div>
-
-        <div class="top-actions">
-            <div class="bell">
-                <i class="bi bi-bell"></i>
-                <span>3</span>
+                <span>{{ consultas_pendentes }}</span>
             </div>
 
             <button class="btn-novo" onclick="document.getElementsByName('nome')[0].focus();">
@@ -845,46 +715,79 @@
 
     <div class="cards">
         <div class="card-info">
-            <div class="card-icon">
-                <i class="bi bi-people"></i>
-            </div>
+            <div class="card-icon"><i class="bi bi-people"></i></div>
             <div>
-                <h3>Total de Profissionais</h3>
-                <span>{{ profissionais|length }}</span>
-                <p>profissionais cadastrados</p>
+                <h3>Profissionais cadastrados</h3>
+                <span>{{ total_profissionais }}</span>
+                <p>membros ativos na clínica</p>
             </div>
         </div>
 
         <div class="card-info">
-            <div class="card-icon">
-                <i class="bi bi-stethoscope"></i>
-            </div>
+            <div class="card-icon"><i class="bi bi-stethoscope"></i></div>
             <div>
-                <h3>Especialidades</h3>
-                <span>12</span>
-                <p>especialidades disponíveis</p>
+                <h3>Especialidades cadastradas</h3>
+                <span>{{ total_especialidades }}</span>
+                <p>áreas de atendimento</p>
             </div>
         </div>
 
         <div class="card-info">
-            <div class="card-icon">
-                <i class="bi bi-calendar-check"></i>
-            </div>
+            <div class="card-icon"><i class="bi bi-calendar-check"></i></div>
             <div>
-                <h3>Agendamentos hoje</h3>
-                <span>18</span>
-                <p>consultas agendadas</p>
+                <h3>Consultas de hoje</h3>
+                <span>{{ consultas_hoje }}</span>
+                <p>agendamentos para hoje</p>
             </div>
         </div>
 
         <div class="card-info">
-            <div class="card-icon">
-                <i class="bi bi-currency-dollar"></i>
-            </div>
+            <div class="card-icon"><i class="bi bi-currency-dollar"></i></div>
             <div>
-                <h3>Faturamento mês</h3>
-                <span>R$ 24.680</span>
-                <p>+12% em relação ao mês anterior</p>
+                <h3>Faturamento do mês</h3>
+                <span>R$ {{ "%.2f"|format(faturamento_mes) }}</span>
+                <p>valor registrado no financeiro</p>
+            </div>
+        </div>
+
+        <div class="card-info">
+            <div class="card-icon"><i class="bi bi-person-heart"></i></div>
+            <div>
+                <h3>Pacientes cadastrados</h3>
+                <span>{{ total_pacientes }}</span>
+                <p>pacientes registrados</p>
+            </div>
+        </div>
+
+        <div class="card-info">
+            <div class="card-icon"><i class="bi bi-clock-history"></i></div>
+            <div>
+                <h3>Próximo atendimento</h3>
+                {% if proximo_atendimento %}
+                    <span>{{ proximo_atendimento.horario }}</span>
+                    <p>{{ proximo_atendimento.data }}</p>
+                {% else %}
+                    <span>-</span>
+                    <p>nenhum atendimento futuro</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-info">
+            <div class="card-icon"><i class="bi bi-graph-up-arrow"></i></div>
+            <div>
+                <h3>Taxa de ocupação do dia</h3>
+                <span>{{ taxa_ocupacao }}%</span>
+                <p>baseado nos agendamentos de hoje</p>
+            </div>
+        </div>
+
+        <div class="card-info">
+            <div class="card-icon"><i class="bi bi-exclamation-triangle"></i></div>
+            <div>
+                <h3>Consultas pendentes</h3>
+                <span>{{ consultas_pendentes }}</span>
+                <p>aguardando finalização</p>
             </div>
         </div>
     </div>
@@ -983,237 +886,64 @@
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Especialidade</th>
-                    <th>Telefone</th>
-                    <th>E-mail</th>
-                    <th style="text-align: center;">Ações</th>
-                </tr>
-            </thead>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Especialidade</th>
+                        <th>Telefone</th>
+                        <th>E-mail</th>
+                        <th style="text-align: center;">Ações</th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                {% for p in profissionais %}
-                <tr class="linha-tabela">
-                    <td>
-                        <div class="usuario">
-                            <div class="avatar">
-                                {{ p.nome[0]|upper }}
+                <tbody>
+                    {% for p in profissionais %}
+                    <tr class="linha-tabela">
+                        <td>
+                            <div class="usuario">
+                                <div class="avatar">
+                                    {{ p.nome[0]|upper }}
+                                </div>
+                                <strong>{{ p.nome }}</strong>
                             </div>
-                            <strong>{{ p.nome }}</strong>
-                        </div>
-                    </td>
+                        </td>
 
-                    <td>{{ p.especialidade }}</td>
-                    <td>{{ p.telefone if p.telefone else '-' }}</td>
-                    <td>{{ p.email if p.email else '-' }}</td>
+                        <td>{{ p.especialidade }}</td>
+                        <td>{{ p.telefone if p.telefone else '-' }}</td>
+                        <td>{{ p.email if p.email else '-' }}</td>
 
-                    <td>
-                        <div class="actions-cell">
-                            <button class="btn-action btn-edit" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </button>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-action btn-edit" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
 
-                            <button class="btn-action btn-view" title="Visualizar">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                                <button class="btn-action btn-view" title="Visualizar">
+                                    <i class="bi bi-eye"></i>
+                                </button>
 
-                            <button class="btn-action btn-delete" title="Excluir">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" style="text-align:center; color:#94a3b8; padding:42px;">
-                        <i class="bi bi-folder-x" style="font-size:28px; display:block; margin-bottom:10px;"></i>
-                        Nenhum profissional cadastrado no sistema.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                <button class="btn-action btn-delete" title="Excluir">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#94a3b8; padding:42px;">
+                            <i class="bi bi-folder-x" style="font-size:28px; display:block; margin-bottom:10px;"></i>
+                            Nenhum profissional cadastrado no sistema.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
         <div class="table-footer">
             <span>Mostrando {{ profissionais|length }} profissionais cadastrados</span>
-
-            <div class="pagination">
-                <button class="page-link">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="page-link active">1</button>
-                <button class="page-link">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-    <div class="form-card">
-        <div class="form-title">
-            <div class="circle">
-                <i class="bi bi-person-plus"></i>
-            </div>
-            <div>
-                <h2>Cadastrar novo profissional</h2>
-                <p>Preencha os dados abaixo para adicionar um novo membro à equipe</p>
-            </div>
-        </div>
-
-        <div class="form-layout">
-            <form method="POST" class="form-content">
-                <div class="grid">
-                    <div class="input-wrapper">
-                        <label>Nome completo</label>
-                        <div class="input-box">
-                            <i class="bi bi-person"></i>
-                            <input name="nome" placeholder="Digite o nome completo" required autocomplete="off">
-                        </div>
-                    </div>
-
-                    <div class="input-wrapper">
-                        <label>Especialidade</label>
-                        <div class="input-box">
-                            <i class="bi bi-stethoscope"></i>
-                            <input name="especialidade" placeholder="Selecione ou digite a especialidade" required autocomplete="off">
-                        </div>
-                    </div>
-
-                    <div class="input-wrapper">
-                        <label>Telefone</label>
-                        <div class="input-box">
-                            <i class="bi bi-telephone"></i>
-                            <input name="telefone" placeholder="(11) 99999-9999" autocomplete="off">
-                        </div>
-                    </div>
-
-                    <div class="input-wrapper">
-                        <label>E-mail</label>
-                        <div class="input-box">
-                            <i class="bi bi-envelope"></i>
-                            <input name="email" placeholder="email@exemplo.com" type="email" autocomplete="off">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="btn-container">
-                    <button type="reset" class="btn-limpar">
-                        <i class="bi bi-eraser"></i>
-                        Limpar campos
-                    </button>
-
-                    <button type="submit" class="btn-salvar">
-                        <i class="bi bi-check-lg"></i>
-                        Salvar profissional
-                    </button>
-                </div>
-            </form>
-
-            <div class="form-image">
-                <i class="bi bi-clipboard2-pulse main-img-icon"></i>
-                <div class="plus-overlay">
-                    <i class="bi bi-plus-lg"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="table-card">
-        <div class="table-header">
-            <div class="table-title">
-                <div class="table-title-icon">
-                    <i class="bi bi-person-lines-fill"></i>
-                </div>
-                <div>
-                    <h2>Lista de profissionais</h2>
-                    <p>Visualize e gerencie os profissionais cadastrados</p>
-                </div>
-            </div>
-
-            <div class="search-box">
-                <div class="search-wrapper">
-                    <i class="bi bi-search"></i>
-                    <input type="text" id="buscar" placeholder="Buscar profissional...">
-                </div>
-
-                <button class="btn-filter">
-                    <i class="bi bi-funnel"></i>
-                    Filtrar
-                </button>
-            </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th>Especialidade</th>
-                    <th>Telefone</th>
-                    <th>E-mail</th>
-                    <th style="text-align: center;">Ações</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {% for p in profissionais %}
-                <tr class="linha-tabela">
-                    <td>
-                        <div class="usuario">
-                            <div class="avatar">
-                                {{ p.nome[0]|upper }}
-                            </div>
-                            <strong>{{ p.nome }}</strong>
-                        </div>
-                    </td>
-
-                    <td>{{ p.especialidade }}</td>
-                    <td>{{ p.telefone if p.telefone else '-' }}</td>
-                    <td>{{ p.email if p.email else '-' }}</td>
-
-                    <td>
-                        <div class="actions-cell">
-                            <button class="btn-action btn-edit" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-
-                            <button class="btn-action btn-view" title="Visualizar">
-                                <i class="bi bi-eye"></i>
-                            </button>
-
-                            <button class="btn-action btn-delete" title="Excluir">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" style="text-align:center; color:#94a3b8; padding:42px;">
-                        <i class="bi bi-folder-x" style="font-size:28px; display:block; margin-bottom:10px;"></i>
-                        Nenhum profissional cadastrado no sistema.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="table-footer">
-            <span>Mostrando {{ profissionais|length }} profissionais cadastrados</span>
-
-            <div class="pagination">
-                <button class="page-link">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="page-link active">1</button>
-                <button class="page-link">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
         </div>
     </div>
 
