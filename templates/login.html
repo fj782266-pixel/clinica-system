@@ -70,8 +70,12 @@
     background-repeat:no-repeat;
 }
 
-        .left::after{
-    display:none;
+       .left::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.12);
+    pointer-events:none;
 }
 
         .brand-left{
