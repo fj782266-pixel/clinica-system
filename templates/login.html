@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Essencial Clínica</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
-
         :root{
             --primary:#0f766e;
-            --primary-dark:#0b5f59;
-            --primary-light:#14b8a6;
-            --bg:#f8fafc;
+            --primary-dark:#064e4a;
+            --primary-light:#19c8bd;
             --text:#0f172a;
             --muted:#64748b;
-            --border:#dbe3ea;
+            --border:#d9e2ea;
             --white:#ffffff;
+            --bg:#f7fbfb;
         }
 
         *{
@@ -27,347 +29,372 @@
             font-family:'Poppins', sans-serif;
         }
 
+        html, body{
+            width:100%;
+            height:100%;
+            overflow:hidden;
+            background:var(--bg);
+        }
+
         body{
             min-height:100vh;
-            background:var(--bg);
-            overflow:hidden;
         }
 
         .page{
             width:100%;
-            min-height:100vh;
+            height:100vh;
             display:flex;
+            position:relative;
+            overflow:hidden;
+            background:#f8ffff;
         }
 
         /* ================= LADO ESQUERDO ================= */
         .left{
             width:57%;
-            min-height:100vh;
+            height:100vh;
             position:relative;
             overflow:hidden;
-            color:white;
-            background:#082f2d;
+            background:#062f33;
+            clip-path:polygon(0 0, 92% 0, 80% 100%, 0 100%);
         }
 
-        .left::before{
-            content:"";
+        .left-bg{
             position:absolute;
             inset:0;
-            background:
-                linear-gradient(90deg, rgba(8,47,45,.94) 0%, rgba(8,47,45,.72) 46%, rgba(8,47,45,.35) 100%),
-                linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45));
-            z-index:1;
+            background-image:
+                linear-gradient(90deg, rgba(2,37,40,.94) 0%, rgba(5,65,67,.78) 37%, rgba(15,118,110,.36) 70%, rgba(15,118,110,.12) 100%),
+                url("{{ url_for('static', filename='medicos-login.png') }}");
+            background-size:cover;
+            background-position:center center;
+            transform:scale(1.02);
         }
 
         .left::after{
             content:"";
             position:absolute;
-            right:-120px;
-            top:0;
-            width:260px;
-            height:100%;
-            background:var(--bg);
-            transform:skewX(-8deg);
-            z-index:3;
-        }
-
-        .hero-img{
-            position:absolute;
             inset:0;
-            width:100%;
-            height:100%;
-            object-fit:cover;
-            object-position:center;
-            filter:saturate(.95);
+            background:radial-gradient(circle at 20% 20%, rgba(28,201,190,.18), transparent 28%),
+                       linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.26));
+            pointer-events:none;
         }
 
-        .left-content{
-            position:relative;
-            z-index:2;
-            height:100vh;
-            padding:56px 78px 70px;
+        .brand-left{
+            position:absolute;
+            top:42px;
+            left:70px;
+            z-index:3;
             display:flex;
-            flex-direction:column;
-            justify-content:space-between;
+            align-items:center;
+            gap:18px;
         }
 
         .brand-left img{
-            width:330px;
-            max-width:90%;
-            height:auto;
-            filter:drop-shadow(0 12px 24px rgba(0,0,0,.28));
+            width:250px;
+            max-height:120px;
+            object-fit:contain;
+            filter:drop-shadow(0 12px 26px rgba(0,0,0,.30));
         }
 
-        .hero-title{
-            max-width:560px;
-            margin-top:40px;
+        .hero-text{
+            position:absolute;
+            top:205px;
+            left:70px;
+            z-index:4;
+            width:560px;
+            color:#fff;
         }
 
-        .hero-title h1{
-            font-size:48px;
-            line-height:1.16;
+        .hero-text h1{
+            font-size:52px;
+            line-height:1.12;
             font-weight:800;
-            letter-spacing:-1.5px;
+            letter-spacing:-1.8px;
             margin-bottom:22px;
+            text-shadow:0 14px 35px rgba(0,0,0,.22);
         }
 
-        .hero-title h1 span{
-            color:#21d4c6;
+        .hero-text h1 span{
+            color:var(--primary-light);
         }
 
-        .hero-title p{
+        .hero-text p{
             font-size:18px;
-            line-height:1.7;
-            color:rgba(255,255,255,.92);
-            max-width:560px;
+            line-height:1.75;
+            color:rgba(255,255,255,.94);
+            max-width:600px;
+            font-weight:400;
         }
 
-        .small-line{
-            width:140px;
-            height:4px;
-            border-radius:999px;
-            background:rgba(20,184,166,.35);
+        .line-detail{
+            width:150px;
+            height:5px;
+            border-radius:20px;
+            background:linear-gradient(90deg, var(--primary-light) 0%, var(--primary-light) 52%, rgba(25,200,189,.35) 52%, rgba(25,200,189,.35) 100%);
             margin-top:30px;
-            overflow:hidden;
-        }
-
-        .small-line span{
-            display:block;
-            width:70px;
-            height:100%;
-            background:#21d4c6;
-            border-radius:999px;
-        }
-
-        .features{
-            width:88%;
-            max-width:760px;
-            display:grid;
-            grid-template-columns:repeat(3, 1fr);
-            gap:0;
-            background:rgba(8,47,45,.76);
-            border:1px solid rgba(255,255,255,.12);
-            border-radius:22px;
-            backdrop-filter:blur(18px);
-            box-shadow:0 24px 60px rgba(0,0,0,.28);
-            overflow:hidden;
-        }
-
-        .feature{
-            padding:28px 26px;
-            border-right:1px solid rgba(255,255,255,.12);
-        }
-
-        .feature:last-child{
-            border-right:none;
-        }
-
-        .feature i{
-            width:54px;
-            height:54px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            border-radius:16px;
-            background:linear-gradient(135deg, #0f766e, #14b8a6);
-            color:white;
-            font-size:25px;
-            margin-bottom:16px;
-            box-shadow:0 14px 28px rgba(20,184,166,.25);
-        }
-
-        .feature h3{
-            font-size:18px;
-            margin-bottom:8px;
-            font-weight:700;
-        }
-
-        .feature p{
-            font-size:14px;
-            line-height:1.6;
-            color:rgba(255,255,255,.88);
         }
 
         .dots{
             position:absolute;
             top:112px;
-            right:140px;
-            z-index:2;
-            width:130px;
-            height:130px;
-            background-image:radial-gradient(rgba(34,211,238,.65) 2px, transparent 2px);
-            background-size:18px 18px;
-            opacity:.55;
+            right:185px;
+            z-index:4;
+            width:145px;
+            height:145px;
+            background-image:radial-gradient(circle, rgba(25,200,189,.85) 2px, transparent 2.8px);
+            background-size:20px 20px;
+            opacity:.85;
+        }
+
+        .feature-card{
+            position:absolute;
+            left:70px;
+            bottom:56px;
+            z-index:4;
+            width:min(680px, calc(100% - 200px));
+            min-height:150px;
+            display:grid;
+            grid-template-columns:repeat(3, 1fr);
+            background:rgba(5,43,47,.78);
+            border:1px solid rgba(255,255,255,.15);
+            border-radius:24px;
+            backdrop-filter:blur(14px);
+            box-shadow:0 25px 70px rgba(0,0,0,.30);
+            overflow:hidden;
+        }
+
+        .feature{
+            padding:28px 28px 24px;
+            color:#fff;
+            position:relative;
+        }
+
+        .feature:not(:last-child)::after{
+            content:"";
+            position:absolute;
+            top:32px;
+            right:0;
+            width:1px;
+            height:88px;
+            background:rgba(255,255,255,.17);
+        }
+
+        .feature-icon{
+            width:52px;
+            height:52px;
+            border-radius:14px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:linear-gradient(135deg, #0f766e, #19c8bd);
+            box-shadow:0 12px 25px rgba(25,200,189,.25);
+            margin-bottom:14px;
+        }
+
+        .feature-icon i{
+            font-size:25px;
+        }
+
+        .feature h3{
+            font-size:18px;
+            margin-bottom:6px;
+            font-weight:700;
+        }
+
+        .feature p{
+            font-size:14px;
+            line-height:1.55;
+            color:rgba(255,255,255,.88);
         }
 
         /* ================= LADO DIREITO ================= */
         .right{
             width:43%;
-            min-height:100vh;
+            height:100vh;
             position:relative;
             display:flex;
             align-items:center;
             justify-content:center;
-            padding:44px;
+            padding:26px 48px 26px 8px;
             background:
-                radial-gradient(circle at top right, rgba(20,184,166,.13), transparent 34%),
-                radial-gradient(circle at bottom left, rgba(15,118,110,.08), transparent 35%),
-                #f8fafc;
+                radial-gradient(circle at 82% 18%, rgba(25,200,189,.12), transparent 28%),
+                radial-gradient(circle at 18% 85%, rgba(15,118,110,.08), transparent 32%),
+                #f9ffff;
         }
 
         .right::before{
             content:"";
             position:absolute;
-            right:-80px;
-            top:55px;
-            width:420px;
-            height:420px;
+            top:-150px;
+            right:-130px;
+            width:520px;
+            height:520px;
             border-radius:50%;
-            border:1px solid rgba(20,184,166,.18);
-            box-shadow:0 0 0 18px rgba(20,184,166,.035), 0 0 0 38px rgba(20,184,166,.025);
+            border:1px solid rgba(25,200,189,.20);
+            box-shadow:0 0 0 16px rgba(25,200,189,.025),
+                       0 0 0 32px rgba(25,200,189,.020),
+                       0 0 0 48px rgba(25,200,189,.015);
         }
 
         .login-card{
+            width:100%;
+            max-width:520px;
+            min-height:760px;
+            max-height:calc(100vh - 70px);
             position:relative;
             z-index:2;
-            width:100%;
-            max-width:540px;
             background:rgba(255,255,255,.92);
-            border:1px solid rgba(255,255,255,.85);
             border-radius:28px;
-            padding:52px 44px 44px;
-            box-shadow:0 30px 90px rgba(15,23,42,.13);
-            backdrop-filter:blur(18px);
+            padding:52px 44px 32px;
+            box-shadow:0 26px 80px rgba(15,23,42,.10);
+            border:1px solid rgba(226,232,240,.82);
+            backdrop-filter:blur(16px);
+            display:flex;
+            flex-direction:column;
+            justify-content:flex-start;
         }
 
-        .logo-circle{
+        .logo-login{
+            display:flex;
+            justify-content:center;
+            margin-bottom:22px;
+        }
+
+        .logo-login img{
             width:104px;
             height:104px;
-            margin:0 auto 25px;
-            border-radius:24px;
-            overflow:hidden;
-            background:linear-gradient(135deg, #0f766e, #064e49);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            box-shadow:0 20px 40px rgba(15,118,110,.28);
-        }
-
-        .logo-circle img{
-            width:100%;
-            height:100%;
             object-fit:cover;
+            border-radius:22px;
+            box-shadow:0 18px 42px rgba(15,118,110,.26);
         }
 
-        .login-card h2{
+        .login-title{
             text-align:center;
-            color:#0f766e;
+            margin-bottom:28px;
+        }
+
+        .login-title h2{
             font-size:36px;
-            line-height:1.1;
+            line-height:1;
+            color:var(--primary);
             font-weight:800;
-            letter-spacing:-.8px;
-            margin-bottom:12px;
+            letter-spacing:-1.1px;
+            margin-bottom:14px;
+            white-space:nowrap;
         }
 
-        .subtitle{
-            text-align:center;
-            color:var(--muted);
+        .title-line{
+            display:block;
+            width:64px;
+            height:3px;
+            background:var(--primary-light);
+            border-radius:20px;
+            margin:0 auto 14px;
+        }
+
+        .login-title p{
+            color:#667085;
             font-size:15px;
-            margin-bottom:30px;
+            font-weight:400;
         }
 
-        .flash-box{
-            padding:13px 16px;
-            border-radius:14px;
-            background:#fee2e2;
-            border:1px solid #fecaca;
-            color:#991b1b;
-            font-weight:600;
-            text-align:center;
-            margin-bottom:18px;
-            font-size:14px;
+        form{
+            width:100%;
         }
 
         .input-group{
-            position:relative;
-            margin-bottom:16px;
-        }
-
-        .input-group i{
-            position:absolute;
-            left:20px;
-            top:50%;
-            transform:translateY(-50%);
-            color:#475569;
-            font-size:21px;
-            z-index:1;
-        }
-
-        .input-group input{
             width:100%;
             height:64px;
-            padding:0 58px 0 58px;
             border:1px solid var(--border);
-            border-radius:13px;
-            outline:none;
-            background:white;
-            color:var(--text);
-            font-size:15px;
+            border-radius:14px;
+            display:flex;
+            align-items:center;
+            padding:0 18px;
+            margin-bottom:16px;
+            background:#fff;
             transition:.25s ease;
         }
 
-        .input-group input:focus{
-            border-color:#0f766e;
-            box-shadow:0 0 0 4px rgba(15,118,110,.09);
+        .input-group:focus-within{
+            border-color:var(--primary);
+            box-shadow:0 0 0 4px rgba(15,118,110,.10);
         }
 
-        .toggle-password{
-            position:absolute;
-            right:18px;
-            top:50%;
-            transform:translateY(-50%);
+        .input-group i{
+            font-size:22px;
+            color:#475569;
+            margin-right:16px;
+        }
+
+        .input-group input{
+            flex:1;
+            border:none;
+            outline:none;
+            background:transparent;
+            font-size:16px;
+            color:var(--text);
+            height:100%;
+        }
+
+        .input-group input::placeholder{
+            color:#7b8494;
+        }
+
+        .eye-btn{
             border:none;
             background:transparent;
+            cursor:pointer;
             color:#475569;
             font-size:22px;
-            cursor:pointer;
-            width:auto;
-            height:auto;
-            padding:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:6px;
         }
 
         .form-options{
             display:flex;
             align-items:center;
             justify-content:space-between;
-            gap:14px;
-            margin:10px 0 28px;
-            font-size:14px;
+            margin:6px 0 26px;
+            gap:18px;
         }
 
         .remember{
             display:flex;
             align-items:center;
-            gap:9px;
-            color:#475569;
+            gap:10px;
+            color:#64748b;
+            font-size:14px;
+            cursor:pointer;
             user-select:none;
         }
 
         .remember input{
+            display:none;
+        }
+
+        .checkmark{
             width:18px;
             height:18px;
-            accent-color:#0f766e;
+            border-radius:4px;
+            background:var(--primary);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:13px;
         }
 
         .forgot{
-            color:#0f766e;
+            color:var(--primary);
+            font-size:14px;
+            font-weight:700;
             text-decoration:none;
-            font-weight:600;
             white-space:nowrap;
         }
 
         .forgot:hover{
-            color:#0b5f59;
             text-decoration:underline;
         }
 
@@ -375,33 +402,34 @@
             width:100%;
             height:58px;
             border:none;
-            border-radius:11px;
-            background:linear-gradient(135deg, #0f766e, #0b8077);
-            color:white;
+            border-radius:12px;
+            background:linear-gradient(135deg, #128b81, #0f766e);
+            color:#fff;
             font-size:16px;
-            font-weight:700;
+            font-weight:800;
             cursor:pointer;
             display:flex;
             align-items:center;
             justify-content:center;
-            gap:10px;
-            box-shadow:0 16px 30px rgba(15,118,110,.24);
+            gap:12px;
+            box-shadow:0 20px 35px rgba(15,118,110,.19);
             transition:.25s ease;
         }
 
         .btn-login:hover{
-            transform:translateY(-2px);
-            box-shadow:0 20px 38px rgba(15,118,110,.30);
-            background:linear-gradient(135deg, #0b5f59, #0f766e);
+            transform:translateY(-1px);
+            box-shadow:0 24px 42px rgba(15,118,110,.25);
+            background:linear-gradient(135deg, #0f766e, #0b5f58);
         }
 
         .divider{
             display:flex;
             align-items:center;
-            gap:15px;
+            gap:16px;
+            margin:30px 0;
             color:#94a3b8;
             font-size:14px;
-            margin:28px 0;
+            font-weight:600;
         }
 
         .divider::before,
@@ -409,28 +437,28 @@
             content:"";
             flex:1;
             height:1px;
-            background:#e2e8f0;
+            background:#dce5ec;
         }
 
-        .code-btn{
+        .btn-code{
             width:100%;
-            height:56px;
-            border:1px solid #0f766e;
-            border-radius:10px;
-            background:white;
-            color:#0f766e;
-            font-size:15px;
-            font-weight:700;
+            height:58px;
+            border-radius:12px;
+            border:1.5px solid var(--primary);
+            background:#fff;
+            color:var(--primary);
+            font-size:16px;
+            font-weight:800;
+            cursor:pointer;
             display:flex;
             align-items:center;
             justify-content:center;
-            gap:10px;
-            cursor:pointer;
+            gap:12px;
             transition:.25s ease;
         }
 
-        .code-btn:hover{
-            background:#f0fdfa;
+        .btn-code:hover{
+            background:rgba(15,118,110,.06);
         }
 
         .security{
@@ -438,27 +466,27 @@
             display:flex;
             align-items:center;
             justify-content:center;
-            gap:12px;
+            gap:14px;
             color:#64748b;
             text-align:left;
             font-size:14px;
-            line-height:1.5;
+            line-height:1.45;
         }
 
         .security i{
-            font-size:32px;
-            color:#0f766e;
+            color:var(--primary);
+            font-size:33px;
         }
 
         .copyright{
             position:absolute;
-            bottom:22px;
+            bottom:18px;
             left:0;
-            width:100%;
+            right:48px;
             text-align:center;
-            color:#64748b;
+            color:#6b7280;
             font-size:13px;
-            z-index:2;
+            z-index:3;
         }
 
         /* ================= MODAL ================= */
@@ -467,75 +495,43 @@
             position:fixed;
             inset:0;
             z-index:9999;
-            background:rgba(15,23,42,.58);
+            background:rgba(15,23,42,.55);
+            backdrop-filter:blur(6px);
             align-items:center;
             justify-content:center;
             padding:20px;
-            backdrop-filter:blur(5px);
         }
 
         .modal-content{
             width:100%;
-            max-width:430px;
-            background:white;
+            max-width:420px;
+            background:#fff;
             border-radius:24px;
-            padding:34px;
-            text-align:center;
-            box-shadow:0 28px 80px rgba(0,0,0,.25);
+            padding:30px;
+            box-shadow:0 30px 90px rgba(0,0,0,.25);
             position:relative;
-            animation:modalIn .25s ease;
-        }
-
-        @keyframes modalIn{
-            from{opacity:0; transform:translateY(18px) scale(.98)}
-            to{opacity:1; transform:translateY(0) scale(1)}
+            text-align:center;
         }
 
         .fechar{
             position:absolute;
             right:20px;
-            top:16px;
-            width:34px;
-            height:34px;
-            border-radius:50%;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:28px;
-            cursor:pointer;
+            top:14px;
+            font-size:30px;
             color:#64748b;
-            transition:.2s;
-        }
-
-        .fechar:hover{
-            background:#f1f5f9;
-            color:#0f172a;
-        }
-
-        .modal-icon{
-            width:66px;
-            height:66px;
-            margin:0 auto 18px;
-            border-radius:18px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:#f0fdfa;
-            color:#0f766e;
-            font-size:34px;
+            cursor:pointer;
         }
 
         .modal-content h2{
-            color:#0f766e;
-            font-size:25px;
-            margin-bottom:8px;
+            color:var(--primary);
+            font-size:26px;
+            margin-bottom:10px;
         }
 
         .modal-content p{
             color:#64748b;
             font-size:14px;
-            line-height:1.6;
-            margin-bottom:20px;
+            margin-bottom:22px;
         }
 
         .modal-content input{
@@ -543,31 +539,27 @@
             height:54px;
             border:1px solid var(--border);
             border-radius:12px;
-            padding:0 15px;
             outline:none;
+            padding:0 16px;
             font-size:15px;
             margin-bottom:16px;
         }
 
         .modal-content input:focus{
-            border-color:#0f766e;
-            box-shadow:0 0 0 4px rgba(15,118,110,.09);
+            border-color:var(--primary);
+            box-shadow:0 0 0 4px rgba(15,118,110,.10);
         }
 
         .modal-content button{
             width:100%;
-            height:52px;
+            height:54px;
             border:none;
             border-radius:12px;
-            background:#0f766e;
-            color:white;
-            font-weight:700;
+            background:var(--primary);
+            color:#fff;
+            font-size:15px;
+            font-weight:800;
             cursor:pointer;
-            transition:.25s;
-        }
-
-        .modal-content button:hover{
-            background:#0b5f59;
         }
 
         /* ================= TOAST ================= */
@@ -579,14 +571,15 @@
             max-width:420px;
             padding:15px 18px;
             border-radius:14px;
-            color:white;
-            font-weight:600;
-            z-index:99999;
+            color:#fff;
+            font-weight:700;
+            font-size:14px;
+            z-index:10000;
             opacity:0;
             pointer-events:none;
-            transform:translateX(110%);
+            transform:translateX(120px);
             transition:.35s ease;
-            box-shadow:0 16px 40px rgba(15,23,42,.25);
+            box-shadow:0 18px 42px rgba(0,0,0,.18);
         }
 
         #toast.show{
@@ -598,255 +591,261 @@
         .toast-error{ background:#ef4444; }
 
         /* ================= RESPONSIVO ================= */
-        @media(max-width:1100px){
-            body{overflow:auto;}
-            .page{flex-direction:column;}
-            .left,
-            .right{width:100%; min-height:auto;}
-            .left{height:auto;}
-            .left::after{display:none;}
-            .left-content{height:auto; min-height:560px; padding:42px 28px;}
-            .hero-title h1{font-size:38px;}
-            .features{width:100%; grid-template-columns:1fr;}
-            .feature{border-right:none; border-bottom:1px solid rgba(255,255,255,.12);}
-            .feature:last-child{border-bottom:none;}
-            .right{padding:34px 20px 70px;}
-            .copyright{position:relative; bottom:auto; margin-top:22px;}
+        @media (max-width:1300px){
+            .hero-text{ top:200px; left:55px; width:500px; }
+            .hero-text h1{ font-size:44px; }
+            .feature-card{ left:55px; width:min(630px, calc(100% - 170px)); }
+            .login-card{ max-width:500px; min-height:725px; padding:42px 36px 28px; }
+            .logo-login img{ width:92px; height:92px; }
+            .login-title h2{ font-size:32px; }
+            .input-group{ height:58px; }
+            .btn-login, .btn-code{ height:54px; }
+            .security{ margin-top:26px; }
         }
 
-        @media(max-width:560px){
-            .left-content{padding:32px 20px; min-height:620px;}
-            .brand-left img{width:240px;}
-            .hero-title h1{font-size:32px;}
-            .hero-title p{font-size:15px;}
-            .login-card{padding:34px 22px; border-radius:22px;}
-            .login-card h2{font-size:28px;}
-            .form-options{flex-direction:column; align-items:flex-start;}
-            .logo-circle{width:88px; height:88px;}
+        @media (max-height:790px){
+            .brand-left{ top:24px; }
+            .brand-left img{ width:210px; }
+            .hero-text{ top:150px; }
+            .hero-text h1{ font-size:42px; margin-bottom:14px; }
+            .hero-text p{ font-size:16px; line-height:1.55; }
+            .line-detail{ margin-top:22px; }
+            .feature-card{ bottom:35px; min-height:132px; }
+            .feature{ padding:20px 24px; }
+            .feature-icon{ width:46px; height:46px; margin-bottom:10px; }
+            .feature h3{ font-size:16px; }
+            .feature p{ font-size:13px; }
+            .login-card{ min-height:680px; padding:28px 36px 24px; }
+            .logo-login img{ width:82px; height:82px; }
+            .login-title{ margin-bottom:20px; }
+            .login-title h2{ font-size:30px; margin-bottom:10px; }
+            .title-line{ margin-bottom:10px; }
+            .input-group{ height:54px; margin-bottom:12px; }
+            .form-options{ margin-bottom:18px; }
+            .divider{ margin:22px 0; }
+            .security{ margin-top:22px; }
+            .copyright{ bottom:10px; }
+        }
+
+        @media (max-width:980px){
+            html, body{ overflow:auto; }
+            .page{ min-height:100vh; height:auto; flex-direction:column; overflow:visible; }
+            .left{ width:100%; height:520px; clip-path:none; }
+            .right{ width:100%; min-height:auto; height:auto; padding:40px 20px 70px; }
+            .brand-left{ left:30px; top:24px; }
+            .brand-left img{ width:210px; }
+            .hero-text{ left:30px; top:150px; width:calc(100% - 60px); }
+            .hero-text h1{ font-size:38px; }
+            .dots{ display:none; }
+            .feature-card{ left:30px; right:30px; bottom:28px; width:auto; }
+            .copyright{ bottom:22px; right:0; }
+            .login-card{ min-height:auto; max-height:none; }
+        }
+
+        @media (max-width:640px){
+            .left{ height:560px; }
+            .hero-text h1{ font-size:32px; }
+            .hero-text p{ font-size:15px; }
+            .feature-card{ grid-template-columns:1fr; min-height:auto; }
+            .feature:not(:last-child)::after{ display:none; }
+            .feature{ padding:18px 22px; }
+            .login-card{ padding:34px 22px 28px; border-radius:22px; }
+            .login-title h2{ font-size:28px; white-space:normal; }
+            .form-options{ align-items:flex-start; flex-direction:column; gap:10px; }
         }
     </style>
 </head>
+
 <body>
+    <main class="page">
+        <section class="left">
+            <div class="left-bg"></div>
 
-<div class="page">
-
-    <section class="left">
-        <img class="hero-img" src="{{ url_for('static', filename='logo3.jpg') }}" alt="Clínica">
-        <div class="dots"></div>
-
-        <div class="left-content">
-            <div>
-                <div class="brand-left">
-                    <img src="{{ url_for('static', filename='logo4.png') }}" alt="Essencial Clínica">
-                </div>
-
-                <div class="hero-title">
-                    <h1>Gestão completa<br>para <span>sua clínica</span></h1>
-                    <p>Organize pacientes, consultas, profissionais e relatórios em um único sistema.</p>
-                    <div class="small-line"><span></span></div>
-                </div>
+            <div class="brand-left">
+                <img src="{{ url_for('static', filename='logo4.png') }}" alt="Essencial Clínica">
             </div>
 
-            <div class="features">
+            <div class="dots"></div>
+
+            <div class="hero-text">
+                <h1>Gestão completa<br>para <span>sua clínica</span></h1>
+                <p>Organize pacientes, consultas, profissionais e relatórios em um único sistema.</p>
+                <div class="line-detail"></div>
+            </div>
+
+            <div class="feature-card">
                 <div class="feature">
-                    <i class="bi bi-people-fill"></i>
+                    <div class="feature-icon"><i class="bi bi-people-fill"></i></div>
                     <h3>Pacientes</h3>
-                    <p>Cadastre e acompanhe seus pacientes com praticidade.</p>
+                    <p>Cadastre e acompanhe seus pacientes</p>
                 </div>
 
                 <div class="feature">
-                    <i class="bi bi-calendar2-check"></i>
+                    <div class="feature-icon"><i class="bi bi-calendar-check"></i></div>
                     <h3>Agendamentos</h3>
-                    <p>Organize consultas, horários e compromissos.</p>
+                    <p>Organize consultas e compromissos</p>
                 </div>
 
                 <div class="feature">
-                    <i class="bi bi-graph-up-arrow"></i>
+                    <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
                     <h3>Relatórios</h3>
-                    <p>Tenha dados importantes para sua clínica.</p>
+                    <p>Tenha insights e dados da sua clínica</p>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <main class="right">
-        <section class="login-card">
-            <div class="logo-circle">
-                <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo Essencial Clínica">
-            </div>
-
-            <h2>Essencial Clínica</h2>
-            <p class="subtitle">Sistema para Clínicas e Consultórios</p>
-
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="flash-box">{{ messages[0] }}</div>
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function(){
-                            mostrarToast("{{ messages[0] }}", "error");
-                        });
-                    </script>
-                {% endif %}
-            {% endwith %}
-
-            <form method="POST" autocomplete="off">
-                <div class="input-group">
-                    <i class="bi bi-person"></i>
-                    <input type="text" name="usuario" placeholder="Usuário" required>
-                </div>
-
-                <div class="input-group">
-                    <i class="bi bi-lock"></i>
-                    <input type="password" name="senha" id="senha" placeholder="Senha" required>
-                    <button type="button" class="toggle-password" onclick="toggleSenha()" aria-label="Mostrar senha">
-                        <i id="iconeSenha" class="bi bi-eye"></i>
-                    </button>
-                </div>
-
-                <div class="form-options">
-                    <label class="remember">
-                        <input type="checkbox" name="lembrar" checked>
-                        <span>Lembrar-me</span>
-                    </label>
-
-                    <a href="#" class="forgot" onclick="abrirModal(); return false;">Esqueceu a senha?</a>
-                </div>
-
-                <button type="submit" class="btn-login">
-                    <i class="bi bi-lock"></i>
-                    Entrar
-                </button>
-            </form>
-
-            <div class="divider">ou</div>
-
-            <button type="button" class="code-btn" onclick="mostrarToast('Função de acesso com código ainda não configurada.', 'error')">
-                <i class="bi bi-shield-check"></i>
-                Acessar com código
-            </button>
-
-            <div class="security">
-                <i class="bi bi-shield-check"></i>
-                <span>Seus dados estão protegidos<br>com segurança e criptografia.</span>
             </div>
         </section>
 
-        <div class="copyright">
-            © 2026 Essencial Clínica. Todos os direitos reservados.
-        </div>
+        <section class="right">
+            <div class="login-card">
+                <div class="logo-login">
+                    <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo Essencial Clínica">
+                </div>
+
+                <div class="login-title">
+                    <h2>Essencial Clínica</h2>
+                    <span class="title-line"></span>
+                    <p>Sistema para Clínicas e Consultórios</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('login') }}">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <script>
+                                window.addEventListener('DOMContentLoaded', function(){
+                                    mostrarToast("{{ messages[0] }}", "error");
+                                });
+                            </script>
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="input-group">
+                        <i class="bi bi-person"></i>
+                        <input type="text" name="usuario" placeholder="Usuário" autocomplete="username" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="bi bi-lock"></i>
+                        <input type="password" name="senha" id="senha" placeholder="Senha" autocomplete="current-password" required>
+                        <button class="eye-btn" type="button" onclick="toggleSenha()" aria-label="Mostrar ou ocultar senha">
+                            <i class="bi bi-eye" id="iconeSenha"></i>
+                        </button>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"><i class="bi bi-check-lg"></i></span>
+                            Lembrar-me
+                        </label>
+
+                        <a class="forgot" href="#" onclick="abrirModal(); return false;">Esqueceu a senha?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <i class="bi bi-lock"></i>
+                        Entrar
+                    </button>
+                </form>
+
+                <div class="divider">ou</div>
+
+                <button type="button" class="btn-code" onclick="mostrarToast('Função de acesso por código ainda não configurada.', 'error')">
+                    <i class="bi bi-shield-check"></i>
+                    Acessar com código
+                </button>
+
+                <div class="security">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Seus dados estão protegidos<br>com segurança e criptografia.</span>
+                </div>
+            </div>
+
+            <div class="copyright">© 2026 Essencial Clínica. Todos os direitos reservados.</div>
+        </section>
     </main>
 
-</div>
-
-<div id="modalSenha" class="modal">
-    <div class="modal-content">
-        <span class="fechar" onclick="fecharModal()">&times;</span>
-
-        <div class="modal-icon">
-            <i class="bi bi-key"></i>
+    <div id="modalSenha" class="modal">
+        <div class="modal-content">
+            <span class="fechar" onclick="fecharModal()">&times;</span>
+            <h2>Recuperar Senha</h2>
+            <p>Informe seu usuário para solicitar uma nova senha.</p>
+            <input type="text" id="usuarioRecuperacao" placeholder="Usuário">
+            <button type="button" onclick="enviarSolicitacao()">Enviar Solicitação</button>
         </div>
-
-        <h2>Recuperar Senha</h2>
-        <p>Informe seu usuário para solicitar uma nova senha.</p>
-
-        <input type="text" id="usuarioRecuperacao" placeholder="Digite seu usuário">
-
-        <button type="button" onclick="enviarSolicitacao()">
-            Enviar Solicitação
-        </button>
     </div>
-</div>
 
-<div id="toast"></div>
+    <div id="toast"></div>
 
-<script>
-    function abrirModal(){
-        document.getElementById("modalSenha").style.display = "flex";
-        setTimeout(() => {
-            document.getElementById("usuarioRecuperacao").focus();
-        }, 100);
-    }
-
-    function fecharModal(){
-        document.getElementById("modalSenha").style.display = "none";
-    }
-
-    window.onclick = function(event){
-        const modal = document.getElementById("modalSenha");
-        if(event.target === modal){
-            fecharModal();
-        }
-    }
-
-    document.addEventListener("keydown", function(event){
-        if(event.key === "Escape"){
-            fecharModal();
-        }
-    });
-
-    function toggleSenha(){
-        const campo = document.getElementById("senha");
-        const icone = document.getElementById("iconeSenha");
-
-        if(campo.type === "password"){
-            campo.type = "text";
-            icone.classList.remove("bi-eye");
-            icone.classList.add("bi-eye-slash");
-        }else{
-            campo.type = "password";
-            icone.classList.remove("bi-eye-slash");
-            icone.classList.add("bi-eye");
-        }
-    }
-
-    function mostrarToast(mensagem, tipo){
-        const toast = document.getElementById("toast");
-
-        toast.innerHTML = mensagem;
-        toast.className = "";
-        toast.classList.add("show");
-
-        if(tipo === "success"){
-            toast.classList.add("toast-success");
-        }else{
-            toast.classList.add("toast-error");
+    <script>
+        function abrirModal(){
+            document.getElementById('modalSenha').style.display = 'flex';
         }
 
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 3200);
-    }
-
-    function enviarSolicitacao(){
-        const usuario = document.getElementById("usuarioRecuperacao").value.trim();
-
-        if(!usuario){
-            mostrarToast("Informe seu usuário para continuar.", "error");
-            return;
+        function fecharModal(){
+            document.getElementById('modalSenha').style.display = 'none';
         }
 
-        fetch("/verificar-usuario", {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/x-www-form-urlencoded"
-            },
-            body:"usuario=" + encodeURIComponent(usuario)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if(data.existe){
-                mostrarToast("✅ Solicitação enviada com sucesso!", "success");
+        window.addEventListener('click', function(event){
+            const modal = document.getElementById('modalSenha');
+            if(event.target === modal){
                 fecharModal();
-                document.getElementById("usuarioRecuperacao").value = "";
-            }else{
-                mostrarToast("❌ Usuário não encontrado.", "error");
             }
-        })
-        .catch(() => {
-            mostrarToast("Erro ao enviar solicitação. Tente novamente.", "error");
         });
-    }
-</script>
 
+        function toggleSenha(){
+            const campo = document.getElementById('senha');
+            const icone = document.getElementById('iconeSenha');
+
+            if(campo.type === 'password'){
+                campo.type = 'text';
+                icone.classList.remove('bi-eye');
+                icone.classList.add('bi-eye-slash');
+            }else{
+                campo.type = 'password';
+                icone.classList.remove('bi-eye-slash');
+                icone.classList.add('bi-eye');
+            }
+        }
+
+        function mostrarToast(mensagem, tipo='error'){
+            const toast = document.getElementById('toast');
+            toast.innerHTML = mensagem;
+            toast.className = '';
+            toast.classList.add(tipo === 'success' ? 'toast-success' : 'toast-error');
+            toast.classList.add('show');
+
+            setTimeout(function(){
+                toast.classList.remove('show');
+            }, 3200);
+        }
+
+        function enviarSolicitacao(){
+            const usuario = document.getElementById('usuarioRecuperacao').value.trim();
+
+            if(!usuario){
+                mostrarToast('Informe o usuário para continuar.', 'error');
+                return;
+            }
+
+            fetch('/verificar-usuario', {
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/x-www-form-urlencoded'
+                },
+                body:'usuario=' + encodeURIComponent(usuario)
+            })
+            .then(function(response){ return response.json(); })
+            .then(function(data){
+                if(data.existe){
+                    mostrarToast('Solicitação enviada com sucesso!', 'success');
+                    fecharModal();
+                }else{
+                    mostrarToast('Usuário não encontrado.', 'error');
+                }
+            })
+            .catch(function(){
+                mostrarToast('Erro ao enviar solicitação. Tente novamente.', 'error');
+            });
+        }
+    </script>
 </body>
 </html>
