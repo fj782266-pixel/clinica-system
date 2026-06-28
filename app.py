@@ -245,7 +245,7 @@ def profissionais():
 
         return redirect("/profissionais")
 
-    lista = Profissional.query.all()
+    lista = Profissional.query.order_by(Profissional.nome.asc()).all()
 
     total_profissionais = Profissional.query.count()
     total_pacientes = Paciente.query.count()
