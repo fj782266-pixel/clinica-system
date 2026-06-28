@@ -1,615 +1,851 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Login - Clínica</title>
-
-
-<style>
-
-/* ================= RESET ================= */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Segoe UI, sans-serif;
-}
-
-body{
-    height:100vh;
-    display:flex;
-    background:#f5f7fb;
-    overflow:hidden;
-}
-
-/* ================= LEFT ================= */
-
-.left{
-    width:50%;
-    height:100vh;
-    position:relative;
-    overflow:hidden;
-}
-
-/* IMAGEM DE FUNDO */
-
-.slider{
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-}
-
-.slider img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    object-position:center top;
-}
-
-/* ESCURECE A IMAGEM */
-
-.slider::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:rgba(15,23,42,0.45);
-}
-
-/* CARD DE TEXTO */
-
-.info{
-    position:absolute;
-    bottom:60px;
-    left:50px;
-    z-index:2;
-
-    width:380px;
-    padding:30px;
-
-    background:#0F766E;
-
-    backdrop-filter:blur(12px);
-
-    border-radius:20px;
-
-    color:white;
-
-    border:1px solid rgba(255,255,255,0.1);
-
-    box-shadow:0 10px 30px rgba(0,0,0,0.3);
-}
-
-.info h2{
-    font-size:32px;
-    margin-bottom:15px;
-}
-
-.info p{
-    line-height:1.6;
-    font-size:16px;
-}
-
-/* ================= RIGHT ================= */
-
-.right{
-    width:50%;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:white;
-}
-
-.login-box{
-    width:450px;
-}
-
-/* LOGO */
-
-.logo-img{
-    display:flex;
-    justify-content:center;
-    margin-bottom:20px;
-}
-
-.logo-img img{
-    width:130px;
-    height:130px;
-    border-radius:50%;
-    object-fit:cover;
-    border:4px solid white;
-    box-shadow:0 8px 25px rgba(0,0,0,0.15);
-}
-
-.logo{
-    width:220px;
-    height:auto;
-
-    border-radius:25px;
-
-    border:none;
-
-    box-shadow:0 20px 40px rgba(0,0,0,.25);
-}
-
-.logo h1{
-    color:#0F766E;
-    font-size:42px;
-}
-
-/* INPUTS */
-
-input{
-    width:100%;
-    padding:15px;
-    margin-bottom:15px;
-
-    border:1px solid #ddd;
-    border-radius:30px;
-
-    font-size:16px;
-    outline:none;
-}
-
-input:focus{
-    border-color:#0F766E;
-}
-
-/* SENHA */
-
-.senha-box{
-    position:relative;
-}
-
-.olho{
-    position:absolute;
-    right:15px;
-    top:50%;
-    transform:translateY(-50%);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-/* BOTÃO */
-
-button{
-    width:100%;
-    padding:15px;
-
-    border:none;
-    border-radius:30px;
-
-    background:#0F766E;
-    color:white;
-
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-
-    transition:.3s;
-}
-
-button:hover{
-    background:#0d5f56;
-}
-
-/* ESQUECEU SENHA */
-
-.esqueceu{
-    text-align:center;
-    margin-top:20px;
-}
-
-.esqueceu a{
-    color:#666;
-    text-decoration:none;
-}
-
-.esqueceu a:hover{
-    color:#0F766E;
-}
-
-/* ================= MODAL ================= */
-
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-
-    background:rgba(0,0,0,0.5);
-
-    justify-content:center;
-    align-items:center;
-
-    z-index:9999;
-}
-
-.modal-content{
-    background:white;
-    width:400px;
-    padding:30px;
-    border-radius:20px;
-    text-align:center;
-}
-
-/* ================= TOAST ================= */
-
-#toast{
-    position:fixed;
-    top:20px;
-    right:20px;
-
-    min-width:300px;
-
-    padding:16px 20px;
-
-    border-radius:12px;
-
-    color:white;
-    font-weight:600;
-
-    z-index:99999;
-
-    opacity:0;
-    transform:translateX(100px);
-
-    transition:.4s;
-}
-
-#toast.show{
-    opacity:1;
-    transform:translateX(0);
-}
-
-.toast-success{
-    background:#22c55e;
-}
-
-.toast-error{
-    background:#ef4444;
-}
-
-.brand-left{
-    position:absolute;
-    top:25px;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:3;
-    text-align:center;
-}
-
-.brand-left img{
-    width:450px;
-    max-width:90%;
-    height:auto;
-    filter:drop-shadow(0 8px 20px rgba(0,0,0,.25));
-
-}
-
-.brand-left h1{
-    font-size:72px;
-    line-height:1;
-    font-weight:700;
-    margin:0;
-    color:#0F766E;
-}
-
-.brand-left span{
-    display:block;
-    margin-top:8px;
-
-    font-size:24px;
-    letter-spacing:6px;
-    font-weight:500;
-
-    color:#0F766E;
-}
-
-.alerta-erro{
-    background:#FEE2E2;
-    color:#B91C1C;
-    border:1px solid #FCA5A5;
-    padding:12px;
-    border-radius:12px;
-    margin-bottom:15px;
-    text-align:center;
-    font-weight:600;
-}
-
-.toast-login{
-    position:fixed;
-    top:20px;
-    right:20px;
-
-    background:#ef4444;
-    color:white;
-
-    padding:15px 25px;
-
-    border-radius:12px;
-
-    font-weight:600;
-
-    box-shadow:0 8px 20px rgba(0,0,0,.2);
-
-    z-index:99999;
-
-    animation:slideIn .3s ease;
-}
-
-@keyframes slideIn{
-    from{
-        opacity:0;
-        transform:translateX(100%);
-    }
-    to{
-        opacity:1;
-        transform:translateX(0);
-    }
-}
-
-h1{
-    white-space: nowrap;
-    margin-left: 50px;
-}
-
-</style>
-
-</style>
-</head>
-
-<body>
-
-<div class="left">
-    <div class="slider">
-        <img src="{{ url_for('static', filename='logo3.jpg') }}">
-    </div>
-
-    <div class="brand-left">
-        <img src="{{ url_for('static', filename='logo4.png') }}" alt="Logo">
-    </div>
-
-    <div class="info">
-        <h2>Sistema para Clínicas</h2>
-        <p>
-            Gerencie pacientes, consultas,
-            profissionais e relatórios em um único lugar.
-        </p>
-    </div>
-</div>
-
-<div class="right">
-    <div class="login-box">
-
-        <div class="logo-img">
-            <img src="{{ url_for('static', filename='logo2.png') }}">
-        </div>
-
-        <div class="logo">
-            <h1>Essencial Clínica</h1>
-        </div>
-
-       
-
-        <form method="POST">
-
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <script>
-    mostrarToast("{{ messages[0] }}");
-</script>
-    {% endif %}
-{% endwith %}
-
-    <input type="text" name="usuario" placeholder="Usuário">
-
-    <div class="senha-box">
-
-        <input
-            type="password"
-            name="senha"
-            id="senha"
-            placeholder="Senha">
-
-        <span class="olho" onclick="toggleSenha()">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path
-            d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z"
-            stroke="black"
-            stroke-width="2"
-        />
-        <circle
-            cx="12"
-            cy="12"
-            r="3"
-            stroke="black"
-            stroke-width="2"
-        />
-    </svg>
-</span>
-    </div>
-
-    <button type="submit">
-        Entrar
-    </button>
-
-</form>
-
-        <div class="esqueceu">
-    <a href="#" onclick="abrirModal()">Esqueceu a senha?</a>
-</div>
-
-    </div>
-
-</div>
-<div id="modalSenha" class="modal">
-
-    <div class="modal-content">
-
-        <span class="fechar" onclick="fecharModal()">&times;</span>
-
-        <h2>Recuperar Senha</h2>
-
-        <p>Informe seu usuário para solicitar uma nova senha.</p>
-
-        <input
-    type="text"
-    id="usuarioRecuperacao"
-    placeholder="Usuário">
-
-       <button onclick="enviarSolicitacao()">
-    Enviar Solicitação
-</button>
-
-    </div>
-</div>
-
-<div id="toast"></div>
-
-
-<script>
-
-function abrirModal(){
-    document.getElementById("modalSenha").style.display = "flex";
-}
-
-function fecharModal(){
-    document.getElementById("modalSenha").style.display = "none";
-}
-
-window.onclick = function(event){
-
-    let modal = document.getElementById("modalSenha");
-
-    if(event.target == modal){
-        modal.style.display = "none";
-    }
-
-}
-
-</script>
-
-<div id="toast"></div>
-
-<script>
-
-function abrirModal(){
-    document.getElementById("modalSenha").style.display = "flex";
-}
-
-function fecharModal(){
-    document.getElementById("modalSenha").style.display = "none";
-}
-
-window.onclick = function(event){
-
-    let modal = document.getElementById("modalSenha");
-
-    if(event.target == modal){
-        modal.style.display = "none";
-    }
-}
-
-function enviarSolicitacao(){
-
-    let usuario = document.getElementById("usuarioRecuperacao").value;
-
-    fetch("/verificar-usuario", {
-
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: "usuario=" + encodeURIComponent(usuario)
-
-    })
-    .then(response => response.json())
-    .then(data => {
-
-        if(data.existe){
-            mostrarToast("✅ Solicitação enviada com sucesso!", "success");
-            fecharModal();
-        } else {
-            mostrarToast("❌ Usuário não encontrado.", "error");
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Essencial Clínica</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+        :root{
+            --primary:#0f766e;
+            --primary-dark:#0b5f59;
+            --primary-light:#14b8a6;
+            --bg:#f8fafc;
+            --text:#0f172a;
+            --muted:#64748b;
+            --border:#dbe3ea;
+            --white:#ffffff;
         }
 
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins', sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            background:var(--bg);
+            overflow:hidden;
+        }
+
+        .page{
+            width:100%;
+            min-height:100vh;
+            display:flex;
+        }
+
+        /* ================= LADO ESQUERDO ================= */
+        .left{
+            width:57%;
+            min-height:100vh;
+            position:relative;
+            overflow:hidden;
+            color:white;
+            background:#082f2d;
+        }
+
+        .left::before{
+            content:"";
+            position:absolute;
+            inset:0;
+            background:
+                linear-gradient(90deg, rgba(8,47,45,.94) 0%, rgba(8,47,45,.72) 46%, rgba(8,47,45,.35) 100%),
+                linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.45));
+            z-index:1;
+        }
+
+        .left::after{
+            content:"";
+            position:absolute;
+            right:-120px;
+            top:0;
+            width:260px;
+            height:100%;
+            background:var(--bg);
+            transform:skewX(-8deg);
+            z-index:3;
+        }
+
+        .hero-img{
+            position:absolute;
+            inset:0;
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            object-position:center;
+            filter:saturate(.95);
+        }
+
+        .left-content{
+            position:relative;
+            z-index:2;
+            height:100vh;
+            padding:56px 78px 70px;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+        }
+
+        .brand-left img{
+            width:330px;
+            max-width:90%;
+            height:auto;
+            filter:drop-shadow(0 12px 24px rgba(0,0,0,.28));
+        }
+
+        .hero-title{
+            max-width:560px;
+            margin-top:40px;
+        }
+
+        .hero-title h1{
+            font-size:48px;
+            line-height:1.16;
+            font-weight:800;
+            letter-spacing:-1.5px;
+            margin-bottom:22px;
+        }
+
+        .hero-title h1 span{
+            color:#21d4c6;
+        }
+
+        .hero-title p{
+            font-size:18px;
+            line-height:1.7;
+            color:rgba(255,255,255,.92);
+            max-width:560px;
+        }
+
+        .small-line{
+            width:140px;
+            height:4px;
+            border-radius:999px;
+            background:rgba(20,184,166,.35);
+            margin-top:30px;
+            overflow:hidden;
+        }
+
+        .small-line span{
+            display:block;
+            width:70px;
+            height:100%;
+            background:#21d4c6;
+            border-radius:999px;
+        }
+
+        .features{
+            width:88%;
+            max-width:760px;
+            display:grid;
+            grid-template-columns:repeat(3, 1fr);
+            gap:0;
+            background:rgba(8,47,45,.76);
+            border:1px solid rgba(255,255,255,.12);
+            border-radius:22px;
+            backdrop-filter:blur(18px);
+            box-shadow:0 24px 60px rgba(0,0,0,.28);
+            overflow:hidden;
+        }
+
+        .feature{
+            padding:28px 26px;
+            border-right:1px solid rgba(255,255,255,.12);
+        }
+
+        .feature:last-child{
+            border-right:none;
+        }
+
+        .feature i{
+            width:54px;
+            height:54px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:16px;
+            background:linear-gradient(135deg, #0f766e, #14b8a6);
+            color:white;
+            font-size:25px;
+            margin-bottom:16px;
+            box-shadow:0 14px 28px rgba(20,184,166,.25);
+        }
+
+        .feature h3{
+            font-size:18px;
+            margin-bottom:8px;
+            font-weight:700;
+        }
+
+        .feature p{
+            font-size:14px;
+            line-height:1.6;
+            color:rgba(255,255,255,.88);
+        }
+
+        .dots{
+            position:absolute;
+            top:112px;
+            right:140px;
+            z-index:2;
+            width:130px;
+            height:130px;
+            background-image:radial-gradient(rgba(34,211,238,.65) 2px, transparent 2px);
+            background-size:18px 18px;
+            opacity:.55;
+        }
+
+        /* ================= LADO DIREITO ================= */
+        .right{
+            width:43%;
+            min-height:100vh;
+            position:relative;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:44px;
+            background:
+                radial-gradient(circle at top right, rgba(20,184,166,.13), transparent 34%),
+                radial-gradient(circle at bottom left, rgba(15,118,110,.08), transparent 35%),
+                #f8fafc;
+        }
+
+        .right::before{
+            content:"";
+            position:absolute;
+            right:-80px;
+            top:55px;
+            width:420px;
+            height:420px;
+            border-radius:50%;
+            border:1px solid rgba(20,184,166,.18);
+            box-shadow:0 0 0 18px rgba(20,184,166,.035), 0 0 0 38px rgba(20,184,166,.025);
+        }
+
+        .login-card{
+            position:relative;
+            z-index:2;
+            width:100%;
+            max-width:540px;
+            background:rgba(255,255,255,.92);
+            border:1px solid rgba(255,255,255,.85);
+            border-radius:28px;
+            padding:52px 44px 44px;
+            box-shadow:0 30px 90px rgba(15,23,42,.13);
+            backdrop-filter:blur(18px);
+        }
+
+        .logo-circle{
+            width:104px;
+            height:104px;
+            margin:0 auto 25px;
+            border-radius:24px;
+            overflow:hidden;
+            background:linear-gradient(135deg, #0f766e, #064e49);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            box-shadow:0 20px 40px rgba(15,118,110,.28);
+        }
+
+        .logo-circle img{
+            width:100%;
+            height:100%;
+            object-fit:cover;
+        }
+
+        .login-card h2{
+            text-align:center;
+            color:#0f766e;
+            font-size:36px;
+            line-height:1.1;
+            font-weight:800;
+            letter-spacing:-.8px;
+            margin-bottom:12px;
+        }
+
+        .subtitle{
+            text-align:center;
+            color:var(--muted);
+            font-size:15px;
+            margin-bottom:30px;
+        }
+
+        .flash-box{
+            padding:13px 16px;
+            border-radius:14px;
+            background:#fee2e2;
+            border:1px solid #fecaca;
+            color:#991b1b;
+            font-weight:600;
+            text-align:center;
+            margin-bottom:18px;
+            font-size:14px;
+        }
+
+        .input-group{
+            position:relative;
+            margin-bottom:16px;
+        }
+
+        .input-group i{
+            position:absolute;
+            left:20px;
+            top:50%;
+            transform:translateY(-50%);
+            color:#475569;
+            font-size:21px;
+            z-index:1;
+        }
+
+        .input-group input{
+            width:100%;
+            height:64px;
+            padding:0 58px 0 58px;
+            border:1px solid var(--border);
+            border-radius:13px;
+            outline:none;
+            background:white;
+            color:var(--text);
+            font-size:15px;
+            transition:.25s ease;
+        }
+
+        .input-group input:focus{
+            border-color:#0f766e;
+            box-shadow:0 0 0 4px rgba(15,118,110,.09);
+        }
+
+        .toggle-password{
+            position:absolute;
+            right:18px;
+            top:50%;
+            transform:translateY(-50%);
+            border:none;
+            background:transparent;
+            color:#475569;
+            font-size:22px;
+            cursor:pointer;
+            width:auto;
+            height:auto;
+            padding:0;
+        }
+
+        .form-options{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:14px;
+            margin:10px 0 28px;
+            font-size:14px;
+        }
+
+        .remember{
+            display:flex;
+            align-items:center;
+            gap:9px;
+            color:#475569;
+            user-select:none;
+        }
+
+        .remember input{
+            width:18px;
+            height:18px;
+            accent-color:#0f766e;
+        }
+
+        .forgot{
+            color:#0f766e;
+            text-decoration:none;
+            font-weight:600;
+            white-space:nowrap;
+        }
+
+        .forgot:hover{
+            color:#0b5f59;
+            text-decoration:underline;
+        }
+
+        .btn-login{
+            width:100%;
+            height:58px;
+            border:none;
+            border-radius:11px;
+            background:linear-gradient(135deg, #0f766e, #0b8077);
+            color:white;
+            font-size:16px;
+            font-weight:700;
+            cursor:pointer;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            box-shadow:0 16px 30px rgba(15,118,110,.24);
+            transition:.25s ease;
+        }
+
+        .btn-login:hover{
+            transform:translateY(-2px);
+            box-shadow:0 20px 38px rgba(15,118,110,.30);
+            background:linear-gradient(135deg, #0b5f59, #0f766e);
+        }
+
+        .divider{
+            display:flex;
+            align-items:center;
+            gap:15px;
+            color:#94a3b8;
+            font-size:14px;
+            margin:28px 0;
+        }
+
+        .divider::before,
+        .divider::after{
+            content:"";
+            flex:1;
+            height:1px;
+            background:#e2e8f0;
+        }
+
+        .code-btn{
+            width:100%;
+            height:56px;
+            border:1px solid #0f766e;
+            border-radius:10px;
+            background:white;
+            color:#0f766e;
+            font-size:15px;
+            font-weight:700;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            cursor:pointer;
+            transition:.25s ease;
+        }
+
+        .code-btn:hover{
+            background:#f0fdfa;
+        }
+
+        .security{
+            margin-top:34px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:12px;
+            color:#64748b;
+            text-align:left;
+            font-size:14px;
+            line-height:1.5;
+        }
+
+        .security i{
+            font-size:32px;
+            color:#0f766e;
+        }
+
+        .copyright{
+            position:absolute;
+            bottom:22px;
+            left:0;
+            width:100%;
+            text-align:center;
+            color:#64748b;
+            font-size:13px;
+            z-index:2;
+        }
+
+        /* ================= MODAL ================= */
+        .modal{
+            display:none;
+            position:fixed;
+            inset:0;
+            z-index:9999;
+            background:rgba(15,23,42,.58);
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+            backdrop-filter:blur(5px);
+        }
+
+        .modal-content{
+            width:100%;
+            max-width:430px;
+            background:white;
+            border-radius:24px;
+            padding:34px;
+            text-align:center;
+            box-shadow:0 28px 80px rgba(0,0,0,.25);
+            position:relative;
+            animation:modalIn .25s ease;
+        }
+
+        @keyframes modalIn{
+            from{opacity:0; transform:translateY(18px) scale(.98)}
+            to{opacity:1; transform:translateY(0) scale(1)}
+        }
+
+        .fechar{
+            position:absolute;
+            right:20px;
+            top:16px;
+            width:34px;
+            height:34px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:28px;
+            cursor:pointer;
+            color:#64748b;
+            transition:.2s;
+        }
+
+        .fechar:hover{
+            background:#f1f5f9;
+            color:#0f172a;
+        }
+
+        .modal-icon{
+            width:66px;
+            height:66px;
+            margin:0 auto 18px;
+            border-radius:18px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#f0fdfa;
+            color:#0f766e;
+            font-size:34px;
+        }
+
+        .modal-content h2{
+            color:#0f766e;
+            font-size:25px;
+            margin-bottom:8px;
+        }
+
+        .modal-content p{
+            color:#64748b;
+            font-size:14px;
+            line-height:1.6;
+            margin-bottom:20px;
+        }
+
+        .modal-content input{
+            width:100%;
+            height:54px;
+            border:1px solid var(--border);
+            border-radius:12px;
+            padding:0 15px;
+            outline:none;
+            font-size:15px;
+            margin-bottom:16px;
+        }
+
+        .modal-content input:focus{
+            border-color:#0f766e;
+            box-shadow:0 0 0 4px rgba(15,118,110,.09);
+        }
+
+        .modal-content button{
+            width:100%;
+            height:52px;
+            border:none;
+            border-radius:12px;
+            background:#0f766e;
+            color:white;
+            font-weight:700;
+            cursor:pointer;
+            transition:.25s;
+        }
+
+        .modal-content button:hover{
+            background:#0b5f59;
+        }
+
+        /* ================= TOAST ================= */
+        #toast{
+            position:fixed;
+            top:22px;
+            right:22px;
+            min-width:300px;
+            max-width:420px;
+            padding:15px 18px;
+            border-radius:14px;
+            color:white;
+            font-weight:600;
+            z-index:99999;
+            opacity:0;
+            pointer-events:none;
+            transform:translateX(110%);
+            transition:.35s ease;
+            box-shadow:0 16px 40px rgba(15,23,42,.25);
+        }
+
+        #toast.show{
+            opacity:1;
+            transform:translateX(0);
+        }
+
+        .toast-success{ background:#16a34a; }
+        .toast-error{ background:#ef4444; }
+
+        /* ================= RESPONSIVO ================= */
+        @media(max-width:1100px){
+            body{overflow:auto;}
+            .page{flex-direction:column;}
+            .left,
+            .right{width:100%; min-height:auto;}
+            .left{height:auto;}
+            .left::after{display:none;}
+            .left-content{height:auto; min-height:560px; padding:42px 28px;}
+            .hero-title h1{font-size:38px;}
+            .features{width:100%; grid-template-columns:1fr;}
+            .feature{border-right:none; border-bottom:1px solid rgba(255,255,255,.12);}
+            .feature:last-child{border-bottom:none;}
+            .right{padding:34px 20px 70px;}
+            .copyright{position:relative; bottom:auto; margin-top:22px;}
+        }
+
+        @media(max-width:560px){
+            .left-content{padding:32px 20px; min-height:620px;}
+            .brand-left img{width:240px;}
+            .hero-title h1{font-size:32px;}
+            .hero-title p{font-size:15px;}
+            .login-card{padding:34px 22px; border-radius:22px;}
+            .login-card h2{font-size:28px;}
+            .form-options{flex-direction:column; align-items:flex-start;}
+            .logo-circle{width:88px; height:88px;}
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+
+    <section class="left">
+        <img class="hero-img" src="{{ url_for('static', filename='logo3.jpg') }}" alt="Clínica">
+        <div class="dots"></div>
+
+        <div class="left-content">
+            <div>
+                <div class="brand-left">
+                    <img src="{{ url_for('static', filename='logo4.png') }}" alt="Essencial Clínica">
+                </div>
+
+                <div class="hero-title">
+                    <h1>Gestão completa<br>para <span>sua clínica</span></h1>
+                    <p>Organize pacientes, consultas, profissionais e relatórios em um único sistema.</p>
+                    <div class="small-line"><span></span></div>
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <i class="bi bi-people-fill"></i>
+                    <h3>Pacientes</h3>
+                    <p>Cadastre e acompanhe seus pacientes com praticidade.</p>
+                </div>
+
+                <div class="feature">
+                    <i class="bi bi-calendar2-check"></i>
+                    <h3>Agendamentos</h3>
+                    <p>Organize consultas, horários e compromissos.</p>
+                </div>
+
+                <div class="feature">
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <h3>Relatórios</h3>
+                    <p>Tenha dados importantes para sua clínica.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="right">
+        <section class="login-card">
+            <div class="logo-circle">
+                <img src="{{ url_for('static', filename='logo2.png') }}" alt="Logo Essencial Clínica">
+            </div>
+
+            <h2>Essencial Clínica</h2>
+            <p class="subtitle">Sistema para Clínicas e Consultórios</p>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div class="flash-box">{{ messages[0] }}</div>
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function(){
+                            mostrarToast("{{ messages[0] }}", "error");
+                        });
+                    </script>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" autocomplete="off">
+                <div class="input-group">
+                    <i class="bi bi-person"></i>
+                    <input type="text" name="usuario" placeholder="Usuário" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="bi bi-lock"></i>
+                    <input type="password" name="senha" id="senha" placeholder="Senha" required>
+                    <button type="button" class="toggle-password" onclick="toggleSenha()" aria-label="Mostrar senha">
+                        <i id="iconeSenha" class="bi bi-eye"></i>
+                    </button>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember">
+                        <input type="checkbox" name="lembrar" checked>
+                        <span>Lembrar-me</span>
+                    </label>
+
+                    <a href="#" class="forgot" onclick="abrirModal(); return false;">Esqueceu a senha?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-lock"></i>
+                    Entrar
+                </button>
+            </form>
+
+            <div class="divider">ou</div>
+
+            <button type="button" class="code-btn" onclick="mostrarToast('Função de acesso com código ainda não configurada.', 'error')">
+                <i class="bi bi-shield-check"></i>
+                Acessar com código
+            </button>
+
+            <div class="security">
+                <i class="bi bi-shield-check"></i>
+                <span>Seus dados estão protegidos<br>com segurança e criptografia.</span>
+            </div>
+        </section>
+
+        <div class="copyright">
+            © 2026 Essencial Clínica. Todos os direitos reservados.
+        </div>
+    </main>
+
+</div>
+
+<div id="modalSenha" class="modal">
+    <div class="modal-content">
+        <span class="fechar" onclick="fecharModal()">&times;</span>
+
+        <div class="modal-icon">
+            <i class="bi bi-key"></i>
+        </div>
+
+        <h2>Recuperar Senha</h2>
+        <p>Informe seu usuário para solicitar uma nova senha.</p>
+
+        <input type="text" id="usuarioRecuperacao" placeholder="Digite seu usuário">
+
+        <button type="button" onclick="enviarSolicitacao()">
+            Enviar Solicitação
+        </button>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+    function abrirModal(){
+        document.getElementById("modalSenha").style.display = "flex";
+        setTimeout(() => {
+            document.getElementById("usuarioRecuperacao").focus();
+        }, 100);
+    }
+
+    function fecharModal(){
+        document.getElementById("modalSenha").style.display = "none";
+    }
+
+    window.onclick = function(event){
+        const modal = document.getElementById("modalSenha");
+        if(event.target === modal){
+            fecharModal();
+        }
+    }
+
+    document.addEventListener("keydown", function(event){
+        if(event.key === "Escape"){
+            fecharModal();
+        }
     });
-}
 
-function toggleSenha(){
+    function toggleSenha(){
+        const campo = document.getElementById("senha");
+        const icone = document.getElementById("iconeSenha");
 
-    let campo = document.getElementById("senha");
-
-    if(campo.type === "password"){
-        campo.type = "text";
-    } else {
-        campo.type = "password";
-    }
-}
-
-</script>
-<script>
-function mostrarToast(mensagem, tipo){
-
-    let toast = document.getElementById("toast");
-
-    toast.innerHTML = mensagem;
-    toast.className = "";
-    toast.classList.add("show");
-
-    if(tipo === "success"){
-        toast.classList.add("toast-success");
-    }else{
-        toast.classList.add("toast-error");
+        if(campo.type === "password"){
+            campo.type = "text";
+            icone.classList.remove("bi-eye");
+            icone.classList.add("bi-eye-slash");
+        }else{
+            campo.type = "password";
+            icone.classList.remove("bi-eye-slash");
+            icone.classList.add("bi-eye");
+        }
     }
 
-    setTimeout(() => {
-        toast.classList.remove("show");
-    }, 3000);
-}
-</script>
+    function mostrarToast(mensagem, tipo){
+        const toast = document.getElementById("toast");
 
-<script>
-let slides = document.querySelectorAll(".slide");
-let index = 0;
+        toast.innerHTML = mensagem;
+        toast.className = "";
+        toast.classList.add("show");
 
-setInterval(() => {
+        if(tipo === "success"){
+            toast.classList.add("toast-success");
+        }else{
+            toast.classList.add("toast-error");
+        }
 
-    if (slides.length === 0) return; // evita erro
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3200);
+    }
 
-    slides[index].classList.remove("active");
+    function enviarSolicitacao(){
+        const usuario = document.getElementById("usuarioRecuperacao").value.trim();
 
-    index = (index + 1) % slides.length;
+        if(!usuario){
+            mostrarToast("Informe seu usuário para continuar.", "error");
+            return;
+        }
 
-    slides[index].classList.add("active");
-
-}, 10000);
-</script>
-<script>
-function mostrarToast(mensagem){
-
-    let toast = document.getElementById("toast");
-
-    toast.innerHTML = mensagem;
-
-    toast.style.background = "#ef4444";
-    toast.style.color = "white";
-    toast.style.padding = "15px";
-    toast.style.borderRadius = "10px";
-
-    toast.style.position = "fixed";
-    toast.style.top = "20px";
-    toast.style.right = "20px";
-
-    setTimeout(() => {
-        toast.innerHTML = "";
-    }, 3000);
-}
+        fetch("/verificar-usuario", {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+            body:"usuario=" + encodeURIComponent(usuario)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.existe){
+                mostrarToast("✅ Solicitação enviada com sucesso!", "success");
+                fecharModal();
+                document.getElementById("usuarioRecuperacao").value = "";
+            }else{
+                mostrarToast("❌ Usuário não encontrado.", "error");
+            }
+        })
+        .catch(() => {
+            mostrarToast("Erro ao enviar solicitação. Tente novamente.", "error");
+        });
+    }
 </script>
 
 </body>

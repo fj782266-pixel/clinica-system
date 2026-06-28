@@ -168,21 +168,15 @@ with app.app_context():
 # ==========================
 # VERIFICAR USUARIO
 # ==========================
-@app.route('/verificar-usuario', methods=['POST'])
+@app.route("/verificar-usuario", methods=["POST"])
 def verificar_usuario():
-    usuario = request.form.get('usuario')
+    usuario = request.form.get("usuario")
 
-    encontrado = Usuario.query.filter_by(usuario=usuario).first()
+    user = Usuario.query.filter_by(usuario=usuario).first()
 
-    if not encontrado:
-        return jsonify({"existe": False})
-
-    pedido = RecuperacaoSenha(usuario=usuario)
-    db.session.add(pedido)
-    db.session.commit()
-
-    return jsonify({"existe": True})
-
+    return jsonify({
+        "existe": user is not None
+    })
 
 # ==========================
 # LOGIN
@@ -195,19 +189,13 @@ def login():
 
         user = Usuario.query.filter_by(usuario=usuario).first()
 
-          # 👇 COLOCA AQUI
-        print("USER:", user)
-        print("USUARIO DIGITADO:", usuario)
-        print("SENHA DIGITADA:", senha)
-
         if user and check_password_hash(user.senha, senha):
             session.clear()
             session["logado"] = True
             session["usuario"] = user.usuario
-            session.permanent = True
             return redirect("/")
 
-        flash("Usuário ou senha incorretos!", "erro")
+        flash("Usuário ou senha inválidos.")
         return redirect("/login")
 
     return render_template("login.html")
