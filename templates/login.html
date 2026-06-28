@@ -74,7 +74,7 @@
     content:"";
     position:absolute;
     inset:0;
-    background:rgba(0,0,0,.12);
+    background:linear-gradient(90deg, rgba(0,39,42,.78), rgba(0,66,70,.38) 52%, rgba(0,0,0,.10));
     pointer-events:none;
 }
 
@@ -109,7 +109,7 @@
         .left-bottom{
             position:absolute;
             left:70px;
-            bottom:54px;
+            bottom:130px;
             z-index:6;
             width:min(680px, calc(100% - 180px));
         }
@@ -242,9 +242,9 @@
             position:relative;
             z-index:2;
             background:rgba(255,255,255,.94);
-            border-radius:28px;
+            border-radius:30px;
             padding:34px 44px 28px;
-            box-shadow:0 26px 80px rgba(15,23,42,.10);
+            box-shadow:0 32px 90px rgba(15,23,42,.13);
             border:1px solid rgba(226,232,240,.82);
             backdrop-filter:blur(16px);
         }
@@ -474,6 +474,7 @@
         }
 
         .copyright{
+            display:none;
             position:absolute;
             bottom:12px;
             left:0;
@@ -482,6 +483,61 @@
             color:#6b7280;
             font-size:13px;
             z-index:3;
+        }
+
+
+        /* ================= BARRA INFERIOR PREMIUM ================= */
+        .bottom-premium{
+            position:absolute;
+            left:0;
+            right:0;
+            bottom:0;
+            height:88px;
+            z-index:20;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:0 46px;
+            background:linear-gradient(90deg, #062f33, #063f42 48%, #052c31);
+            border-top:1px solid rgba(25,200,189,.28);
+            box-shadow:0 -20px 60px rgba(0,0,0,.15);
+        }
+
+        .bottom-items{
+            display:flex;
+            align-items:center;
+            gap:72px;
+        }
+
+        .bottom-item{
+            display:flex;
+            align-items:center;
+            gap:14px;
+            color:#fff;
+        }
+
+        .bottom-item i{
+            font-size:29px;
+            color:#dffdfa;
+        }
+
+        .bottom-item strong{
+            display:block;
+            font-size:14px;
+            font-weight:800;
+            margin-bottom:2px;
+        }
+
+        .bottom-item span{
+            display:block;
+            font-size:12px;
+            color:rgba(255,255,255,.74);
+        }
+
+        .bottom-copy{
+            color:rgba(255,255,255,.72);
+            font-size:13px;
+            white-space:nowrap;
         }
 
         /* ================= MODAL ================= */
@@ -598,7 +654,7 @@
 
             .left-bottom{
                 left:55px;
-                bottom:42px;
+                bottom:118px;
                 width:min(640px, calc(100% - 160px));
             }
 
@@ -691,7 +747,7 @@
             }
 
             .left-bottom{
-                bottom:34px;
+                bottom:112px;
             }
 
             .hero-text{
@@ -847,8 +903,13 @@
             }
 
             .copyright{
+                display:block;
                 bottom:22px;
                 right:0;
+            }
+
+            .bottom-premium{
+                display:none;
             }
 
             .login-card{
@@ -1009,6 +1070,36 @@
 
             <div class="copyright">© 2026 Essencial Clínica. Todos os direitos reservados.</div>
         </section>
+
+        <div class="bottom-premium">
+            <div class="bottom-items">
+                <div class="bottom-item">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <strong>Segurança</strong>
+                        <span>Seus dados protegidos</span>
+                    </div>
+                </div>
+
+                <div class="bottom-item">
+                    <i class="bi bi-cloud-check"></i>
+                    <div>
+                        <strong>Backup em Nuvem</strong>
+                        <span>Informações sempre seguras</span>
+                    </div>
+                </div>
+
+                <div class="bottom-item">
+                    <i class="bi bi-headset"></i>
+                    <div>
+                        <strong>Suporte Especializado</strong>
+                        <span>Conte com nossa equipe</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-copy">© 2026 Essencial Clínica. Todos os direitos reservados.</div>
+        </div>
     </main>
 
     <div id="modalSenha" class="modal">
