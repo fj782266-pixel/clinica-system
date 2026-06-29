@@ -183,6 +183,20 @@ def login_obrigatorio(f):
     return verificar
 
 
+def admin_obrigatorio(f):
+    @wraps(f)
+    def verificar_admin(*args, **kwargs):
+        if not session.get("logado"):
+            return redirect(url_for("login"))
+
+        if session.get("tipo") != "admin":
+            flash("Acesso permitido apenas para administrador.")
+            return redirect(url_for("home"))
+
+        return f(*args, **kwargs)
+    return verificar_admin
+
+
 def converter_data_financeiro(data_texto):
     if data_texto:
         try:
@@ -331,6 +345,7 @@ def login():
             session.clear()
             session["logado"] = True
             session["usuario"] = user.usuario
+            session["tipo"] = user.tipo or "recepcao"
             return redirect("/")
 
         flash("Usuário ou senha inválidos.")
@@ -343,6 +358,43 @@ def login():
 def logout():
     session.clear()
     return redirect("/login")
+
+
+@app.route("/criar-recepcao")
+@login_obrigatorio
+def criar_recepcao():
+    usuario_existente = Usuario.query.filter_by(usuario="recepcao").first()
+
+    if usuario_existente:
+        return "Usuário recepção já existe. Login: recepcao"
+
+    novo_usuario = Usuario(
+        usuario="recepcao",
+        senha=generate_password_hash("recepcao123"),
+        tipo="recepcao"
+    )
+
+    db.session.add(novo_usuario)
+    db.session.commit()
+
+    return "Usuário recepção criado com sucesso. Login: recepcaoessencialclinica15 | Senha: recepcao1435. Depois apague esta rota do app.py por segurança."
+
+
+@app.route("/criar-admin")
+@login_obrigatorio
+def criar_admin():
+    usuario_atual = session.get("usuario")
+
+    if not usuario_atual:
+        return redirect("/login")
+
+    user = Usuario.query.filter_by(usuario=usuario_atual).first_or_404()
+    user.tipo = "admin"
+    db.session.commit()
+
+    session["tipo"] = "admin"
+
+    return "Seu usuário atual foi definido como administrador. Depois apague esta rota do app.py por segurança."
 
 
 # ============================================================
