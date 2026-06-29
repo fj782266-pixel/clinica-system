@@ -643,6 +643,119 @@
             color: white;
         }
 
+
+        .btn-reset {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            box-shadow: none !important;
+            margin-right: 10px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 9999;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            width: min(720px, 100%);
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 25px 70px rgba(15, 23, 42, .35);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 22px 24px;
+            background: linear-gradient(135deg, #064e5f, #0f766e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255,255,255,.16);
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .detail-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 13px 14px;
+        }
+
+        .detail-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .detail-item small {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-item strong {
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .modal-footer {
+            padding: 18px 24px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .modal-footer button {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-close-modal {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
         @media(max-width: 1200px) {
             .summary-grid,
             .content-grid,
@@ -747,7 +860,7 @@
                 {% endif %}
             </div>
 
-            <button class="btn-main">
+            <button class="btn-main" type="button" onclick="novoLancamento()">
                 <i class="bi bi-plus-lg"></i>
                 Novo Lançamento
             </button>
@@ -817,12 +930,13 @@
             <div class="card-title">
                 <i class="bi bi-wallet-fill"></i>
                 <div>
-                    <h2>Novo Lançamento</h2>
-                    <p>Registre receitas ou despesas da clínica</p>
+                    <h2 id="tituloFormulario">Novo Lançamento</h2>
+                    <p id="subtituloFormulario">Registre receitas ou despesas da clínica</p>
                 </div>
             </div>
 
-            <form method="POST">
+            <form method="POST" id="formFinanceiro">
+                <input type="hidden" name="financeiro_id" id="financeiro_id">
                 <div class="form-group">
                     <label>Tipo <span>*</span></label>
                     <select name="tipo" required>
@@ -925,7 +1039,11 @@
                 </div>
 
                 <div class="btn-form">
-                    <button type="submit">
+                    <button type="button" class="btn-reset" id="btnCancelarEdicao" onclick="novoLancamento()" style="display:none;">
+                        <i class="bi bi-x-circle"></i>
+                        Cancelar edição
+                    </button>
+                    <button type="submit" id="btnSalvarFinanceiro">
                         <i class="bi bi-check-circle"></i>
                         Salvar Lançamento
                     </button>
@@ -958,9 +1076,9 @@
                 {% if grafico_mensal %}
                     {% for mes in grafico_mensal %}
                         <div class="month">
-                            <div class="bar receita" title="Receitas: R$ {{ '%.2f'|format(mes.receitas|default(0, true)) }}" style="height: {{ mes.altura_receitas|default(0, true) }}%;"></div>
-                            <div class="bar despesa" title="Despesas: R$ {{ '%.2f'|format(mes.despesas|default(0, true)) }}" style="height: {{ mes.altura_despesas|default(0, true) }}%;"></div>
-                            <div class="bar lucro" title="Lucro: R$ {{ '%.2f'|format(mes.lucro|default(0, true)) }}" style="height: {{ mes.altura_lucro|default(0, true) }}%;"></div>
+                            <div class="bar receita" title="Receitas: R$ {{ '%.2f'|format(mes.receita|default(0, true)) }}" style="height: {{ ((mes.receita|default(0, true)) / maior_valor_grafico * 100) }}%;"></div>
+                            <div class="bar despesa" title="Despesas: R$ {{ '%.2f'|format(mes.despesa|default(0, true)) }}" style="height: {{ ((mes.despesa|default(0, true)) / maior_valor_grafico * 100) }}%;"></div>
+                            <div class="bar lucro" title="Lucro: R$ {{ '%.2f'|format(mes.lucro|default(0, true)) }}" style="height: {{ ((mes.lucro|default(0, true)) / maior_valor_grafico * 100) }}%;"></div>
                             <span class="month-name">{{ mes.mes }}</span>
                         </div>
                     {% endfor %}
@@ -1020,7 +1138,7 @@
 
                 <tbody id="tabelaFinanceiro">
                     {% for item in registros %}
-                    <tr>
+                    <tr class="linha-tabela">
                         <td>{{ item.data.strftime('%d/%m/%Y') if item.data else '-' }}</td>
                         <td>{{ item.descricao }}</td>
                         <td><span class="badge badge-consulta">{{ item.categoria if item.categoria else '-' }}</span></td>
@@ -1037,9 +1155,57 @@
                         </td>
                         <td><span class="badge badge-status">{{ item.status if item.status else '-' }}</span></td>
                         <td>
-                            <span class="action-btn view"><i class="bi bi-eye"></i></span>
-                            <span class="action-btn edit"><i class="bi bi-pencil"></i></span>
-                            <span class="action-btn trash"><i class="bi bi-trash"></i></span>
+                            <button type="button"
+                                    class="action-btn view"
+                                    title="Visualizar"
+                                    onclick="visualizarFinanceiro(this)"
+                                    data-id="{{ item.id }}"
+                                    data-descricao="{{ item.descricao|e }}"
+                                    data-tipo="{{ item.tipo|e }}"
+                                    data-categoria="{{ (item.categoria or '')|e }}"
+                                    data-valor="{{ '%.2f'|format(item.valor|default(0, true)) }}"
+                                    data-data="{{ item.data.strftime('%Y-%m-%d') if item.data else '' }}"
+                                    data-data-br="{{ item.data.strftime('%d/%m/%Y') if item.data else '' }}"
+                                    data-vencimento="{{ item.data_vencimento.strftime('%Y-%m-%d') if item.data_vencimento else '' }}"
+                                    data-vencimento-br="{{ item.data_vencimento.strftime('%d/%m/%Y') if item.data_vencimento else '' }}"
+                                    data-forma="{{ (item.forma_pagamento or '')|e }}"
+                                    data-status="{{ (item.status or '')|e }}"
+                                    data-paciente-id="{{ item.paciente_id or '' }}"
+                                    data-paciente="{{ (item.paciente.nome if item.paciente else '')|e }}"
+                                    data-profissional-id="{{ item.profissional_id or '' }}"
+                                    data-profissional="{{ (item.profissional.nome if item.profissional else '')|e }}"
+                                    data-agendamento-id="{{ item.agendamento_id or '' }}"
+                                    data-agendamento="{{ (item.agendamento.paciente ~ ' - ' ~ item.agendamento.data ~ ' ' ~ item.agendamento.horario) if item.agendamento else '' }}"
+                                    data-observacoes="{{ (item.observacoes or '')|e }}">
+                                <i class="bi bi-eye"></i>
+                            </button>
+
+                            <button type="button"
+                                    class="action-btn edit"
+                                    title="Editar"
+                                    onclick="editarFinanceiro(this)"
+                                    data-id="{{ item.id }}"
+                                    data-descricao="{{ item.descricao|e }}"
+                                    data-tipo="{{ item.tipo|e }}"
+                                    data-categoria="{{ (item.categoria or '')|e }}"
+                                    data-valor="{{ item.valor|default(0, true) }}"
+                                    data-data="{{ item.data.strftime('%Y-%m-%d') if item.data else '' }}"
+                                    data-vencimento="{{ item.data_vencimento.strftime('%Y-%m-%d') if item.data_vencimento else '' }}"
+                                    data-forma="{{ (item.forma_pagamento or '')|e }}"
+                                    data-status="{{ (item.status or '')|e }}"
+                                    data-paciente-id="{{ item.paciente_id or '' }}"
+                                    data-profissional-id="{{ item.profissional_id or '' }}"
+                                    data-agendamento-id="{{ item.agendamento_id or '' }}"
+                                    data-observacoes="{{ (item.observacoes or '')|e }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <a href="/financeiro/excluir/{{ item.id }}"
+                               class="action-btn trash"
+                               title="Excluir"
+                               onclick="return confirm('Tem certeza que deseja excluir este lançamento financeiro? Esta ação não pode ser desfeita.')">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </td>
                     </tr>
                     {% else %}
@@ -1077,7 +1243,7 @@
 
                     {% for categoria in categorias_receita %}
                         <div class="side-row">
-                            <span>{{ categoria.nome }}</span>
+                            <span>{{ categoria.categoria }}</span>
                             <strong>{{ categoria.percentual }}%</strong>
                         </div>
                     {% endfor %}
@@ -1115,7 +1281,7 @@
                 {% if formas_pagamento %}
                     {% for forma in formas_pagamento %}
                         <div class="side-row">
-                            <span>{{ forma.nome if forma.nome else "Não informado" }}</span>
+                            <span>{{ forma.forma if forma.forma else "Não informado" }}</span>
                             <strong>{{ forma.percentual }}%</strong>
                         </div>
                         <div class="progress"><span style="width:{{ forma.percentual }}%;"></span></div>
@@ -1131,13 +1297,166 @@
 
 </div>
 
+<div class="modal-overlay" id="modalFinanceiro">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2><i class="bi bi-receipt"></i> Detalhes do lançamento</h2>
+            <button type="button" class="modal-close" onclick="fecharModalFinanceiro()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <small>Descrição</small>
+                    <strong id="detalheDescricao">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Tipo</small>
+                    <strong id="detalheTipo">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Categoria</small>
+                    <strong id="detalheCategoria">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Valor</small>
+                    <strong id="detalheValor">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Data</small>
+                    <strong id="detalheData">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Vencimento</small>
+                    <strong id="detalheVencimento">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Forma de pagamento</small>
+                    <strong id="detalheForma">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Status</small>
+                    <strong id="detalheStatus">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Paciente</small>
+                    <strong id="detalhePaciente">-</strong>
+                </div>
+
+                <div class="detail-item">
+                    <small>Profissional</small>
+                    <strong id="detalheProfissional">-</strong>
+                </div>
+
+                <div class="detail-item full">
+                    <small>Agendamento vinculado</small>
+                    <strong id="detalheAgendamento">-</strong>
+                </div>
+
+                <div class="detail-item full">
+                    <small>Observações</small>
+                    <strong id="detalheObservacoes">-</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-close-modal" onclick="fecharModalFinanceiro()">Fechar</button>
+        </div>
+    </div>
+</div>
+
+
 <script>
+function valorPadrao(valor) {
+    return valor && valor.trim() !== "" ? valor : "-";
+}
+
+function setTexto(id, valor) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+        elemento.innerText = valorPadrao(valor);
+    }
+}
+
+function visualizarFinanceiro(botao) {
+    setTexto("detalheDescricao", botao.dataset.descricao);
+    setTexto("detalheTipo", botao.dataset.tipo);
+    setTexto("detalheCategoria", botao.dataset.categoria);
+    setTexto("detalheValor", "R$ " + (botao.dataset.valor || "0.00").replace(".", ","));
+    setTexto("detalheData", botao.dataset.dataBr || botao.dataset.data);
+    setTexto("detalheVencimento", botao.dataset.vencimentoBr || botao.dataset.vencimento);
+    setTexto("detalheForma", botao.dataset.forma);
+    setTexto("detalheStatus", botao.dataset.status);
+    setTexto("detalhePaciente", botao.dataset.paciente);
+    setTexto("detalheProfissional", botao.dataset.profissional);
+    setTexto("detalheAgendamento", botao.dataset.agendamento);
+    setTexto("detalheObservacoes", botao.dataset.observacoes);
+
+    document.getElementById("modalFinanceiro").classList.add("active");
+}
+
+function fecharModalFinanceiro() {
+    document.getElementById("modalFinanceiro").classList.remove("active");
+}
+
+function editarFinanceiro(botao) {
+    document.getElementById("financeiro_id").value = botao.dataset.id || "";
+
+    document.getElementsByName("tipo")[0].value = botao.dataset.tipo || "";
+    document.getElementsByName("descricao")[0].value = botao.dataset.descricao || "";
+    document.getElementsByName("categoria")[0].value = botao.dataset.categoria || "";
+    document.getElementsByName("valor")[0].value = botao.dataset.valor || "";
+    document.getElementsByName("data")[0].value = botao.dataset.data || "";
+    document.getElementsByName("data_vencimento")[0].value = botao.dataset.vencimento || "";
+    document.getElementsByName("forma_pagamento")[0].value = botao.dataset.forma || "";
+    document.getElementsByName("status")[0].value = botao.dataset.status || "";
+    document.getElementsByName("paciente_id")[0].value = botao.dataset.pacienteId || "";
+    document.getElementsByName("profissional_id")[0].value = botao.dataset.profissionalId || "";
+    document.getElementsByName("agendamento_id")[0].value = botao.dataset.agendamentoId || "";
+    document.getElementsByName("observacoes")[0].value = botao.dataset.observacoes || "";
+
+    document.getElementById("tituloFormulario").innerText = "Editar Lançamento";
+    document.getElementById("subtituloFormulario").innerText = "Altere os dados abaixo e salve a atualização";
+    document.getElementById("btnSalvarFinanceiro").innerHTML = '<i class="bi bi-check-circle"></i> Atualizar Lançamento';
+    document.getElementById("btnCancelarEdicao").style.display = "inline-flex";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+function novoLancamento() {
+    const form = document.getElementById("formFinanceiro");
+    form.reset();
+
+    document.getElementById("financeiro_id").value = "";
+    document.getElementById("tituloFormulario").innerText = "Novo Lançamento";
+    document.getElementById("subtituloFormulario").innerText = "Registre receitas ou despesas da clínica";
+    document.getElementById("btnSalvarFinanceiro").innerHTML = '<i class="bi bi-check-circle"></i> Salvar Lançamento';
+    document.getElementById("btnCancelarEdicao").style.display = "none";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
 const campoBusca = document.getElementById("buscar");
 
 if (campoBusca) {
     campoBusca.addEventListener("keyup", function () {
         let valor = this.value.toLowerCase();
-        let linhas = document.querySelectorAll("table tbody tr.linha-tabela");
+        let linhas = document.querySelectorAll("#tabelaFinanceiro tr.linha-tabela");
 
         linhas.forEach(linha => {
             let texto = linha.innerText.toLowerCase();
@@ -1146,36 +1465,19 @@ if (campoBusca) {
     });
 }
 
-function editarProfissional(botao) {
-    document.getElementById("profissional_id").value = botao.dataset.id || "";
-    document.getElementsByName("nome")[0].value = botao.dataset.nome || "";
-    document.getElementsByName("especialidade")[0].value = botao.dataset.especialidade || "";
-    document.getElementsByName("telefone")[0].value = botao.dataset.telefone || "";
-    document.getElementsByName("email")[0].value = botao.dataset.email || "";
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        fecharModalFinanceiro();
+    }
+});
 
-    document.querySelector(".form-title h2").innerText = "Editar profissional";
-    document.querySelector(".form-title p").innerText = "Altere os dados abaixo e salve a atualização";
-    document.querySelector(".btn-salvar").innerHTML = '<i class="bi bi-check-lg"></i> Atualizar profissional';
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
+const modalFinanceiro = document.getElementById("modalFinanceiro");
+if (modalFinanceiro) {
+    modalFinanceiro.addEventListener("click", function(event) {
+        if (event.target === modalFinanceiro) {
+            fecharModalFinanceiro();
+        }
     });
-}
-
-function visualizarProfissional(botao) {
-    const nome = botao.dataset.nome || "-";
-    const especialidade = botao.dataset.especialidade || "-";
-    const telefone = botao.dataset.telefone || "-";
-    const email = botao.dataset.email || "-";
-
-    alert(
-        "Dados do profissional:\n\n" +
-        "Nome: " + nome + "\n" +
-        "Especialidade: " + especialidade + "\n" +
-        "Telefone: " + telefone + "\n" +
-        "E-mail: " + email
-    );
 }
 </script>
 

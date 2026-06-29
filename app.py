@@ -721,38 +721,32 @@ def cancelar_agendamento(id):
 @login_obrigatorio
 def financeiro():
     if request.method == "POST":
-        descricao = request.form.get("descricao")
-        tipo = request.form.get("tipo")
-        categoria = request.form.get("categoria")
-        valor = request.form.get("valor")
-        data = request.form.get("data")
-        data_vencimento = request.form.get("data_vencimento")
-        forma_pagamento = request.form.get("forma_pagamento")
-        status = request.form.get("status")
-        paciente_id = request.form.get("paciente_id")
-        profissional_id = request.form.get("profissional_id")
-        agendamento_id = request.form.get("agendamento_id")
-        observacoes = request.form.get("observacoes")
+        financeiro_id = request.form.get("financeiro_id")
 
-        novo_lancamento = Financeiro(
-            descricao=descricao,
-            tipo=tipo,
-            categoria=categoria,
-            valor=valor_float(valor),
-            data=datetime.strptime(data, "%Y-%m-%d").date() if data else datetime.today().date(),
-            data_vencimento=datetime.strptime(data_vencimento, "%Y-%m-%d").date() if data_vencimento else None,
-            forma_pagamento=forma_pagamento,
-            status=status if status else "Recebido",
-            paciente_id=int_ou_none(paciente_id),
-            profissional_id=int_ou_none(profissional_id),
-            agendamento_id=int_ou_none(agendamento_id),
-            observacoes=observacoes
-        )
+        if financeiro_id:
+            lancamento = Financeiro.query.get_or_404(int(financeiro_id))
+        else:
+            lancamento = Financeiro()
 
-        db.session.add(novo_lancamento)
+        lancamento.descricao = request.form.get("descricao")
+        lancamento.tipo = request.form.get("tipo")
+        lancamento.categoria = request.form.get("categoria")
+        lancamento.valor = valor_float(request.form.get("valor"))
+        lancamento.data = datetime.strptime(request.form.get("data"), "%Y-%m-%d").date() if request.form.get("data") else datetime.today().date()
+        lancamento.data_vencimento = datetime.strptime(request.form.get("data_vencimento"), "%Y-%m-%d").date() if request.form.get("data_vencimento") else None
+        lancamento.forma_pagamento = request.form.get("forma_pagamento")
+        lancamento.status = request.form.get("status") or "Recebido"
+        lancamento.paciente_id = int_ou_none(request.form.get("paciente_id"))
+        lancamento.profissional_id = int_ou_none(request.form.get("profissional_id"))
+        lancamento.agendamento_id = int_ou_none(request.form.get("agendamento_id"))
+        lancamento.observacoes = request.form.get("observacoes")
+
+        if not financeiro_id:
+            db.session.add(lancamento)
+
         db.session.commit()
-
         return redirect("/financeiro")
+
 
     registros = Financeiro.query.order_by(Financeiro.id.desc()).all()
 
@@ -780,92 +774,6 @@ def financeiro():
         Financeiro.data < primeiro_dia_proximo_mes()
     ).scalar() or 0
 
-    meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
-    grafico_mensal = []
-
-    for numero_mes in range(1, 13):
-        receita_mes = 0
-        despesa_mes = 0
-
-        for item in registros:
-            if item.data and item.data.month == numero_mes:
-                if item.tipo == "Receita" and item.status == "Recebido":
-                    receita_mes += item.valor or 0
-                elif item.tipo == "Despesa" and item.status != "Cancelado":
-                    despesa_mes += item.valor or 0
-
-        lucro_mes = receita_mes - despesa_mes
-
-        grafico_mensal.append({
-            "mes": meses[numero_mes - 1],
-            "receita": receita_mes,
-            "despesa": despesa_mes,
-            "lucro": lucro_mes
-        })
-
-    maior_valor_grafico = max(
-        [max(item["receita"], item["despesa"], item["lucro"]) for item in grafico_mensal],
-        default=1
-    )
-
-    if maior_valor_grafico <= 0:
-        maior_valor_grafico = 1
-
-    categorias_receita = {}
-    total_categorias = 0
-
-    for item in registros:
-        if item.tipo == "Receita" and item.status == "Recebido":
-            nome_categoria = item.categoria or "Sem categoria"
-            categorias_receita[nome_categoria] = categorias_receita.get(nome_categoria, 0) + (item.valor or 0)
-            total_categorias += item.valor or 0
-
-    categorias_receita_lista = []
-
-    for categoria, valor_categoria in categorias_receita.items():
-        percentual = (valor_categoria / total_categorias * 100) if total_categorias > 0 else 0
-        categorias_receita_lista.append({
-            "categoria": categoria,
-            "valor": valor_categoria,
-            "percentual": round(percentual, 1)
-        })
-
-    categorias_receita_lista = sorted(
-        categorias_receita_lista,
-        key=lambda x: x["valor"],
-        reverse=True
-    )
-
-    contas_a_receber = Financeiro.query.filter(
-        Financeiro.tipo == "Receita",
-        Financeiro.status == "Pendente"
-    ).order_by(Financeiro.data_vencimento.asc()).limit(5).all()
-
-    formas_pagamento = {}
-    total_formas = 0
-
-    for item in registros:
-        if item.tipo == "Receita" and item.status == "Recebido":
-            forma = item.forma_pagamento or "Não informado"
-            formas_pagamento[forma] = formas_pagamento.get(forma, 0) + (item.valor or 0)
-            total_formas += item.valor or 0
-
-    formas_pagamento_lista = []
-
-    for forma, valor_forma in formas_pagamento.items():
-        percentual = (valor_forma / total_formas * 100) if total_formas > 0 else 0
-        formas_pagamento_lista.append({
-            "forma": forma,
-            "valor": valor_forma,
-            "percentual": round(percentual, 1)
-        })
-
-    formas_pagamento_lista = sorted(
-        formas_pagamento_lista,
-        key=lambda x: x["valor"],
-        reverse=True
-    )
-
     pacientes = Paciente.query.order_by(Paciente.nome.asc()).all()
     profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
     agendamentos_lista = Agendamento.query.order_by(Agendamento.id.desc()).all()
@@ -878,15 +786,73 @@ def financeiro():
         total_despesas=total_despesas,
         saldo_liquido=saldo_liquido,
         receitas_mes=receitas_mes,
-        grafico_mensal=grafico_mensal,
-        maior_valor_grafico=maior_valor_grafico,
-        categorias_receita=categorias_receita_lista,
-        contas_a_receber=contas_a_receber,
-        formas_pagamento=formas_pagamento_lista,
         pacientes=pacientes,
         profissionais=profissionais,
         agendamentos=agendamentos_lista
     )
+
+
+@app.route("/financeiro/visualizar/<int:id>")
+@login_obrigatorio
+def visualizar_financeiro(id):
+    lancamento = Financeiro.query.get_or_404(id)
+
+    return jsonify({
+        "id": lancamento.id,
+        "descricao": lancamento.descricao,
+        "tipo": lancamento.tipo,
+        "categoria": lancamento.categoria or "",
+        "valor": lancamento.valor or 0,
+        "data": lancamento.data.strftime("%Y-%m-%d") if lancamento.data else "",
+        "data_formatada": lancamento.data.strftime("%d/%m/%Y") if lancamento.data else "",
+        "data_vencimento": lancamento.data_vencimento.strftime("%Y-%m-%d") if lancamento.data_vencimento else "",
+        "data_vencimento_formatada": lancamento.data_vencimento.strftime("%d/%m/%Y") if lancamento.data_vencimento else "",
+        "forma_pagamento": lancamento.forma_pagamento or "",
+        "status": lancamento.status or "",
+        "paciente": lancamento.paciente.nome if lancamento.paciente else "",
+        "paciente_id": lancamento.paciente_id or "",
+        "profissional": lancamento.profissional.nome if lancamento.profissional else "",
+        "profissional_id": lancamento.profissional_id or "",
+        "agendamento_id": lancamento.agendamento_id or "",
+        "observacoes": lancamento.observacoes or "",
+        "criado_em": lancamento.criado_em.strftime("%d/%m/%Y %H:%M") if lancamento.criado_em else ""
+    })
+
+
+@app.route("/financeiro/editar/<int:id>", methods=["GET", "POST"])
+@login_obrigatorio
+def editar_financeiro(id):
+    lancamento = Financeiro.query.get_or_404(id)
+
+    if request.method == "POST":
+        lancamento.descricao = request.form.get("descricao")
+        lancamento.tipo = request.form.get("tipo")
+        lancamento.categoria = request.form.get("categoria")
+        lancamento.valor = valor_float(request.form.get("valor"))
+        lancamento.data = datetime.strptime(request.form.get("data"), "%Y-%m-%d").date() if request.form.get("data") else datetime.today().date()
+        lancamento.data_vencimento = datetime.strptime(request.form.get("data_vencimento"), "%Y-%m-%d").date() if request.form.get("data_vencimento") else None
+        lancamento.forma_pagamento = request.form.get("forma_pagamento")
+        lancamento.status = request.form.get("status") or "Recebido"
+        lancamento.paciente_id = int_ou_none(request.form.get("paciente_id"))
+        lancamento.profissional_id = int_ou_none(request.form.get("profissional_id"))
+        lancamento.agendamento_id = int_ou_none(request.form.get("agendamento_id"))
+        lancamento.observacoes = request.form.get("observacoes")
+
+        db.session.commit()
+        return redirect("/financeiro")
+
+    return redirect("/financeiro")
+
+
+@app.route("/financeiro/excluir/<int:id>", methods=["POST", "GET"])
+@login_obrigatorio
+def excluir_financeiro(id):
+    lancamento = Financeiro.query.get_or_404(id)
+
+    db.session.delete(lancamento)
+    db.session.commit()
+
+    return redirect("/financeiro")
 
 
 # ============================================================
