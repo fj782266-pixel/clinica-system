@@ -524,6 +524,74 @@ def agendamentos():
     )
 
 
+# ==========================
+# AGENDAMENTOS
+# ==========================
+
+@app.route("/agendamentos", methods=["GET", "POST"])
+@login_obrigatorio
+def agendamentos():
+    if request.method == "POST":
+        pagamento_realizado = request.form.get("pagamento_realizado") == "sim"
+
+        novo_agendamento = Agendamento(
+            cliente_nome=request.form.get("cliente_nome"),
+            cliente_telefone=request.form.get("cliente_telefone"),
+            cliente_email=request.form.get("cliente_email"),
+            cliente_cpf=request.form.get("cliente_cpf"),
+            cliente_data_nascimento=request.form.get("cliente_data_nascimento"),
+            observacoes_paciente=request.form.get("observacoes_paciente"),
+
+            profissional_id=request.form.get("profissional_id"),
+            servico_id=request.form.get("servico_id"),
+            data=request.form.get("data"),
+            horario=request.form.get("horario"),
+            valor=float(request.form.get("valor") or 0),
+            forma_pagamento=request.form.get("forma_pagamento"),
+            pagamento_realizado=pagamento_realizado,
+            status=request.form.get("status") or "Aguardando",
+            observacoes_consulta=request.form.get("observacoes_consulta")
+        )
+
+        db.session.add(novo_agendamento)
+        db.session.commit()
+
+        status_financeiro = "Recebido" if pagamento_realizado else "Pendente"
+
+        if novo_agendamento.status == "Cancelado":
+            status_financeiro = "Cancelado"
+
+        financeiro = Financeiro(
+            agendamento_id=novo_agendamento.id,
+            descricao=f"Consulta - {novo_agendamento.cliente_nome}",
+            valor=novo_agendamento.valor,
+            tipo="Entrada",
+            forma_pagamento=novo_agendamento.forma_pagamento,
+            status=status_financeiro,
+            data=novo_agendamento.data
+        )
+
+        db.session.add(financeiro)
+        db.session.commit()
+
+        return redirect("/agendamentos")
+
+    lista_agendamentos = Agendamento.query.order_by(
+        Agendamento.data.desc(),
+        Agendamento.horario.desc()
+    ).all()
+
+    profissionais = Profissional.query.all()
+    servicos = Servico.query.all()
+
+    return render_template(
+        "agendamentos.html",
+        agendamentos=lista_agendamentos,
+        profissionais=profissionais,
+        servicos=servicos
+    )
+
+
 @app.route("/agendamento/status/<int:id>", methods=["POST"])
 @login_obrigatorio
 def atualizar_status_agendamento(id):
@@ -542,6 +610,89 @@ def atualizar_status_agendamento(id):
         else:
             financeiro.status = "Pendente"
 
+    db.session.commit()
+
+    return redirect("/agendamentos")
+
+
+@app.route("/agendamento/<int:id>")
+@login_obrigatorio
+def visualizar_agendamento(id):
+    agendamento = Agendamento.query.get_or_404(id)
+
+    return jsonify({
+        "id": agendamento.id,
+        "cliente_nome": agendamento.cliente_nome,
+        "cliente_telefone": agendamento.cliente_telefone,
+        "cliente_email": agendamento.cliente_email,
+        "cliente_cpf": agendamento.cliente_cpf,
+        "cliente_data_nascimento": agendamento.cliente_data_nascimento,
+        "observacoes_paciente": agendamento.observacoes_paciente,
+        "profissional": agendamento.profissional.nome if agendamento.profissional else "",
+        "servico": agendamento.servico.nome if agendamento.servico else "",
+        "data": agendamento.data,
+        "horario": agendamento.horario,
+        "valor": agendamento.valor,
+        "forma_pagamento": agendamento.forma_pagamento,
+        "pagamento_realizado": "Sim" if agendamento.pagamento_realizado else "Não",
+        "status": agendamento.status,
+        "observacoes_consulta": agendamento.observacoes_consulta
+    })
+
+
+@app.route("/agendamento/editar/<int:id>", methods=["POST"])
+@login_obrigatorio
+def editar_agendamento(id):
+    agendamento = Agendamento.query.get_or_404(id)
+
+    agendamento.cliente_nome = request.form.get("cliente_nome")
+    agendamento.cliente_telefone = request.form.get("cliente_telefone")
+    agendamento.cliente_email = request.form.get("cliente_email")
+    agendamento.cliente_cpf = request.form.get("cliente_cpf")
+    agendamento.cliente_data_nascimento = request.form.get("cliente_data_nascimento")
+    agendamento.observacoes_paciente = request.form.get("observacoes_paciente")
+
+    agendamento.profissional_id = request.form.get("profissional_id")
+    agendamento.servico_id = request.form.get("servico_id")
+    agendamento.data = request.form.get("data")
+    agendamento.horario = request.form.get("horario")
+    agendamento.valor = float(request.form.get("valor") or 0)
+    agendamento.forma_pagamento = request.form.get("forma_pagamento")
+    agendamento.pagamento_realizado = request.form.get("pagamento_realizado") == "sim"
+    agendamento.status = request.form.get("status") or "Aguardando"
+    agendamento.observacoes_consulta = request.form.get("observacoes_consulta")
+
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+
+    if financeiro:
+        financeiro.descricao = f"Consulta - {agendamento.cliente_nome}"
+        financeiro.valor = agendamento.valor
+        financeiro.forma_pagamento = agendamento.forma_pagamento
+        financeiro.data = agendamento.data
+
+        if agendamento.status == "Cancelado":
+            financeiro.status = "Cancelado"
+        elif agendamento.pagamento_realizado:
+            financeiro.status = "Recebido"
+        else:
+            financeiro.status = "Pendente"
+
+    db.session.commit()
+
+    return redirect("/agendamentos")
+
+
+@app.route("/agendamento/excluir/<int:id>", methods=["POST"])
+@login_obrigatorio
+def excluir_agendamento(id):
+    agendamento = Agendamento.query.get_or_404(id)
+
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+
+    if financeiro:
+        db.session.delete(financeiro)
+
+    db.session.delete(agendamento)
     db.session.commit()
 
     return redirect("/agendamentos")

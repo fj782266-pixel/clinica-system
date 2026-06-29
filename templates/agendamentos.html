@@ -766,6 +766,12 @@
             gap: 9px;
         }
 
+        .delete-form {
+            margin: 0;
+            padding: 0;
+            display: inline-flex;
+        }
+
         .action-btn {
             width: 34px;
             height: 34px;
@@ -858,6 +864,95 @@
             color: #94a3b8;
             padding: 35px !important;
             font-weight: 700;
+        }
+
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+            z-index: 9999;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-card {
+            width: min(760px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 25px 70px rgba(15, 23, 42, 0.28);
+        }
+
+        .modal-header {
+            padding: 22px;
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            border: none;
+            background: rgba(255, 255, 255, 0.18);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .modal-body {
+            padding: 22px;
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .modal-item {
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .modal-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-item span {
+            display: block;
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .modal-item strong {
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: normal;
+            word-break: break-word;
         }
 
         @media (max-width: 1200px) {
@@ -1430,17 +1525,42 @@
 
                         <td>
                             <div class="action-buttons">
-                                <a href="#" class="action-btn view" title="Visualizar">
+                                <button type="button"
+                                        class="action-btn view"
+                                        title="Visualizar"
+                                        onclick='visualizarAgendamento({
+                                            "data": {{ (ag.data if ag.data else "-")|tojson }},
+                                            "horario": {{ (ag.horario if ag.horario else "-")|tojson }},
+                                            "paciente": {{ (ag.cliente_nome if ag.cliente_nome else ag.paciente if ag.paciente else "-")|tojson }},
+                                            "telefone": {{ (ag.cliente_telefone if ag.cliente_telefone else "-")|tojson }},
+                                            "email": {{ (ag.cliente_email if ag.cliente_email else "-")|tojson }},
+                                            "cpf": {{ (ag.cliente_cpf if ag.cliente_cpf else "-")|tojson }},
+                                            "nascimento": {{ (ag.cliente_data_nascimento if ag.cliente_data_nascimento else "-")|tojson }},
+                                            "profissional": {{ (ag.profissional.nome if ag.profissional else "-")|tojson }},
+                                            "especialidade": {{ (ag.profissional.especialidade if ag.profissional else "-")|tojson }},
+                                            "servico": {{ (ag.servico.nome if ag.servico else "-")|tojson }},
+                                            "valor": {{ ("R$ %.2f"|format(ag.valor if ag.valor else 0))|tojson }},
+                                            "forma_pagamento": {{ (ag.forma_pagamento if ag.forma_pagamento else "Não informado")|tojson }},
+                                            "pagamento": {{ ("Recebido" if ag.pagamento_realizado else "Pendente")|tojson }},
+                                            "status": {{ (ag.status if ag.status else "Aguardando")|tojson }},
+                                            "obs_paciente": {{ (ag.observacoes_paciente if ag.observacoes_paciente else "-")|tojson }},
+                                            "obs_consulta": {{ (ag.observacoes_consulta if ag.observacoes_consulta else "-")|tojson }}
+                                        })'>
                                     <i class="bi bi-eye"></i>
-                                </a>
+                                </button>
 
-                                <a href="/finalizar/{{ ag.id }}" class="action-btn edit" title="Finalizar">
+                                <a href="/agendamento/editar/{{ ag.id }}" class="action-btn edit" title="Editar">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
 
-                                <a href="/cancelar/{{ ag.id }}" class="action-btn delete" title="Cancelar" onclick="return confirm('Deseja cancelar este agendamento?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                                <form method="POST"
+                                      action="/agendamento/excluir/{{ ag.id }}"
+                                      class="delete-form"
+                                      onsubmit="return confirm('Deseja realmente apagar este agendamento? Esta ação não poderá ser desfeita.')">
+                                    <button type="submit" class="action-btn delete" title="Apagar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
 
@@ -1494,6 +1614,97 @@
 
     </section>
 
+
+    <div class="modal-overlay" id="modalVisualizar">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="bi bi-eye"></i> Detalhes do Agendamento</h3>
+                <button type="button" class="modal-close" onclick="fecharModalVisualizar()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="modal-grid">
+                    <div class="modal-item">
+                        <span>Paciente</span>
+                        <strong id="viewPaciente">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>CPF</span>
+                        <strong id="viewCpf">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Telefone</span>
+                        <strong id="viewTelefone">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>E-mail</span>
+                        <strong id="viewEmail">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Data de Nascimento</span>
+                        <strong id="viewNascimento">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Data e Horário</span>
+                        <strong id="viewDataHorario">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Profissional</span>
+                        <strong id="viewProfissional">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Especialidade</span>
+                        <strong id="viewEspecialidade">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Serviço</span>
+                        <strong id="viewServico">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Valor</span>
+                        <strong id="viewValor">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Forma de Pagamento</span>
+                        <strong id="viewFormaPagamento">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Pagamento</span>
+                        <strong id="viewPagamento">-</strong>
+                    </div>
+
+                    <div class="modal-item">
+                        <span>Situação</span>
+                        <strong id="viewStatus">-</strong>
+                    </div>
+
+                    <div class="modal-item full">
+                        <span>Observações do Paciente</span>
+                        <strong id="viewObsPaciente">-</strong>
+                    </div>
+
+                    <div class="modal-item full">
+                        <span>Observações da Consulta</span>
+                        <strong id="viewObsConsulta">-</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
 
 <script>
@@ -1518,6 +1729,50 @@
 
         if (linhaSemResultado) {
             linhaSemResultado.style.display = encontrados === 0 ? "" : "none";
+        }
+    });
+
+
+    function preencherTexto(id, valor) {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.innerText = valor || "-";
+        }
+    }
+
+    function visualizarAgendamento(agendamento) {
+        preencherTexto("viewPaciente", agendamento.paciente);
+        preencherTexto("viewCpf", agendamento.cpf);
+        preencherTexto("viewTelefone", agendamento.telefone);
+        preencherTexto("viewEmail", agendamento.email);
+        preencherTexto("viewNascimento", agendamento.nascimento);
+        preencherTexto("viewDataHorario", `${agendamento.data || "-"} às ${agendamento.horario || "-"}`);
+        preencherTexto("viewProfissional", agendamento.profissional);
+        preencherTexto("viewEspecialidade", agendamento.especialidade);
+        preencherTexto("viewServico", agendamento.servico);
+        preencherTexto("viewValor", agendamento.valor);
+        preencherTexto("viewFormaPagamento", agendamento.forma_pagamento);
+        preencherTexto("viewPagamento", agendamento.pagamento);
+        preencherTexto("viewStatus", agendamento.status);
+        preencherTexto("viewObsPaciente", agendamento.obs_paciente);
+        preencherTexto("viewObsConsulta", agendamento.obs_consulta);
+
+        document.getElementById("modalVisualizar").classList.add("active");
+    }
+
+    function fecharModalVisualizar() {
+        document.getElementById("modalVisualizar").classList.remove("active");
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            fecharModalVisualizar();
+        }
+    });
+
+    document.getElementById("modalVisualizar").addEventListener("click", function (event) {
+        if (event.target === this) {
+            fecharModalVisualizar();
         }
     });
 
