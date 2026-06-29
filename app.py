@@ -360,43 +360,6 @@ def logout():
     return redirect("/login")
 
 
-@app.route("/criar-recepcao")
-@login_obrigatorio
-def criar_recepcao():
-    usuario_existente = Usuario.query.filter_by(usuario="recepcao").first()
-
-    if usuario_existente:
-        return "Usuário recepção já existe. Login: recepcao"
-
-    novo_usuario = Usuario(
-        usuario="recepcao",
-        senha=generate_password_hash("recepcao123"),
-        tipo="recepcao"
-    )
-
-    db.session.add(novo_usuario)
-    db.session.commit()
-
-    return "Usuário recepção criado com sucesso. Login: recepcaoessencialclinica15 | Senha: recepcao1435. Depois apague esta rota do app.py por segurança."
-
-
-@app.route("/criar-admin")
-@login_obrigatorio
-def criar_admin():
-    usuario_atual = session.get("usuario")
-
-    if not usuario_atual:
-        return redirect("/login")
-
-    user = Usuario.query.filter_by(usuario=usuario_atual).first_or_404()
-    user.tipo = "admin"
-    db.session.commit()
-
-    session["tipo"] = "admin"
-
-    return "Seu usuário atual foi definido como administrador. Depois apague esta rota do app.py por segurança."
-
-
 # ============================================================
 # DASHBOARD
 # ============================================================
