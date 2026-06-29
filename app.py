@@ -1,14 +1,10 @@
-from flask import Flask, render_template, request, redirect, session, jsonify, flash
+from flask import Flask, render_template, request, redirect, session, jsonify, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-import random
-import string
 import os
 from datetime import datetime
-from sqlalchemy import func
 from functools import wraps
-from flask import session, redirect, url_for
 
 
 # ==========================
@@ -190,6 +186,30 @@ class Autorizacao(db.Model):
 
 with app.app_context():
     db.create_all()
+
+    # Cria serviços padrão caso a tabela esteja vazia.
+    # Isso faz o campo "Serviço / Especialidade" aparecer na tela de agendamentos.
+    if Servico.query.count() == 0:
+        servicos_padrao = [
+            Servico(nome="Consulta", especialidade="Clínico Geral"),
+            Servico(nome="Retorno", especialidade="Clínico Geral"),
+            Servico(nome="Avaliação", especialidade="Avaliação"),
+            Servico(nome="Limpeza de Pele", especialidade="Estética"),
+            Servico(nome="Botox", especialidade="Estética"),
+        ]
+
+        # Também cria serviços com base nas especialidades dos profissionais cadastrados.
+        especialidades = db.session.query(Profissional.especialidade).distinct().all()
+        nomes_existentes = {item.nome.lower().strip() for item in servicos_padrao}
+
+        for (especialidade,) in especialidades:
+            if especialidade and especialidade.lower().strip() not in nomes_existentes:
+                servicos_padrao.append(
+                    Servico(nome=especialidade, especialidade=especialidade)
+                )
+
+        db.session.add_all(servicos_padrao)
+        db.session.commit()
 
 
 # ==========================
@@ -423,8 +443,8 @@ def agendamentos():
             cliente_data_nascimento=request.form.get("cliente_data_nascimento"),
             observacoes_paciente=request.form.get("observacoes_paciente"),
 
-            profissional_id=request.form.get("profissional_id"),
-            servico_id=request.form.get("servico_id"),
+            profissional_id=int(request.form.get("profissional_id")) if request.form.get("profissional_id") else None,
+            servico_id=int(request.form.get("servico_id")) if request.form.get("servico_id") else None,
             data=request.form.get("data"),
             horario=request.form.get("horario"),
             valor=float(valor),
