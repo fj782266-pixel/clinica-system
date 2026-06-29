@@ -7,13 +7,18 @@ import string
 import os
 from datetime import datetime
 from sqlalchemy import func
+from functools import wraps
+from flask import session, redirect, url_for
 
 
 # ==========================
 # APP CONFIG
 # ==========================
 app = Flask(__name__, instance_relative_config=True)
-app.secret_key = os.environ.get("SECRET_KEY", "fallback-inseguro")
+app.secret_key = os.environ.get("SECRET_KEY")
+
+if not app.secret_key:
+    raise RuntimeError("A variável SECRET_KEY não foi configurada.")
 
 app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -188,6 +193,18 @@ with app.app_context():
 
 
 # ==========================
+# LOGIN OBRIGATÓRIO
+# ==========================
+def login_obrigatorio(f):
+    @wraps(f)
+    def verificar(*args, **kwargs):
+        if not session.get("logado"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return verificar
+
+
+# ==========================
 # VERIFICAR USUARIO
 # ==========================
 @app.route("/verificar-usuario", methods=["POST"])
@@ -230,6 +247,7 @@ def login():
 # HOME
 # ==========================
 @app.route("/")
+@login_obrigatorio
 def home():
     total_profissionais = Profissional.query.count()
     total_pacientes = Paciente.query.count()
@@ -250,6 +268,8 @@ def home():
 # PROFISSIONAIS
 # ==========================
 @app.route("/profissionais", methods=["GET", "POST"])
+@login_obrigatorio
+
 def profissionais():
     if request.method == "POST":
         novo = Profissional(
@@ -313,6 +333,7 @@ def profissionais():
 # PACIENTES
 # ==========================
 @app.route("/pacientes", methods=["GET", "POST"])
+@login_obrigatorio
 def pacientes():
     if request.method == "POST":
         novo = Paciente(
@@ -340,6 +361,7 @@ def pacientes():
 # AGENDAMENTOS
 # ==========================
 @app.route("/agendamentos", methods=["GET", "POST"])
+@login_obrigatorio
 def agendamentos():
     profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
     servicos = Servico.query.order_by(Servico.nome.asc()).all()
@@ -404,6 +426,7 @@ def agendamentos():
 # FINANCEIRO
 # ==========================
 @app.route("/financeiro", methods=["GET", "POST"])
+@login_obrigatorio
 def financeiro():
     if request.method == "POST":
         descricao = request.form.get("descricao")
@@ -424,7 +447,7 @@ def financeiro():
             tipo=tipo,
             categoria=categoria,
             valor=float(valor) if valor else 0,
-            data=datetime.strptime(data, "%Y-%m-%d").date() if data else None,
+            data=datetime.strptime(data, "%Y-%m-%d").date() if data else datetime.today().date(),
             data_vencimento=datetime.strptime(data_vencimento, "%Y-%m-%d").date() if data_vencimento else None,
             forma_pagamento=forma_pagamento,
             status=status if status else "Recebido",
@@ -441,24 +464,19 @@ def financeiro():
 
     registros = Financeiro.query.order_by(Financeiro.id.desc()).all()
 
-    total_recebido = db.session.query(
-        db.func.sum(Financeiro.valor)
-    ).filter(
+    total_recebido = db.session.query(db.func.sum(Financeiro.valor)).filter(
         Financeiro.tipo == "Receita",
         Financeiro.status == "Recebido"
     ).scalar() or 0
 
-    total_a_receber = db.session.query(
-        db.func.sum(Financeiro.valor)
-    ).filter(
+    total_a_receber = db.session.query(db.func.sum(Financeiro.valor)).filter(
         Financeiro.tipo == "Receita",
         Financeiro.status == "Pendente"
     ).scalar() or 0
 
-    total_despesas = db.session.query(
-        db.func.sum(Financeiro.valor)
-    ).filter(
-        Financeiro.tipo == "Despesa"
+    total_despesas = db.session.query(db.func.sum(Financeiro.valor)).filter(
+        Financeiro.tipo == "Despesa",
+        Financeiro.status != "Cancelado"
     ).scalar() or 0
 
     saldo_liquido = total_recebido - total_despesas
@@ -468,6 +486,94 @@ def financeiro():
         Financeiro.status == "Recebido"
     ).count()
 
+    # Gráfico mensal real
+    meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+    grafico_mensal = []
+
+    for numero_mes in range(1, 13):
+        receita_mes = 0
+        despesa_mes = 0
+
+        for item in registros:
+            if item.data and item.data.month == numero_mes:
+                if item.tipo == "Receita" and item.status == "Recebido":
+                    receita_mes += item.valor or 0
+                elif item.tipo == "Despesa" and item.status != "Cancelado":
+                    despesa_mes += item.valor or 0
+
+        lucro_mes = receita_mes - despesa_mes
+
+        grafico_mensal.append({
+            "mes": meses[numero_mes - 1],
+            "receita": receita_mes,
+            "despesa": despesa_mes,
+            "lucro": lucro_mes
+        })
+
+    maior_valor_grafico = max(
+        [max(item["receita"], item["despesa"], item["lucro"]) for item in grafico_mensal],
+        default=1
+    )
+
+    if maior_valor_grafico <= 0:
+        maior_valor_grafico = 1
+
+    # Recebimentos por categoria real
+    categorias_receita = {}
+    total_categorias = 0
+
+    for item in registros:
+        if item.tipo == "Receita" and item.status == "Recebido":
+            nome_categoria = item.categoria or "Sem categoria"
+            categorias_receita[nome_categoria] = categorias_receita.get(nome_categoria, 0) + (item.valor or 0)
+            total_categorias += item.valor or 0
+
+    categorias_receita_lista = []
+    for categoria, valor_categoria in categorias_receita.items():
+        percentual = (valor_categoria / total_categorias * 100) if total_categorias > 0 else 0
+        categorias_receita_lista.append({
+            "categoria": categoria,
+            "valor": valor_categoria,
+            "percentual": round(percentual, 1)
+        })
+
+    categorias_receita_lista = sorted(
+        categorias_receita_lista,
+        key=lambda x: x["valor"],
+        reverse=True
+    )
+
+    # Contas a receber reais
+    contas_a_receber = Financeiro.query.filter(
+        Financeiro.tipo == "Receita",
+        Financeiro.status == "Pendente"
+    ).order_by(Financeiro.data_vencimento.asc()).limit(5).all()
+
+    # Formas de pagamento reais
+    formas_pagamento = {}
+    total_formas = 0
+
+    for item in registros:
+        if item.tipo == "Receita" and item.status == "Recebido":
+            forma = item.forma_pagamento or "Não informado"
+            formas_pagamento[forma] = formas_pagamento.get(forma, 0) + (item.valor or 0)
+            total_formas += item.valor or 0
+
+    formas_pagamento_lista = []
+    for forma, valor_forma in formas_pagamento.items():
+        percentual = (valor_forma / total_formas * 100) if total_formas > 0 else 0
+        formas_pagamento_lista.append({
+            "forma": forma,
+            "valor": valor_forma,
+            "percentual": round(percentual, 1)
+        })
+
+    formas_pagamento_lista = sorted(
+        formas_pagamento_lista,
+        key=lambda x: x["valor"],
+        reverse=True
+    )
+
     pacientes = Paciente.query.order_by(Paciente.nome.asc()).all()
     profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
     agendamentos = Agendamento.query.order_by(Agendamento.id.desc()).all()
@@ -475,12 +581,16 @@ def financeiro():
     return render_template(
         "financeiro.html",
         registros=registros,
-        total=total_recebido,
         total_recebido=total_recebido,
         total_a_receber=total_a_receber,
         total_despesas=total_despesas,
         saldo_liquido=saldo_liquido,
         receitas_mes=receitas_mes,
+        grafico_mensal=grafico_mensal,
+        maior_valor_grafico=maior_valor_grafico,
+        categorias_receita=categorias_receita_lista,
+        contas_a_receber=contas_a_receber,
+        formas_pagamento=formas_pagamento_lista,
         pacientes=pacientes,
         profissionais=profissionais,
         agendamentos=agendamentos
@@ -492,6 +602,7 @@ def financeiro():
 # ==========================
 @app.route("/finalizar/<int:id>")
 @app.route("/cancelar/<int:id>")
+@login_obrigatorio
 def remover_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
 
@@ -505,6 +616,7 @@ def remover_agendamento(id):
 # RECUPERAÇÕES
 # ==========================
 @app.route("/recuperacoes")
+@login_obrigatorio
 def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
@@ -514,6 +626,7 @@ def recuperacoes():
 # FICHA DO PACIENTE
 # ==========================
 @app.route("/paciente/<int:id>")
+@login_obrigatorio
 def ficha_paciente(id):
     paciente = Paciente.query.get_or_404(id)
     return render_template("ficha_paciente.html", paciente=paciente)
@@ -532,4 +645,4 @@ def logout():
 # INICIAR APP
 # ==========================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

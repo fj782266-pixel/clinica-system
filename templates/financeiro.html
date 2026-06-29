@@ -716,6 +716,16 @@
 
 <div class="main">
 
+    {% set periodo_inicio_view = periodo_inicio|default('', true) %}
+    {% set periodo_fim_view = periodo_fim|default('', true) %}
+    {% set alertas_pendentes_view = alertas_pendentes|default(0, true) %}
+    {% set total_recebido_view = total_recebido|default(0, true) %}
+    {% set total_a_receber_view = total_a_receber|default(0, true) %}
+    {% set total_despesas_view = total_despesas|default(0, true) %}
+    {% set saldo_liquido_view = saldo_liquido|default(0, true) %}
+    {% set total_receitas_mes_view = total_receitas_mes|default(receitas_mes|default(0, true), true) %}
+    {% set categorias_receita_css = categorias_receita_css|default('#0f9f87 0 100%', true) %}
+
     <div class="topbar">
         <div class="header">
             <h1>Financeiro</h1>
@@ -725,12 +735,16 @@
         <div class="top-actions">
             <div class="notification">
                 <i class="bi bi-bell-fill"></i>
-                <span>3</span>
+                <span>{{ alertas_pendentes_view }}</span>
             </div>
 
             <div class="date-filter">
                 <i class="bi bi-calendar3"></i>&nbsp;
-                01/06/2026 - 27/06/2026
+                {% if periodo_inicio_view and periodo_fim_view %}
+                    {{ periodo_inicio_view }} - {{ periodo_fim_view }}
+                {% else %}
+                    Período atual
+                {% endif %}
             </div>
 
             <button class="btn-main">
@@ -747,7 +761,7 @@
             </div>
             <div class="summary-info">
                 <small>Total Recebido</small>
-                <h2>R$ {{ "%.2f"|format(total_recebido) }}</h2>
+                <h2>R$ {{ "%.2f"|format(total_recebido_view) }}</h2>
                 <p><span class="positive">Receitas recebidas</span></p>
             </div>
         </div>
@@ -758,7 +772,7 @@
             </div>
             <div class="summary-info">
                 <small>Total a Receber</small>
-                <h2>R$ {{ "%.2f"|format(total_a_receber) }}</h2>
+                <h2>R$ {{ "%.2f"|format(total_a_receber_view) }}</h2>
                 <p>Lançamentos pendentes</p>
             </div>
         </div>
@@ -769,7 +783,7 @@
             </div>
             <div class="summary-info">
                 <small>Total Despesas</small>
-                <h2>R$ {{ "%.2f"|format(total_despesas) }}</h2>
+                <h2>R$ {{ "%.2f"|format(total_despesas_view) }}</h2>
                 <p><span class="negative">Saídas registradas</span></p>
             </div>
         </div>
@@ -780,7 +794,7 @@
             </div>
             <div class="summary-info">
                 <small>Saldo Líquido</small>
-                <h2>R$ {{ "%.2f"|format(saldo_liquido) }}</h2>
+                <h2>R$ {{ "%.2f"|format(saldo_liquido_view) }}</h2>
                 <p>Receitas - Despesas</p>
             </div>
         </div>
@@ -791,8 +805,8 @@
             </div>
             <div class="summary-info">
                 <small>Receitas este mês</small>
-                <h2>{{ receitas_mes }}</h2>
-                <p>Lançamentos recebidos</p>
+                <h2>R$ {{ "%.2f"|format(total_receitas_mes_view) }}</h2>
+                <p>Receitas recebidas no mês</p>
             </div>
         </div>
     </div>
@@ -941,47 +955,20 @@
             </div>
 
             <div class="fake-chart">
-                <div class="month">
-                    <div class="bar receita" style="height: 62%;"></div>
-                    <div class="bar despesa" style="height: 35%;"></div>
-                    <div class="bar lucro" style="height: 50%;"></div>
-                    <span class="month-name">Jan</span>
-                </div>
-
-                <div class="month">
-                    <div class="bar receita" style="height: 68%;"></div>
-                    <div class="bar despesa" style="height: 36%;"></div>
-                    <div class="bar lucro" style="height: 45%;"></div>
-                    <span class="month-name">Fev</span>
-                </div>
-
-                <div class="month">
-                    <div class="bar receita" style="height: 62%;"></div>
-                    <div class="bar despesa" style="height: 37%;"></div>
-                    <div class="bar lucro" style="height: 42%;"></div>
-                    <span class="month-name">Mar</span>
-                </div>
-
-                <div class="month">
-                    <div class="bar receita" style="height: 68%;"></div>
-                    <div class="bar despesa" style="height: 38%;"></div>
-                    <div class="bar lucro" style="height: 40%;"></div>
-                    <span class="month-name">Abr</span>
-                </div>
-
-                <div class="month">
-                    <div class="bar receita" style="height: 80%;"></div>
-                    <div class="bar despesa" style="height: 42%;"></div>
-                    <div class="bar lucro" style="height: 55%;"></div>
-                    <span class="month-name">Mai</span>
-                </div>
-
-                <div class="month">
-                    <div class="bar receita" style="height: 72%;"></div>
-                    <div class="bar despesa" style="height: 40%;"></div>
-                    <div class="bar lucro" style="height: 56%;"></div>
-                    <span class="month-name">Jun</span>
-                </div>
+                {% if grafico_mensal %}
+                    {% for mes in grafico_mensal %}
+                        <div class="month">
+                            <div class="bar receita" title="Receitas: R$ {{ '%.2f'|format(mes.receitas|default(0, true)) }}" style="height: {{ mes.altura_receitas|default(0, true) }}%;"></div>
+                            <div class="bar despesa" title="Despesas: R$ {{ '%.2f'|format(mes.despesas|default(0, true)) }}" style="height: {{ mes.altura_despesas|default(0, true) }}%;"></div>
+                            <div class="bar lucro" title="Lucro: R$ {{ '%.2f'|format(mes.lucro|default(0, true)) }}" style="height: {{ mes.altura_lucro|default(0, true) }}%;"></div>
+                            <span class="month-name">{{ mes.mes }}</span>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="width:100%; text-align:center; align-self:center; color:#94a3b8; font-size:13px;">
+                        Nenhum dado financeiro encontrado para montar o gráfico.
+                    </div>
+                {% endif %}
             </div>
         </div>
 
@@ -1072,7 +1059,7 @@
                     <span><i class="bi bi-chevron-left"></i></span>
                     <span class="active-page">1</span>
                     <span>2</span>
-                    <span>3</span>
+                    <span>{{ alertas_pendentes_view }}</span>
                     <span>4</span>
                     <span>...</span>
                     <span><i class="bi bi-chevron-right"></i></span>
@@ -1084,73 +1071,60 @@
 
             <div class="small-card">
                 <h3>Recebimentos por Categoria</h3>
-                <div class="donut"></div>
 
-                <div class="side-row">
-                    <span>Consultas</span>
-                    <strong>68%</strong>
-                </div>
+                {% if categorias_receita %}
+                    <div class="donut" style="background: conic-gradient({{ categorias_receita_css }});"></div>
 
-                <div class="side-row">
-                    <span>Procedimentos</span>
-                    <strong>18%</strong>
-                </div>
-
-                <div class="side-row">
-                    <span>Outros</span>
-                    <strong>14%</strong>
-                </div>
+                    {% for categoria in categorias_receita %}
+                        <div class="side-row">
+                            <span>{{ categoria.nome }}</span>
+                            <strong>{{ categoria.percentual }}%</strong>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="font-size:12px; color:#94a3b8;">Nenhuma receita recebida por categoria.</p>
+                {% endif %}
             </div>
 
             <div class="small-card">
                 <h3>Contas a Receber</h3>
 
-                <div class="side-row">
-                    <span>João Pedro Santos<br><small>Consulta - 27/06/2026</small></span>
-                    <strong>R$ 200,00</strong>
-                </div>
+                {% if contas_a_receber %}
+                    {% for conta in contas_a_receber %}
+                        <div class="side-row">
+                            <span>
+                                {{ conta.descricao }}
+                                <br>
+                                <small>{{ conta.data_vencimento if conta.data_vencimento else conta.data if conta.data else '-' }}</small>
+                            </span>
+                            <strong>R$ {{ "%.2f"|format(conta.valor|default(0, true)) }}</strong>
+                        </div>
+                    {% endfor %}
 
-                <div class="side-row">
-                    <span>Ana Flávia Oliveira<br><small>Retorno - 29/06/2026</small></span>
-                    <strong>R$ 150,00</strong>
-                </div>
-
-                <div class="side-row">
-                    <span>Rafael Souza Lima<br><small>Consulta - 01/07/2026</small></span>
-                    <strong>R$ 250,00</strong>
-                </div>
-
-                <p style="font-size:12px; color:#0f766e; font-weight:600; margin-top:10px;">
-                    Ver todas as pendências <i class="bi bi-arrow-right"></i>
-                </p>
+                    <p style="font-size:12px; color:#0f766e; font-weight:600; margin-top:10px;">
+                        Pendências reais do financeiro <i class="bi bi-arrow-right"></i>
+                    </p>
+                {% else %}
+                    <p style="font-size:12px; color:#94a3b8;">Nenhuma conta pendente no momento.</p>
+                {% endif %}
             </div>
 
             <div class="small-card">
                 <h3>Formas de Pagamento</h3>
 
-                <div class="side-row">
-                    <span>PIX</span>
-                    <strong>45%</strong>
-                </div>
-                <div class="progress"><span style="width:45%;"></span></div>
-
-                <br>
-
-                <div class="side-row">
-                    <span>Cartão de Crédito</span>
-                    <strong>32%</strong>
-                </div>
-                <div class="progress"><span style="width:32%;"></span></div>
-
-                <br>
-
-                <div class="side-row">
-                    <span>Dinheiro</span>
-                    <strong>15%</strong>
-                </div>
-                <div class="progress"><span style="width:15%;"></span></div>
+                {% if formas_pagamento %}
+                    {% for forma in formas_pagamento %}
+                        <div class="side-row">
+                            <span>{{ forma.nome if forma.nome else "Não informado" }}</span>
+                            <strong>{{ forma.percentual }}%</strong>
+                        </div>
+                        <div class="progress"><span style="width:{{ forma.percentual }}%;"></span></div>
+                        <br>
+                    {% endfor %}
+                {% else %}
+                    <p style="font-size:12px; color:#94a3b8;">Nenhum pagamento recebido para calcular percentuais.</p>
+                {% endif %}
             </div>
-
         </div>
 
     </div>
