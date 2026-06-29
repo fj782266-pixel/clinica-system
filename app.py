@@ -452,6 +452,23 @@ def excluir_paciente(id):
 # AGENDAMENTOS
 # ==========================
 
+def converter_data_financeiro(data_texto):
+    if data_texto:
+        try:
+            return datetime.strptime(data_texto, "%Y-%m-%d").date()
+        except ValueError:
+            return datetime.today().date()
+    return datetime.today().date()
+
+
+def status_financeiro_agendamento(agendamento):
+    if agendamento.status == "Cancelado":
+        return "Cancelado"
+    if agendamento.pagamento_realizado:
+        return "Recebido"
+    return "Pendente"
+
+
 @app.route("/agendamentos", methods=["GET", "POST"])
 @login_obrigatorio
 def agendamentos():
@@ -465,7 +482,6 @@ def agendamentos():
             cliente_cpf=request.form.get("cliente_cpf"),
             cliente_data_nascimento=request.form.get("cliente_data_nascimento"),
             observacoes_paciente=request.form.get("observacoes_paciente"),
-
             profissional_id=request.form.get("profissional_id"),
             servico_id=request.form.get("servico_id"),
             data=request.form.get("data"),
@@ -480,19 +496,18 @@ def agendamentos():
         db.session.add(novo_agendamento)
         db.session.commit()
 
-        status_financeiro = "Recebido" if pagamento_realizado else "Pendente"
-
-        if novo_agendamento.status == "Cancelado":
-            status_financeiro = "Cancelado"
-
         financeiro = Financeiro(
             agendamento_id=novo_agendamento.id,
             descricao=f"Consulta - {novo_agendamento.cliente_nome}",
+            tipo="Receita",
+            categoria="Consulta",
             valor=novo_agendamento.valor,
-            tipo="Entrada",
+            data=converter_data_financeiro(novo_agendamento.data),
+            data_vencimento=converter_data_financeiro(novo_agendamento.data),
             forma_pagamento=novo_agendamento.forma_pagamento,
-            status=status_financeiro,
-            data=novo_agendamento.data
+            status=status_financeiro_agendamento(novo_agendamento),
+            profissional_id=novo_agendamento.profissional_id,
+            observacoes=novo_agendamento.observacoes_consulta
         )
 
         db.session.add(financeiro)
@@ -505,8 +520,8 @@ def agendamentos():
         Agendamento.horario.desc()
     ).all()
 
-    profissionais = Profissional.query.all()
-    servicos = Servico.query.all()
+    profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
+    servicos = Servico.query.order_by(Servico.nome.asc()).all()
 
     return render_template(
         "agendamentos.html",
@@ -520,19 +535,12 @@ def agendamentos():
 @login_obrigatorio
 def atualizar_status_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
-    novo_status = request.form.get("status") or "Aguardando"
-
-    agendamento.status = novo_status
+    agendamento.status = request.form.get("status") or "Aguardando"
 
     financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
 
     if financeiro:
-        if novo_status == "Cancelado":
-            financeiro.status = "Cancelado"
-        elif agendamento.pagamento_realizado:
-            financeiro.status = "Recebido"
-        else:
-            financeiro.status = "Pendente"
+        financeiro.status = status_financeiro_agendamento(agendamento)
 
     db.session.commit()
 
@@ -564,46 +572,57 @@ def visualizar_agendamento(id):
     })
 
 
-@app.route("/agendamento/editar/<int:id>", methods=["GET", "POST"])
+@app.route("/agendamento/editar/<int:id>", methods=["POST"])
 @login_obrigatorio
 def editar_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
 
-    if request.method == "POST":
-        agendamento.cliente_nome = request.form.get("cliente_nome")
-        agendamento.cliente_telefone = request.form.get("cliente_telefone")
-        agendamento.cliente_email = request.form.get("cliente_email")
-        agendamento.cliente_cpf = request.form.get("cliente_cpf")
-        agendamento.cliente_data_nascimento = request.form.get("cliente_data_nascimento")
-        agendamento.observacoes_paciente = request.form.get("observacoes_paciente")
+    agendamento.cliente_nome = request.form.get("cliente_nome")
+    agendamento.cliente_telefone = request.form.get("cliente_telefone")
+    agendamento.cliente_email = request.form.get("cliente_email")
+    agendamento.cliente_cpf = request.form.get("cliente_cpf")
+    agendamento.cliente_data_nascimento = request.form.get("cliente_data_nascimento")
+    agendamento.observacoes_paciente = request.form.get("observacoes_paciente")
+    agendamento.profissional_id = request.form.get("profissional_id")
+    agendamento.servico_id = request.form.get("servico_id")
+    agendamento.data = request.form.get("data")
+    agendamento.horario = request.form.get("horario")
+    agendamento.valor = float(request.form.get("valor") or 0)
+    agendamento.forma_pagamento = request.form.get("forma_pagamento")
+    agendamento.pagamento_realizado = request.form.get("pagamento_realizado") == "sim"
+    agendamento.status = request.form.get("status") or "Aguardando"
+    agendamento.observacoes_consulta = request.form.get("observacoes_consulta")
 
-        agendamento.profissional_id = request.form.get("profissional_id")
-        agendamento.servico_id = request.form.get("servico_id")
-        agendamento.data = request.form.get("data")
-        agendamento.horario = request.form.get("horario")
-        agendamento.valor = float(request.form.get("valor") or 0)
-        agendamento.forma_pagamento = request.form.get("forma_pagamento")
-        agendamento.pagamento_realizado = request.form.get("pagamento_realizado") == "sim"
-        agendamento.status = request.form.get("status") or "Aguardando"
-        agendamento.observacoes_consulta = request.form.get("observacoes_consulta")
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
 
-        financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+    if financeiro:
+        financeiro.descricao = f"Consulta - {agendamento.cliente_nome}"
+        financeiro.tipo = "Receita"
+        financeiro.categoria = "Consulta"
+        financeiro.valor = agendamento.valor
+        financeiro.data = converter_data_financeiro(agendamento.data)
+        financeiro.data_vencimento = converter_data_financeiro(agendamento.data)
+        financeiro.forma_pagamento = agendamento.forma_pagamento
+        financeiro.status = status_financeiro_agendamento(agendamento)
+        financeiro.profissional_id = agendamento.profissional_id
+        financeiro.observacoes = agendamento.observacoes_consulta
+    else:
+        financeiro = Financeiro(
+            agendamento_id=agendamento.id,
+            descricao=f"Consulta - {agendamento.cliente_nome}",
+            tipo="Receita",
+            categoria="Consulta",
+            valor=agendamento.valor,
+            data=converter_data_financeiro(agendamento.data),
+            data_vencimento=converter_data_financeiro(agendamento.data),
+            forma_pagamento=agendamento.forma_pagamento,
+            status=status_financeiro_agendamento(agendamento),
+            profissional_id=agendamento.profissional_id,
+            observacoes=agendamento.observacoes_consulta
+        )
+        db.session.add(financeiro)
 
-        if financeiro:
-            financeiro.descricao = f"Consulta - {agendamento.cliente_nome}"
-            financeiro.valor = agendamento.valor
-            financeiro.forma_pagamento = agendamento.forma_pagamento
-            financeiro.data = agendamento.data
-
-            if agendamento.status == "Cancelado":
-                financeiro.status = "Cancelado"
-            elif agendamento.pagamento_realizado:
-                financeiro.status = "Recebido"
-            else:
-                financeiro.status = "Pendente"
-
-        db.session.commit()
-        return redirect("/agendamentos")
+    db.session.commit()
 
     return redirect("/agendamentos")
 
