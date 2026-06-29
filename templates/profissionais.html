@@ -916,39 +916,37 @@
                         <td>{{ p.email if p.email else '-' }}</td>
 
                         <td>
-                            <div class="actions-cell">
-                                <button type="button"
-                                        class="btn-action btn-edit"
-                                        title="Editar"
-                                        data-id="{{ p.id }}"
-                                        data-nome="{{ p.nome|e }}"
-                                        data-especialidade="{{ p.especialidade|e }}"
-                                        data-telefone="{{ p.telefone|e }}"
-                                        data-email="{{ p.email|e }}"
-                                        onclick="editarProfissional(this)">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
+                           <div class="actions-cell">
+    <button type="button"
+            class="btn-action btn-edit"
+            title="Editar"
+            data-id="{{ p.id }}"
+            data-nome="{{ p.nome|e }}"
+            data-especialidade="{{ p.especialidade|e }}"
+            data-telefone="{{ p.telefone|e if p.telefone else '' }}"
+            data-email="{{ p.email|e if p.email else '' }}">
+        <i class="bi bi-pencil"></i>
+    </button>
 
-                                <button type="button"
-                                        class="btn-action btn-view"
-                                        title="Visualizar"
-                                        data-nome="{{ p.nome|e }}"
-                                        data-especialidade="{{ p.especialidade|e }}"
-                                        data-telefone="{{ p.telefone|e }}"
-                                        data-email="{{ p.email|e }}"
-                                        onclick="visualizarProfissional(this)">
-                                    <i class="bi bi-eye"></i>
-                                </button>
+    <button type="button"
+            class="btn-action btn-view"
+            title="Visualizar"
+            data-nome="{{ p.nome|e }}"
+            data-especialidade="{{ p.especialidade|e }}"
+            data-telefone="{{ p.telefone|e if p.telefone else '' }}"
+            data-email="{{ p.email|e if p.email else '' }}">
+        <i class="bi bi-eye"></i>
+    </button>
 
-                                <form method="POST"
-                                      action="/profissionais/excluir/{{ p.id }}"
-                                      style="display:inline;"
-                                      onsubmit="return confirm('Tem certeza que deseja excluir este profissional?');">
-                                    <button type="submit" class="btn-action btn-delete" title="Excluir">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
+    <form method="POST"
+          action="/profissionais/excluir/{{ p.id }}"
+          style="display:inline;"
+          onsubmit="return confirm('Tem certeza que deseja excluir este profissional?');">
+        <button type="submit" class="btn-action btn-delete" title="Excluir">
+            <i class="bi bi-trash"></i>
+        </button>
+    </form>
+</div>
                         </td>
                     </tr>
                     {% else %}
@@ -971,52 +969,49 @@
 </div>
 
 <script>
-document.getElementById("buscar").addEventListener("keyup", function () {
-    let valor = this.value.toLowerCase();
-    let linhas = document.querySelectorAll("table tbody tr.linha-tabela");
+document.addEventListener("DOMContentLoaded", function () {
+    const campoBusca = document.getElementById("buscar");
 
-    linhas.forEach(linha => {
-        let texto = linha.innerText.toLowerCase();
-        linha.style.display = texto.includes(valor) ? "" : "none";
+    if (campoBusca) {
+        campoBusca.addEventListener("keyup", function () {
+            let valor = this.value.toLowerCase();
+            let linhas = document.querySelectorAll("table tbody tr.linha-tabela");
+
+            linhas.forEach(function (linha) {
+                let texto = linha.innerText.toLowerCase();
+                linha.style.display = texto.includes(valor) ? "" : "none";
+            });
+        });
+    }
+
+    document.querySelectorAll(".btn-edit").forEach(function (botao) {
+        botao.addEventListener("click", function () {
+            document.getElementById("profissional_id").value = botao.dataset.id || "";
+            document.getElementsByName("nome")[0].value = botao.dataset.nome || "";
+            document.getElementsByName("especialidade")[0].value = botao.dataset.especialidade || "";
+            document.getElementsByName("telefone")[0].value = botao.dataset.telefone || "";
+            document.getElementsByName("email")[0].value = botao.dataset.email || "";
+
+            document.querySelector(".form-title h2").innerText = "Editar profissional";
+            document.querySelector(".form-title p").innerText = "Altere os dados abaixo e salve a atualização";
+            document.querySelector(".btn-salvar").innerHTML = '<i class="bi bi-check-lg"></i> Atualizar profissional';
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    });
+
+    document.querySelectorAll(".btn-view").forEach(function (botao) {
+        botao.addEventListener("click", function () {
+            alert(
+                "Dados do profissional:\n\n" +
+                "Nome: " + (botao.dataset.nome || "-") + "\n" +
+                "Especialidade: " + (botao.dataset.especialidade || "-") + "\n" +
+                "Telefone: " + (botao.dataset.telefone || "-") + "\n" +
+                "E-mail: " + (botao.dataset.email || "-")
+            );
+        });
     });
 });
-
-function editarProfissional(botao) {
-    document.getElementById("profissional_id").value = botao.dataset.id || "";
-    document.getElementsByName("nome")[0].value = botao.dataset.nome || "";
-    document.getElementsByName("especialidade")[0].value = botao.dataset.especialidade || "";
-    document.getElementsByName("telefone")[0].value = botao.dataset.telefone || "";
-    document.getElementsByName("email")[0].value = botao.dataset.email || "";
-
-    document.querySelector(".form-title h2").innerText = "Editar profissional";
-    document.querySelector(".form-title p").innerText = "Altere os dados abaixo e salve a atualização";
-    document.querySelector(".btn-salvar").innerHTML = '<i class="bi bi-check-lg"></i> Atualizar profissional';
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-}
-
-function visualizarProfissional(botao) {
-    const nome = botao.dataset.nome || "-";
-    const especialidade = botao.dataset.especialidade || "-";
-    const telefone = botao.dataset.telefone || "-";
-    const email = botao.dataset.email || "-";
-
-    alert(
-        "Dados do profissional:
-
-" +
-        "Nome: " + nome + "
-" +
-        "Especialidade: " + especialidade + "
-" +
-        "Telefone: " + telefone + "
-" +
-        "E-mail: " + email
-    );
-}
 </script>
 
 </body>
