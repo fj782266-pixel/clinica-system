@@ -345,6 +345,34 @@ def excluir_profissional(id):
 # ==========================
 # PACIENTES
 # ==========================
+# ==========================
+# PACIENTES
+# ==========================
+@app.route("/pacientes", methods=["GET", "POST"])
+@login_obrigatorio
+def pacientes():
+    if request.method == "POST":
+        novo = Paciente(
+            nome=request.form.get("nome"),
+            data_nascimento=request.form.get("data_nascimento"),
+            telefone=request.form.get("telefone"),
+            email=request.form.get("email"),
+            cpf=request.form.get("cpf"),
+            convenio=request.form.get("convenio"),
+            plano=request.form.get("plano"),
+            observacoes=request.form.get("observacoes")
+        )
+
+        db.session.add(novo)
+        db.session.commit()
+
+        return redirect("/pacientes")
+
+    lista = Paciente.query.order_by(Paciente.id.desc()).all()
+
+    return render_template("pacientes.html", pacientes=lista)
+
+
 @app.route("/paciente/editar/<int:id>", methods=["POST"])
 @login_obrigatorio
 def editar_paciente(id):
@@ -360,6 +388,7 @@ def editar_paciente(id):
     paciente.observacoes = request.form.get("observacoes")
 
     db.session.commit()
+
     return redirect("/pacientes")
 
 
