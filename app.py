@@ -2,18 +2,19 @@ from flask import Flask, render_template, request, redirect, session, jsonify, f
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
-from datetime import datetime
 from functools import wraps
 from sqlalchemy import inspect, text
+from datetime import datetime, date
+import os
 
 
-# ==========================
+# ============================================================
 # APP CONFIG
-# ==========================
-app = Flask(__name__, instance_relative_config=True)
-app.secret_key = os.environ.get("SECRET_KEY")
+# ============================================================
 
+app = Flask(__name__, instance_relative_config=True)
+
+app.secret_key = os.environ.get("SECRET_KEY")
 if not app.secret_key:
     raise RuntimeError("A variável SECRET_KEY não foi configurada.")
 
@@ -28,9 +29,8 @@ db_url = os.environ.get("DATABASE_URL")
 
 if not db_url:
     db_url = "sqlite:///clinica.db"
-else:
-    if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
+elif db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -41,27 +41,10 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-# ==========================
-# PROTEÇÃO GLOBAL DE LOGIN
-# ==========================
-@app.before_request
-def proteger_rotas():
-    rotas_livres = [
-        "login",
-        "static",
-        "verificar_usuario"
-    ]
-
-    if request.endpoint in rotas_livres:
-        return
-
-    if not session.get("logado"):
-        return redirect("/login")
-
-
-# ==========================
+# ============================================================
 # MODELOS
-# ==========================
+# ============================================================
+
 class Profissional(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
@@ -74,6 +57,27 @@ class Servico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     especialidade = db.Column(db.String(100), nullable=False)
+
+
+class Paciente(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    nome = db.Column(db.String(100), nullable=False)
+    data_nascimento = db.Column(db.String(20))
+    telefone = db.Column(db.String(20))
+    email = db.Column(db.String(120))
+
+    cpf = db.Column(db.String(20))
+    convenio = db.Column(db.String(100))
+    plano = db.Column(db.String(100))
+    observacoes = db.Column(db.Text)
+
+    estado_civil = db.Column(db.String(50))
+    cidade = db.Column(db.String(100))
+    endereco = db.Column(db.String(200))
+    idade = db.Column(db.Integer)
+    profissao = db.Column(db.String(100))
+    sexo = db.Column(db.String(20))
 
 
 class Agendamento(db.Model):
@@ -151,27 +155,6 @@ class RecuperacaoSenha(db.Model):
     nova_senha = db.Column(db.String(100))
 
 
-class Paciente(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-
-    nome = db.Column(db.String(100), nullable=False)
-    data_nascimento = db.Column(db.String(20))
-    telefone = db.Column(db.String(20))
-    email = db.Column(db.String(120))
-
-    cpf = db.Column(db.String(20))
-    convenio = db.Column(db.String(100))
-    plano = db.Column(db.String(100))
-    observacoes = db.Column(db.Text)
-
-    estado_civil = db.Column(db.String(50))
-    cidade = db.Column(db.String(100))
-    endereco = db.Column(db.String(200))
-    idade = db.Column(db.Integer)
-    profissao = db.Column(db.String(100))
-    sexo = db.Column(db.String(20))
-
-
 class Autorizacao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -187,12 +170,69 @@ class Autorizacao(db.Model):
     aceite = db.Column(db.Boolean, default=False)
 
 
+# ============================================================
+# FUNÇÕES AUXILIARES
+# ============================================================
+
+def login_obrigatorio(f):
+    @wraps(f)
+    def verificar(*args, **kwargs):
+        if not session.get("logado"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return verificar
+
+
+def converter_data_financeiro(data_texto):
+    if data_texto:
+        try:
+            return datetime.strptime(data_texto, "%Y-%m-%d").date()
+        except ValueError:
+            return datetime.today().date()
+    return datetime.today().date()
+
+
+def status_financeiro_agendamento(agendamento):
+    if agendamento.status == "Cancelado":
+        return "Cancelado"
+    if agendamento.pagamento_realizado:
+        return "Recebido"
+    return "Pendente"
+
+
+def valor_float(valor):
+    try:
+        return float(valor or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def int_ou_none(valor):
+    try:
+        return int(valor) if valor else None
+    except (TypeError, ValueError):
+        return None
+
+
+def primeiro_dia_mes_atual():
+    hoje = date.today()
+    return date(hoje.year, hoje.month, 1)
+
+
+def primeiro_dia_proximo_mes():
+    hoje = date.today()
+    if hoje.month == 12:
+        return date(hoje.year + 1, 1, 1)
+    return date(hoje.year, hoje.month + 1, 1)
+
+
 def garantir_colunas_agendamento():
-    """
-    Garante que bancos antigos também tenham os novos campos da agenda.
-    Isso evita erro no Render quando o banco já existia antes da alteração.
-    """
     inspector = inspect(db.engine)
+    tabelas = inspector.get_table_names()
+
+    if "agendamento" not in tabelas:
+        return
+
     colunas = [coluna["name"] for coluna in inspector.get_columns("agendamento")]
     dialecto = db.engine.dialect.name
 
@@ -208,50 +248,64 @@ def garantir_colunas_agendamento():
     db.session.commit()
 
 
+def criar_servicos_padrao():
+    if Servico.query.count() > 0:
+        return
+
+    servicos_padrao = [
+        Servico(nome="Consulta", especialidade="Clínico Geral"),
+        Servico(nome="Retorno", especialidade="Clínico Geral"),
+        Servico(nome="Avaliação", especialidade="Avaliação"),
+        Servico(nome="Procedimento", especialidade="Procedimento"),
+        Servico(nome="Exame", especialidade="Exame"),
+    ]
+
+    nomes_existentes = {item.nome.lower().strip() for item in servicos_padrao}
+
+    especialidades = db.session.query(Profissional.especialidade).distinct().all()
+    for (especialidade,) in especialidades:
+        if especialidade and especialidade.lower().strip() not in nomes_existentes:
+            servicos_padrao.append(
+                Servico(nome=especialidade, especialidade=especialidade)
+            )
+
+    db.session.add_all(servicos_padrao)
+    db.session.commit()
+
+
+# ============================================================
+# PROTEÇÃO GLOBAL DE LOGIN
+# ============================================================
+
+@app.before_request
+def proteger_rotas():
+    rotas_livres = [
+        "login",
+        "static",
+        "verificar_usuario",
+    ]
+
+    if request.endpoint in rotas_livres:
+        return
+
+    if not session.get("logado"):
+        return redirect("/login")
+
+
+# ============================================================
+# BANCO / INICIALIZAÇÃO
+# ============================================================
+
 with app.app_context():
     db.create_all()
     garantir_colunas_agendamento()
-
-    # Cria serviços padrão caso a tabela esteja vazia.
-    # Isso faz o campo "Serviço / Especialidade" aparecer na tela de agendamentos.
-    if Servico.query.count() == 0:
-        servicos_padrao = [
-            Servico(nome="Consulta", especialidade="Clínico Geral"),
-            Servico(nome="Retorno", especialidade="Clínico Geral"),
-            Servico(nome="Avaliação", especialidade="Avaliação"),
-            Servico(nome="Procedimento", especialidade="Procedimento"),
-            Servico(nome="Exame", especialidade="Exame"),
-        ]
-
-        # Também cria serviços com base nas especialidades dos profissionais cadastrados.
-        especialidades = db.session.query(Profissional.especialidade).distinct().all()
-        nomes_existentes = {item.nome.lower().strip() for item in servicos_padrao}
-
-        for (especialidade,) in especialidades:
-            if especialidade and especialidade.lower().strip() not in nomes_existentes:
-                servicos_padrao.append(
-                    Servico(nome=especialidade, especialidade=especialidade)
-                )
-
-        db.session.add_all(servicos_padrao)
-        db.session.commit()
+    criar_servicos_padrao()
 
 
-# ==========================
-# LOGIN OBRIGATÓRIO
-# ==========================
-def login_obrigatorio(f):
-    @wraps(f)
-    def verificar(*args, **kwargs):
-        if not session.get("logado"):
-            return redirect(url_for("login"))
-        return f(*args, **kwargs)
-    return verificar
+# ============================================================
+# LOGIN / LOGOUT
+# ============================================================
 
-
-# ==========================
-# VERIFICAR USUARIO
-# ==========================
 @app.route("/verificar-usuario", methods=["POST"])
 def verificar_usuario():
     usuario = request.form.get("usuario")
@@ -262,9 +316,6 @@ def verificar_usuario():
     })
 
 
-# ==========================
-# LOGIN
-# ==========================
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("logado"):
@@ -288,9 +339,16 @@ def login():
     return render_template("login.html")
 
 
-# ==========================
-# HOME
-# ==========================
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+
+# ============================================================
+# DASHBOARD
+# ============================================================
+
 @app.route("/")
 @login_obrigatorio
 def home():
@@ -298,7 +356,10 @@ def home():
     total_pacientes = Paciente.query.count()
     total_agendamentos = Agendamento.query.count()
 
-    faturamento = db.session.query(db.func.sum(Financeiro.valor)).scalar() or 0
+    faturamento = db.session.query(db.func.sum(Financeiro.valor)).filter(
+        Financeiro.tipo == "Receita",
+        Financeiro.status == "Recebido"
+    ).scalar() or 0
 
     return render_template(
         "index.html",
@@ -309,9 +370,10 @@ def home():
     )
 
 
-# ==========================
+# ============================================================
 # PROFISSIONAIS
-# ==========================
+# ============================================================
+
 @app.route("/profissionais", methods=["GET", "POST"])
 @login_obrigatorio
 def profissionais():
@@ -341,7 +403,7 @@ def profissionais():
         db.session.commit()
         return redirect("/profissionais")
 
-    profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
+    lista_profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
 
     total_profissionais = Profissional.query.count()
     total_especialidades = db.session.query(Profissional.especialidade).distinct().count()
@@ -354,12 +416,14 @@ def profissionais():
 
     faturamento_mes = db.session.query(db.func.sum(Financeiro.valor)).filter(
         Financeiro.tipo == "Receita",
-        Financeiro.status == "Recebido"
+        Financeiro.status == "Recebido",
+        Financeiro.data >= primeiro_dia_mes_atual(),
+        Financeiro.data < primeiro_dia_proximo_mes()
     ).scalar() or 0
 
     return render_template(
         "profissionais.html",
-        profissionais=profissionais,
+        profissionais=lista_profissionais,
         total_profissionais=total_profissionais,
         total_especialidades=total_especialidades,
         total_pacientes=total_pacientes,
@@ -387,12 +451,10 @@ def excluir_profissional(id):
     return redirect("/profissionais")
 
 
-# ==========================
+# ============================================================
 # PACIENTES
-# ==========================
-# ==========================
-# PACIENTES
-# ==========================
+# ============================================================
+
 @app.route("/pacientes", methods=["GET", "POST"])
 @login_obrigatorio
 def pacientes():
@@ -437,7 +499,7 @@ def editar_paciente(id):
     return redirect("/pacientes")
 
 
-@app.route("/paciente/excluir/<int:id>")
+@app.route("/paciente/excluir/<int:id>", methods=["GET", "POST"])
 @login_obrigatorio
 def excluir_paciente(id):
     paciente = Paciente.query.get_or_404(id)
@@ -448,26 +510,16 @@ def excluir_paciente(id):
     return redirect("/pacientes")
 
 
-# ==========================
+@app.route("/paciente/<int:id>")
+@login_obrigatorio
+def ficha_paciente(id):
+    paciente = Paciente.query.get_or_404(id)
+    return render_template("ficha_paciente.html", paciente=paciente)
+
+
+# ============================================================
 # AGENDAMENTOS
-# ==========================
-
-def converter_data_financeiro(data_texto):
-    if data_texto:
-        try:
-            return datetime.strptime(data_texto, "%Y-%m-%d").date()
-        except ValueError:
-            return datetime.today().date()
-    return datetime.today().date()
-
-
-def status_financeiro_agendamento(agendamento):
-    if agendamento.status == "Cancelado":
-        return "Cancelado"
-    if agendamento.pagamento_realizado:
-        return "Recebido"
-    return "Pendente"
-
+# ============================================================
 
 @app.route("/agendamentos", methods=["GET", "POST"])
 @login_obrigatorio
@@ -482,12 +534,12 @@ def agendamentos():
             cliente_cpf=request.form.get("cliente_cpf"),
             cliente_data_nascimento=request.form.get("cliente_data_nascimento"),
             observacoes_paciente=request.form.get("observacoes_paciente"),
-            profissional_id=request.form.get("profissional_id"),
-            servico_id=request.form.get("servico_id"),
+            profissional_id=int_ou_none(request.form.get("profissional_id")),
+            servico_id=int_ou_none(request.form.get("servico_id")),
             data=request.form.get("data"),
             horario=request.form.get("horario"),
-            valor=float(request.form.get("valor") or 0),
-            forma_pagamento=request.form.get("forma_pagamento"),
+            valor=valor_float(request.form.get("valor")),
+            forma_pagamento=request.form.get("forma_pagamento") or "Não informado",
             pagamento_realizado=pagamento_realizado,
             status=request.form.get("status") or "Aguardando",
             observacoes_consulta=request.form.get("observacoes_consulta")
@@ -498,7 +550,7 @@ def agendamentos():
 
         financeiro = Financeiro(
             agendamento_id=novo_agendamento.id,
-            descricao=f"Consulta - {novo_agendamento.cliente_nome}",
+            descricao=f"Consulta - {novo_agendamento.cliente_nome or 'Paciente'}",
             tipo="Receita",
             categoria="Consulta",
             valor=novo_agendamento.valor,
@@ -583,44 +635,32 @@ def editar_agendamento(id):
     agendamento.cliente_cpf = request.form.get("cliente_cpf")
     agendamento.cliente_data_nascimento = request.form.get("cliente_data_nascimento")
     agendamento.observacoes_paciente = request.form.get("observacoes_paciente")
-    agendamento.profissional_id = request.form.get("profissional_id")
-    agendamento.servico_id = request.form.get("servico_id")
+    agendamento.profissional_id = int_ou_none(request.form.get("profissional_id"))
+    agendamento.servico_id = int_ou_none(request.form.get("servico_id"))
     agendamento.data = request.form.get("data")
     agendamento.horario = request.form.get("horario")
-    agendamento.valor = float(request.form.get("valor") or 0)
-    agendamento.forma_pagamento = request.form.get("forma_pagamento")
+    agendamento.valor = valor_float(request.form.get("valor"))
+    agendamento.forma_pagamento = request.form.get("forma_pagamento") or "Não informado"
     agendamento.pagamento_realizado = request.form.get("pagamento_realizado") == "sim"
     agendamento.status = request.form.get("status") or "Aguardando"
     agendamento.observacoes_consulta = request.form.get("observacoes_consulta")
 
     financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
 
-    if financeiro:
-        financeiro.descricao = f"Consulta - {agendamento.cliente_nome}"
-        financeiro.tipo = "Receita"
-        financeiro.categoria = "Consulta"
-        financeiro.valor = agendamento.valor
-        financeiro.data = converter_data_financeiro(agendamento.data)
-        financeiro.data_vencimento = converter_data_financeiro(agendamento.data)
-        financeiro.forma_pagamento = agendamento.forma_pagamento
-        financeiro.status = status_financeiro_agendamento(agendamento)
-        financeiro.profissional_id = agendamento.profissional_id
-        financeiro.observacoes = agendamento.observacoes_consulta
-    else:
-        financeiro = Financeiro(
-            agendamento_id=agendamento.id,
-            descricao=f"Consulta - {agendamento.cliente_nome}",
-            tipo="Receita",
-            categoria="Consulta",
-            valor=agendamento.valor,
-            data=converter_data_financeiro(agendamento.data),
-            data_vencimento=converter_data_financeiro(agendamento.data),
-            forma_pagamento=agendamento.forma_pagamento,
-            status=status_financeiro_agendamento(agendamento),
-            profissional_id=agendamento.profissional_id,
-            observacoes=agendamento.observacoes_consulta
-        )
+    if not financeiro:
+        financeiro = Financeiro(agendamento_id=agendamento.id)
         db.session.add(financeiro)
+
+    financeiro.descricao = f"Consulta - {agendamento.cliente_nome or 'Paciente'}"
+    financeiro.tipo = "Receita"
+    financeiro.categoria = "Consulta"
+    financeiro.valor = agendamento.valor
+    financeiro.data = converter_data_financeiro(agendamento.data)
+    financeiro.data_vencimento = converter_data_financeiro(agendamento.data)
+    financeiro.forma_pagamento = agendamento.forma_pagamento
+    financeiro.status = status_financeiro_agendamento(agendamento)
+    financeiro.profissional_id = agendamento.profissional_id
+    financeiro.observacoes = agendamento.observacoes_consulta
 
     db.session.commit()
 
@@ -643,9 +683,40 @@ def excluir_agendamento(id):
     return redirect("/agendamentos")
 
 
-# ==========================
+@app.route("/finalizar/<int:id>")
+@login_obrigatorio
+def finalizar_agendamento(id):
+    agendamento = Agendamento.query.get_or_404(id)
+    agendamento.status = "Finalizado"
+
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+
+    if financeiro:
+        financeiro.status = status_financeiro_agendamento(agendamento)
+
+    db.session.commit()
+    return redirect("/agendamentos")
+
+
+@app.route("/cancelar/<int:id>")
+@login_obrigatorio
+def cancelar_agendamento(id):
+    agendamento = Agendamento.query.get_or_404(id)
+    agendamento.status = "Cancelado"
+
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+
+    if financeiro:
+        financeiro.status = "Cancelado"
+
+    db.session.commit()
+    return redirect("/agendamentos")
+
+
+# ============================================================
 # FINANCEIRO
-# ==========================
+# ============================================================
+
 @app.route("/financeiro", methods=["GET", "POST"])
 @login_obrigatorio
 def financeiro():
@@ -667,14 +738,14 @@ def financeiro():
             descricao=descricao,
             tipo=tipo,
             categoria=categoria,
-            valor=float(valor) if valor else 0,
+            valor=valor_float(valor),
             data=datetime.strptime(data, "%Y-%m-%d").date() if data else datetime.today().date(),
             data_vencimento=datetime.strptime(data_vencimento, "%Y-%m-%d").date() if data_vencimento else None,
             forma_pagamento=forma_pagamento,
             status=status if status else "Recebido",
-            paciente_id=int(paciente_id) if paciente_id else None,
-            profissional_id=int(profissional_id) if profissional_id else None,
-            agendamento_id=int(agendamento_id) if agendamento_id else None,
+            paciente_id=int_ou_none(paciente_id),
+            profissional_id=int_ou_none(profissional_id),
+            agendamento_id=int_ou_none(agendamento_id),
             observacoes=observacoes
         )
 
@@ -702,12 +773,13 @@ def financeiro():
 
     saldo_liquido = total_recebido - total_despesas
 
-    receitas_mes = Financeiro.query.filter(
+    receitas_mes = db.session.query(db.func.sum(Financeiro.valor)).filter(
         Financeiro.tipo == "Receita",
-        Financeiro.status == "Recebido"
-    ).count()
+        Financeiro.status == "Recebido",
+        Financeiro.data >= primeiro_dia_mes_atual(),
+        Financeiro.data < primeiro_dia_proximo_mes()
+    ).scalar() or 0
 
-    # Gráfico mensal real
     meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
     grafico_mensal = []
 
@@ -739,7 +811,6 @@ def financeiro():
     if maior_valor_grafico <= 0:
         maior_valor_grafico = 1
 
-    # Recebimentos por categoria real
     categorias_receita = {}
     total_categorias = 0
 
@@ -750,6 +821,7 @@ def financeiro():
             total_categorias += item.valor or 0
 
     categorias_receita_lista = []
+
     for categoria, valor_categoria in categorias_receita.items():
         percentual = (valor_categoria / total_categorias * 100) if total_categorias > 0 else 0
         categorias_receita_lista.append({
@@ -764,13 +836,11 @@ def financeiro():
         reverse=True
     )
 
-    # Contas a receber reais
     contas_a_receber = Financeiro.query.filter(
         Financeiro.tipo == "Receita",
         Financeiro.status == "Pendente"
     ).order_by(Financeiro.data_vencimento.asc()).limit(5).all()
 
-    # Formas de pagamento reais
     formas_pagamento = {}
     total_formas = 0
 
@@ -781,6 +851,7 @@ def financeiro():
             total_formas += item.valor or 0
 
     formas_pagamento_lista = []
+
     for forma, valor_forma in formas_pagamento.items():
         percentual = (valor_forma / total_formas * 100) if total_formas > 0 else 0
         formas_pagamento_lista.append({
@@ -797,7 +868,7 @@ def financeiro():
 
     pacientes = Paciente.query.order_by(Paciente.nome.asc()).all()
     profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
-    agendamentos = Agendamento.query.order_by(Agendamento.id.desc()).all()
+    agendamentos_lista = Agendamento.query.order_by(Agendamento.id.desc()).all()
 
     return render_template(
         "financeiro.html",
@@ -814,44 +885,14 @@ def financeiro():
         formas_pagamento=formas_pagamento_lista,
         pacientes=pacientes,
         profissionais=profissionais,
-        agendamentos=agendamentos
+        agendamentos=agendamentos_lista
     )
 
 
-# ==========================
-# FINALIZAR / CANCELAR AGENDAMENTO
-# ==========================
-@app.route("/finalizar/<int:id>")
-@login_obrigatorio
-def finalizar_agendamento(id):
-    agendamento = Agendamento.query.get_or_404(id)
-    agendamento.status = "Finalizado"
-
-    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
-    if financeiro:
-        financeiro.status = "Recebido" if agendamento.pagamento_realizado else "Pendente"
-
-    db.session.commit()
-    return redirect("/agendamentos")
-
-
-@app.route("/cancelar/<int:id>")
-@login_obrigatorio
-def cancelar_agendamento(id):
-    agendamento = Agendamento.query.get_or_404(id)
-    agendamento.status = "Cancelado"
-
-    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
-    if financeiro:
-        financeiro.status = "Cancelado"
-
-    db.session.commit()
-    return redirect("/agendamentos")
-
-
-# ==========================
+# ============================================================
 # RECUPERAÇÕES
-# ==========================
+# ============================================================
+
 @app.route("/recuperacoes")
 @login_obrigatorio
 def recuperacoes():
@@ -859,27 +900,9 @@ def recuperacoes():
     return render_template("recuperacoes.html", pedidos=pedidos)
 
 
-# ==========================
-# FICHA DO PACIENTE
-# ==========================
-@app.route("/paciente/<int:id>")
-@login_obrigatorio
-def ficha_paciente(id):
-    paciente = Paciente.query.get_or_404(id)
-    return render_template("ficha_paciente.html", paciente=paciente)
-
-
-# ==========================
-# LOGOUT
-# ==========================
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/login")
-
-
-# ==========================
+# ============================================================
 # INICIAR APP
-# ==========================
+# ============================================================
+
 if __name__ == "__main__":
     app.run(debug=False)
