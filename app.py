@@ -345,29 +345,33 @@ def excluir_profissional(id):
 # ==========================
 # PACIENTES
 # ==========================
-@app.route("/pacientes", methods=["GET", "POST"])
+@app.route("/paciente/editar/<int:id>", methods=["POST"])
 @login_obrigatorio
-def pacientes():
-    if request.method == "POST":
-        novo = Paciente(
-            nome=request.form.get("nome"),
-            data_nascimento=request.form.get("data_nascimento"),
-            telefone=request.form.get("telefone"),
-            email=request.form.get("email"),
-            cpf=request.form.get("cpf"),
-            convenio=request.form.get("convenio"),
-            plano=request.form.get("plano"),
-            observacoes=request.form.get("observacoes")
-        )
+def editar_paciente(id):
+    paciente = Paciente.query.get_or_404(id)
 
-        db.session.add(novo)
-        db.session.commit()
+    paciente.nome = request.form.get("nome")
+    paciente.data_nascimento = request.form.get("data_nascimento")
+    paciente.telefone = request.form.get("telefone")
+    paciente.email = request.form.get("email")
+    paciente.cpf = request.form.get("cpf")
+    paciente.convenio = request.form.get("convenio")
+    paciente.plano = request.form.get("plano")
+    paciente.observacoes = request.form.get("observacoes")
 
-        return redirect("/pacientes")
+    db.session.commit()
+    return redirect("/pacientes")
 
-    lista = Paciente.query.order_by(Paciente.id.desc()).all()
 
-    return render_template("pacientes.html", pacientes=lista)
+@app.route("/paciente/excluir/<int:id>")
+@login_obrigatorio
+def excluir_paciente(id):
+    paciente = Paciente.query.get_or_404(id)
+
+    db.session.delete(paciente)
+    db.session.commit()
+
+    return redirect("/pacientes")
 
 
 # ==========================

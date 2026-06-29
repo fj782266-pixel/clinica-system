@@ -698,6 +698,140 @@
             box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
         }
 
+
+
+        /* MODAL PACIENTE */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 999;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .patient-modal {
+            width: 100%;
+            max-width: 820px;
+            max-height: 92vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 70px rgba(15, 23, 42, 0.25);
+            border: 1px solid var(--border);
+        }
+
+        .modal-header {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(135deg, #f0fdfa, #ffffff);
+        }
+
+        .modal-title-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .modal-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--green-soft);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .modal-header p {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: white;
+            color: #334155;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail-box {
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 15px;
+            background: #f8fafc;
+        }
+
+        .detail-box span {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .detail-box strong {
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .edit-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .modal-footer {
+            padding: 18px 24px 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        @media (max-width: 650px) {
+            .details-grid,
+            .edit-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* PAGINATION */
         .pagination-area {
             padding: 20px 24px;
@@ -1180,15 +1314,40 @@
 
                             <td>
                                 <div class="action-buttons">
-                                    <a href="#" class="action-btn view" title="Visualizar">
+                                    <button type="button"
+                                            class="action-btn view abrir-visualizar"
+                                            title="Visualizar"
+                                            data-id="{{ p.id }}"
+                                            data-nome="{{ p.nome|e }}"
+                                            data-data-nascimento="{{ p.data_nascimento|default('', true)|e }}"
+                                            data-telefone="{{ p.telefone|default('', true)|e }}"
+                                            data-email="{{ p.email|default('', true)|e }}"
+                                            data-cpf="{{ p.cpf|default('', true)|e }}"
+                                            data-convenio="{{ p.convenio|default('', true)|e }}"
+                                            data-plano="{{ p.plano|default('', true)|e }}"
+                                            data-observacoes="{{ p.observacoes|default('', true)|e }}">
                                         <i class="bi bi-eye"></i>
-                                    </a>
+                                    </button>
 
-                                    <a href="#" class="action-btn edit" title="Editar">
+                                    <button type="button"
+                                            class="action-btn edit abrir-editar"
+                                            title="Editar"
+                                            data-id="{{ p.id }}"
+                                            data-nome="{{ p.nome|e }}"
+                                            data-data-nascimento="{{ p.data_nascimento|default('', true)|e }}"
+                                            data-telefone="{{ p.telefone|default('', true)|e }}"
+                                            data-email="{{ p.email|default('', true)|e }}"
+                                            data-cpf="{{ p.cpf|default('', true)|e }}"
+                                            data-convenio="{{ p.convenio|default('', true)|e }}"
+                                            data-plano="{{ p.plano|default('', true)|e }}"
+                                            data-observacoes="{{ p.observacoes|default('', true)|e }}">
                                         <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                    </button>
 
-                                    <a href="#" class="action-btn delete" title="Excluir">
+                                    <a href="/paciente/excluir/{{ p.id }}"
+                                       class="action-btn delete"
+                                       title="Excluir"
+                                       onclick="return confirm('Deseja realmente excluir este paciente?')">
                                         <i class="bi bi-trash"></i>
                                     </a>
                                 </div>
@@ -1236,6 +1395,120 @@
 
         </section>
 
+
+        <!-- MODAL VISUALIZAR PACIENTE -->
+        <div class="modal-overlay" id="modalVisualizar">
+            <div class="patient-modal">
+                <div class="modal-header">
+                    <div class="modal-title-area">
+                        <div class="modal-icon"><i class="bi bi-person-vcard"></i></div>
+                        <div>
+                            <h2 id="visualizarNomeTitulo">Dados do paciente</h2>
+                            <p>Informações completas do paciente selecionado</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close fechar-modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="details-grid">
+                        <div class="detail-box"><span>Nome</span><strong id="vNome">-</strong></div>
+                        <div class="detail-box"><span>Data de nascimento</span><strong id="vDataNascimento">-</strong></div>
+                        <div class="detail-box"><span>Telefone</span><strong id="vTelefone">-</strong></div>
+                        <div class="detail-box"><span>E-mail</span><strong id="vEmail">-</strong></div>
+                        <div class="detail-box"><span>CPF</span><strong id="vCpf">-</strong></div>
+                        <div class="detail-box"><span>Convênio</span><strong id="vConvenio">-</strong></div>
+                        <div class="detail-box"><span>Plano</span><strong id="vPlano">-</strong></div>
+                        <div class="detail-box"><span>Observações</span><strong id="vObservacoes">-</strong></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-clear fechar-modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL EDITAR PACIENTE -->
+        <div class="modal-overlay" id="modalEditar">
+            <div class="patient-modal">
+                <div class="modal-header">
+                    <div class="modal-title-area">
+                        <div class="modal-icon"><i class="bi bi-pencil-square"></i></div>
+                        <div>
+                            <h2>Editar paciente</h2>
+                            <p>Atualize os dados e clique em salvar alterações</p>
+                        </div>
+                    </div>
+                    <button type="button" class="modal-close fechar-modal">&times;</button>
+                </div>
+
+                <form method="POST" id="formEditarPaciente">
+                    <div class="modal-body">
+                        <div class="edit-grid">
+                            <div class="form-group">
+                                <label>Nome completo <span class="required">*</span></label>
+                                <input type="text" name="nome" id="eNome" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Data de nascimento</label>
+                                <input type="text" name="data_nascimento" id="eDataNascimento" placeholder="dd/mm/aaaa">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Telefone</label>
+                                <input type="text" name="telefone" id="eTelefone">
+                            </div>
+
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" name="email" id="eEmail">
+                            </div>
+
+                            <div class="form-group">
+                                <label>CPF</label>
+                                <input type="text" name="cpf" id="eCpf">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Convênio</label>
+                                <select name="convenio" id="eConvenio">
+                                    <option value="">Selecione o convênio</option>
+                                    <option value="Particular">Particular</option>
+                                    <option value="Unimed">Unimed</option>
+                                    <option value="Bradesco Saúde">Bradesco Saúde</option>
+                                    <option value="SulAmérica">SulAmérica</option>
+                                    <option value="Amil">Amil</option>
+                                    <option value="São Cristóvão">São Cristóvão</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Plano</label>
+                                <input type="text" name="plano" id="ePlano">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Observações</label>
+                                <input type="text" name="observacoes" id="eObservacoes">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-clear fechar-modal">Cancelar</button>
+                        <button type="submit" class="btn-save">
+                            <i class="bi bi-check-lg"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
     </main>
 
     <script>
@@ -1255,6 +1528,67 @@
                     linhas[i].style.display = "none";
                 }
             }
+        });
+
+        const modalVisualizar = document.getElementById("modalVisualizar");
+        const modalEditar = document.getElementById("modalEditar");
+        const formEditarPaciente = document.getElementById("formEditarPaciente");
+
+        function valorOuTraco(valor) {
+            return valor && valor.trim() !== "" ? valor : "-";
+        }
+
+        function abrirModal(modal) {
+            modal.classList.add("active");
+        }
+
+        function fecharModais() {
+            modalVisualizar.classList.remove("active");
+            modalEditar.classList.remove("active");
+        }
+
+        document.querySelectorAll(".fechar-modal").forEach(function (botao) {
+            botao.addEventListener("click", fecharModais);
+        });
+
+        document.querySelectorAll(".modal-overlay").forEach(function (modal) {
+            modal.addEventListener("click", function (event) {
+                if (event.target === modal) {
+                    fecharModais();
+                }
+            });
+        });
+
+        document.querySelectorAll(".abrir-visualizar").forEach(function (botao) {
+            botao.addEventListener("click", function () {
+                document.getElementById("visualizarNomeTitulo").innerText = botao.dataset.nome;
+                document.getElementById("vNome").innerText = valorOuTraco(botao.dataset.nome);
+                document.getElementById("vDataNascimento").innerText = valorOuTraco(botao.dataset.dataNascimento);
+                document.getElementById("vTelefone").innerText = valorOuTraco(botao.dataset.telefone);
+                document.getElementById("vEmail").innerText = valorOuTraco(botao.dataset.email);
+                document.getElementById("vCpf").innerText = valorOuTraco(botao.dataset.cpf);
+                document.getElementById("vConvenio").innerText = valorOuTraco(botao.dataset.convenio);
+                document.getElementById("vPlano").innerText = valorOuTraco(botao.dataset.plano);
+                document.getElementById("vObservacoes").innerText = valorOuTraco(botao.dataset.observacoes);
+
+                abrirModal(modalVisualizar);
+            });
+        });
+
+        document.querySelectorAll(".abrir-editar").forEach(function (botao) {
+            botao.addEventListener("click", function () {
+                formEditarPaciente.action = "/paciente/editar/" + botao.dataset.id;
+                document.getElementById("eNome").value = botao.dataset.nome || "";
+                document.getElementById("eDataNascimento").value = botao.dataset.dataNascimento || "";
+                document.getElementById("eTelefone").value = botao.dataset.telefone || "";
+                document.getElementById("eEmail").value = botao.dataset.email || "";
+                document.getElementById("eCpf").value = botao.dataset.cpf || "";
+                document.getElementById("eConvenio").value = botao.dataset.convenio || "";
+                document.getElementById("ePlano").value = botao.dataset.plano || "";
+                document.getElementById("eObservacoes").value = botao.dataset.observacoes || "";
+
+                abrirModal(modalEditar);
+            });
         });
     </script>
 
