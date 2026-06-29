@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
 from functools import wraps
+from sqlalchemy import inspect, text
 
 
 # ==========================
@@ -100,6 +101,8 @@ class Agendamento(db.Model):
     horario = db.Column(db.String(20), nullable=False)
 
     valor = db.Column(db.Float, default=0)
+    forma_pagamento = db.Column(db.String(50), default="Não informado")
+    pagamento_realizado = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(20), default="Aguardando")
 
 
@@ -184,8 +187,30 @@ class Autorizacao(db.Model):
     aceite = db.Column(db.Boolean, default=False)
 
 
+def garantir_colunas_agendamento():
+    """
+    Garante que bancos antigos também tenham os novos campos da agenda.
+    Isso evita erro no Render quando o banco já existia antes da alteração.
+    """
+    inspector = inspect(db.engine)
+    colunas = [coluna["name"] for coluna in inspector.get_columns("agendamento")]
+    dialecto = db.engine.dialect.name
+
+    if "forma_pagamento" not in colunas:
+        db.session.execute(text("ALTER TABLE agendamento ADD COLUMN forma_pagamento VARCHAR(50) DEFAULT 'Não informado'"))
+
+    if "pagamento_realizado" not in colunas:
+        if dialecto == "postgresql":
+            db.session.execute(text("ALTER TABLE agendamento ADD COLUMN pagamento_realizado BOOLEAN DEFAULT FALSE"))
+        else:
+            db.session.execute(text("ALTER TABLE agendamento ADD COLUMN pagamento_realizado BOOLEAN DEFAULT 0"))
+
+    db.session.commit()
+
+
 with app.app_context():
     db.create_all()
+    garantir_colunas_agendamento()
 
     # Cria serviços padrão caso a tabela esteja vazia.
     # Isso faz o campo "Serviço / Especialidade" aparecer na tela de agendamentos.
@@ -194,8 +219,8 @@ with app.app_context():
             Servico(nome="Consulta", especialidade="Clínico Geral"),
             Servico(nome="Retorno", especialidade="Clínico Geral"),
             Servico(nome="Avaliação", especialidade="Avaliação"),
-            Servico(nome="Limpeza de Pele", especialidade="Estética"),
-            Servico(nome="Botox", especialidade="Estética"),
+            Servico(nome="Procedimento", especialidade="Procedimento"),
+            Servico(nome="Exame", especialidade="Exame"),
         ]
 
         # Também cria serviços com base nas especialidades dos profissionais cadastrados.
@@ -433,7 +458,13 @@ def agendamentos():
     servicos = Servico.query.order_by(Servico.nome.asc()).all()
 
     if request.method == "POST":
-        valor = request.form.get("valor") or 0
+        valor_raw = request.form.get("valor") or "0"
+        valor = float(valor_raw.replace(",", ".")) if isinstance(valor_raw, str) else float(valor_raw)
+
+        forma_pagamento = request.form.get("forma_pagamento") or "Não informado"
+        pagamento_realizado_form = request.form.get("pagamento_realizado") or "nao"
+        pagamento_realizado = pagamento_realizado_form == "sim"
+        status_agendamento = request.form.get("status") or "Aguardando"
 
         novo = Agendamento(
             cliente_nome=request.form.get("cliente_nome"),
@@ -447,23 +478,28 @@ def agendamentos():
             servico_id=int(request.form.get("servico_id")) if request.form.get("servico_id") else None,
             data=request.form.get("data"),
             horario=request.form.get("horario"),
-            valor=float(valor),
+            valor=valor,
+            forma_pagamento=forma_pagamento,
+            pagamento_realizado=pagamento_realizado,
             observacoes_consulta=request.form.get("observacoes_consulta"),
-            status="Aguardando"
+            status=status_agendamento
         )
 
         db.session.add(novo)
         db.session.flush()
 
         if novo.valor and novo.valor > 0:
+            status_financeiro = "Recebido" if pagamento_realizado else "Pendente"
+
             financeiro = Financeiro(
                 descricao=f"Consulta - {novo.cliente_nome}",
                 tipo="Receita",
                 categoria="Consultas",
                 valor=novo.valor,
                 data=datetime.strptime(novo.data, "%Y-%m-%d").date() if novo.data else None,
-                forma_pagamento="Não informado",
-                status="Pendente",
+                data_vencimento=datetime.strptime(novo.data, "%Y-%m-%d").date() if novo.data else None,
+                forma_pagamento=forma_pagamento,
+                status=status_financeiro,
                 agendamento_id=novo.id,
                 profissional_id=novo.profissional_id,
                 observacoes="Lançamento criado automaticamente pelo agendamento."
@@ -486,6 +522,29 @@ def agendamentos():
         servicos=servicos,
         agendamentos=agendamentos_lista
     )
+
+
+@app.route("/agendamento/status/<int:id>", methods=["POST"])
+@login_obrigatorio
+def atualizar_status_agendamento(id):
+    agendamento = Agendamento.query.get_or_404(id)
+    novo_status = request.form.get("status") or "Aguardando"
+
+    agendamento.status = novo_status
+
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+
+    if financeiro:
+        if novo_status == "Cancelado":
+            financeiro.status = "Cancelado"
+        elif agendamento.pagamento_realizado:
+            financeiro.status = "Recebido"
+        else:
+            financeiro.status = "Pendente"
+
+    db.session.commit()
+
+    return redirect("/agendamentos")
 
 
 # ==========================
@@ -664,17 +723,33 @@ def financeiro():
 
 
 # ==========================
-# FINALIZAR / CANCELAR
+# FINALIZAR / CANCELAR AGENDAMENTO
 # ==========================
 @app.route("/finalizar/<int:id>")
+@login_obrigatorio
+def finalizar_agendamento(id):
+    agendamento = Agendamento.query.get_or_404(id)
+    agendamento.status = "Finalizado"
+
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+    if financeiro:
+        financeiro.status = "Recebido" if agendamento.pagamento_realizado else "Pendente"
+
+    db.session.commit()
+    return redirect("/agendamentos")
+
+
 @app.route("/cancelar/<int:id>")
 @login_obrigatorio
-def remover_agendamento(id):
+def cancelar_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
+    agendamento.status = "Cancelado"
 
-    db.session.delete(agendamento)
+    financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
+    if financeiro:
+        financeiro.status = "Cancelado"
+
     db.session.commit()
-
     return redirect("/agendamentos")
 
 
