@@ -804,7 +804,8 @@
         </div>
 
         <div class="form-layout">
-            <form method="POST" class="form-content">
+            <form method="POST" class="form-content" id="formProfissional">
+                <input type="hidden" name="profissional_id" id="profissional_id">
                 <div class="grid">
                     <div class="input-wrapper">
                         <label>Nome completo</label>
@@ -916,17 +917,37 @@
 
                         <td>
                             <div class="actions-cell">
-                                <button class="btn-action btn-edit" title="Editar">
+                                <button type="button"
+                                        class="btn-action btn-edit"
+                                        title="Editar"
+                                        data-id="{{ p.id }}"
+                                        data-nome="{{ p.nome|e }}"
+                                        data-especialidade="{{ p.especialidade|e }}"
+                                        data-telefone="{{ p.telefone|e }}"
+                                        data-email="{{ p.email|e }}"
+                                        onclick="editarProfissional(this)">
                                     <i class="bi bi-pencil"></i>
                                 </button>
 
-                                <button class="btn-action btn-view" title="Visualizar">
+                                <button type="button"
+                                        class="btn-action btn-view"
+                                        title="Visualizar"
+                                        data-nome="{{ p.nome|e }}"
+                                        data-especialidade="{{ p.especialidade|e }}"
+                                        data-telefone="{{ p.telefone|e }}"
+                                        data-email="{{ p.email|e }}"
+                                        onclick="visualizarProfissional(this)">
                                     <i class="bi bi-eye"></i>
                                 </button>
 
-                                <button class="btn-action btn-delete" title="Excluir">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                                <form method="POST"
+                                      action="/profissionais/excluir/{{ p.id }}"
+                                      style="display:inline;"
+                                      onsubmit="return confirm('Tem certeza que deseja excluir este profissional?');">
+                                    <button type="submit" class="btn-action btn-delete" title="Excluir">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -959,6 +980,43 @@ document.getElementById("buscar").addEventListener("keyup", function () {
         linha.style.display = texto.includes(valor) ? "" : "none";
     });
 });
+
+function editarProfissional(botao) {
+    document.getElementById("profissional_id").value = botao.dataset.id || "";
+    document.getElementsByName("nome")[0].value = botao.dataset.nome || "";
+    document.getElementsByName("especialidade")[0].value = botao.dataset.especialidade || "";
+    document.getElementsByName("telefone")[0].value = botao.dataset.telefone || "";
+    document.getElementsByName("email")[0].value = botao.dataset.email || "";
+
+    document.querySelector(".form-title h2").innerText = "Editar profissional";
+    document.querySelector(".form-title p").innerText = "Altere os dados abaixo e salve a atualização";
+    document.querySelector(".btn-salvar").innerHTML = '<i class="bi bi-check-lg"></i> Atualizar profissional';
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+function visualizarProfissional(botao) {
+    const nome = botao.dataset.nome || "-";
+    const especialidade = botao.dataset.especialidade || "-";
+    const telefone = botao.dataset.telefone || "-";
+    const email = botao.dataset.email || "-";
+
+    alert(
+        "Dados do profissional:
+
+" +
+        "Nome: " + nome + "
+" +
+        "Especialidade: " + especialidade + "
+" +
+        "Telefone: " + telefone + "
+" +
+        "E-mail: " + email
+    );
+}
 </script>
 
 </body>

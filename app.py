@@ -269,64 +269,77 @@ def home():
 # ==========================
 @app.route("/profissionais", methods=["GET", "POST"])
 @login_obrigatorio
-
 def profissionais():
     if request.method == "POST":
-        novo = Profissional(
-            nome=request.form.get("nome"),
-            especialidade=request.form.get("especialidade"),
-            telefone=request.form.get("telefone"),
-            email=request.form.get("email")
-        )
+        profissional_id = request.form.get("profissional_id")
 
-        db.session.add(novo)
+        nome = request.form.get("nome")
+        especialidade = request.form.get("especialidade")
+        telefone = request.form.get("telefone")
+        email = request.form.get("email")
+
+        if profissional_id:
+            profissional = Profissional.query.get_or_404(int(profissional_id))
+            profissional.nome = nome
+            profissional.especialidade = especialidade
+            profissional.telefone = telefone
+            profissional.email = email
+        else:
+            profissional = Profissional(
+                nome=nome,
+                especialidade=especialidade,
+                telefone=telefone,
+                email=email
+            )
+            db.session.add(profissional)
+
         db.session.commit()
-
         return redirect("/profissionais")
 
-    lista = Profissional.query.order_by(Profissional.nome.asc()).all()
+    profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
 
     total_profissionais = Profissional.query.count()
+    total_especialidades = db.session.query(Profissional.especialidade).distinct().count()
     total_pacientes = Paciente.query.count()
 
-    total_especialidades = db.session.query(
-        func.count(func.distinct(Profissional.especialidade))
+    consultas_hoje = 0
+    consultas_pendentes = 0
+    proximo_atendimento = None
+    taxa_ocupacao = 0
+
+    faturamento_mes = db.session.query(db.func.sum(Financeiro.valor)).filter(
+        Financeiro.tipo == "Receita",
+        Financeiro.status == "Recebido"
     ).scalar() or 0
-
-    hoje = datetime.now().strftime("%Y-%m-%d")
-
-    consultas_hoje = Agendamento.query.filter_by(data=hoje).count()
-
-    consultas_pendentes = Agendamento.query.filter(
-        Agendamento.status.in_(["Aguardando", "Pendente"])
-    ).count()
-
-    proximo_atendimento = Agendamento.query.filter(
-        Agendamento.data >= hoje
-    ).order_by(
-        Agendamento.data.asc(),
-        Agendamento.horario.asc()
-    ).first()
-
-    faturamento_mes = db.session.query(
-        func.sum(Financeiro.valor)
-    ).scalar() or 0
-
-    capacidade_dia = 20
-    taxa_ocupacao = int((consultas_hoje / capacidade_dia) * 100) if capacidade_dia else 0
 
     return render_template(
         "profissionais.html",
-        profissionais=lista,
+        profissionais=profissionais,
         total_profissionais=total_profissionais,
         total_especialidades=total_especialidades,
-        consultas_hoje=consultas_hoje,
-        faturamento_mes=faturamento_mes,
         total_pacientes=total_pacientes,
+        consultas_hoje=consultas_hoje,
+        consultas_pendentes=consultas_pendentes,
         proximo_atendimento=proximo_atendimento,
         taxa_ocupacao=taxa_ocupacao,
-        consultas_pendentes=consultas_pendentes
+        faturamento_mes=faturamento_mes
     )
+
+
+@app.route("/profissionais/excluir/<int:id>", methods=["POST"])
+@login_obrigatorio
+def excluir_profissional(id):
+    profissional = Profissional.query.get_or_404(id)
+
+    agendamentos_vinculados = Agendamento.query.filter_by(profissional_id=id).count()
+
+    if agendamentos_vinculados > 0:
+        return redirect("/profissionais")
+
+    db.session.delete(profissional)
+    db.session.commit()
+
+    return redirect("/profissionais")
 
 
 # ==========================
