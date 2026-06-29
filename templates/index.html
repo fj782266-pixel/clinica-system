@@ -4,322 +4,1054 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Essencial Clínica</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #006b63;
+            --primary-dark: #004b46;
+            --primary-light: #e6f7f5;
+            --sidebar: #003f3b;
+            --sidebar-dark: #002f2c;
+            --bg: #f4f8f7;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --green: #10b981;
+            --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+        }
 
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
         }
 
         body {
-            font-family: 'Inter', Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #1e293b;
             min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
         }
 
-        /* Container Principal com espaçamento geral */
-        .main-wrapper {
-            width: 100%;
-            max-width: 1300px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        /* Grid Superior Superior */
-        .layout-top {
-            display: flex;
-            gap: 30px;
-            width: 100%;
-        }
-
-        /* Lado Esquerdo - Banner com Bordas Arredondadas */
-        .header {
-            width: 45%;
-            min-height: 550px;
-            background: linear-gradient(
-                135deg,
-                rgba(11, 71, 66, 0.95),
-                rgba(6, 48, 44, 0.85)
-            ),
-            url("{{ url_for('static', filename='medicos.jpg') }}");
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            text-align: left;
+        /* SIDEBAR */
+        .sidebar {
+            width: 270px;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(20, 184, 166, 0.25), transparent 35%),
+                linear-gradient(180deg, var(--sidebar), var(--sidebar-dark));
             color: white;
-            padding: 50px;
-            border-radius: 32px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            padding: 34px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
         }
 
-        .logo {
-            width: 140px;
+        .brand {
+            text-align: center;
+            margin-bottom: 42px;
+        }
+
+        .brand img {
+            width: 125px;
             height: auto;
-            margin-bottom: 40px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.25));
         }
 
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
+        .brand h2 {
+            font-size: 1.55rem;
+            line-height: 1.1;
+            font-weight: 800;
             letter-spacing: -0.5px;
         }
 
-        .header p {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            font-weight: 400;
-            margin-bottom: 40px;
+        .brand span {
+            display: block;
+            font-size: 0.78rem;
+            letter-spacing: 4px;
+            font-weight: 500;
+            opacity: 0.75;
+            margin-top: 4px;
         }
 
-        .header-footer {
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .menu a {
+            color: rgba(255, 255, 255, 0.88);
+            text-decoration: none;
+            padding: 16px 18px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .menu a i {
+            font-size: 1.25rem;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: rgba(20, 184, 166, 0.22);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .sidebar-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding-top: 22px;
+        }
+
+        .user-box {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 0.95rem;
-            opacity: 0.85;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding-top: 20px;
-            width: 100%;
+            padding: 12px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.08);
+            margin-bottom: 16px;
         }
 
-        /* Lado Direito - Cards Horizontais */
-        .container {
-            width: 55%;
+        .user-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #14b8a6, #006b63);
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 20px;
+            font-size: 1.4rem;
         }
 
-        /* Estilização dos Cards Horizontais */
-        .card {
+        .user-box strong {
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .user-box small {
+            color: rgba(255, 255, 255, 0.68);
+            font-size: 0.78rem;
+        }
+
+        .logout {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 12px;
+            font-weight: 700;
+            border-radius: 14px;
+            transition: 0.2s;
+        }
+
+        .logout:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main {
+            margin-left: 270px;
+            width: calc(100% - 270px);
+            padding: 28px;
+        }
+
+        .topbar {
             background: white;
-            border-radius: 24px;
-            padding: 30px 40px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02);
+            border-radius: 26px;
+            padding: 22px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: var(--shadow);
+            margin-bottom: 28px;
         }
 
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
-        }
-
-        .card-content-left {
+        .welcome {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 18px;
         }
 
-        .icon {
-            font-size: 32px;
-            color: #005954;
-            background: #e6f2f1;
-            width: 75px;
-            height: 75px;
+        .menu-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            flex-shrink: 0;
+            color: var(--primary);
+            font-size: 1.4rem;
         }
 
-        .card-text h3 {
-            color: #005954;
-            font-size: 1.6rem;
+        .welcome h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .search-box {
+            width: 330px;
+            height: 48px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 18px;
+            color: var(--muted);
+            background: #fbfefe;
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            background: transparent;
+            font-size: 0.95rem;
+        }
+
+        .action-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: #fbfefe;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: -4px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--green);
+            color: white;
+            font-size: 0.68rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .profile-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* GRID PRINCIPAL */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+
+        .hero-card {
+            min-height: 430px;
+            border-radius: 28px;
+            overflow: hidden;
+            color: white;
+            padding: 40px;
+            background:
+                linear-gradient(135deg, rgba(0, 75, 70, 0.95), rgba(0, 75, 70, 0.58)),
+                url("{{ url_for('static', filename='medicos.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 65%;
+            height: 5px;
+            background: linear-gradient(90deg, #14b8a6, transparent);
+        }
+
+        .tag {
+            width: fit-content;
+            padding: 9px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            font-size: 0.82rem;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-card h2 {
+            font-size: 3.2rem;
+            line-height: 1.05;
+            letter-spacing: -1.5px;
+            margin-bottom: 18px;
+            font-weight: 800;
+        }
+
+        .hero-card h2 span {
+            color: #5eead4;
+            display: block;
+        }
+
+        .hero-card p {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            max-width: 500px;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .hero-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 35px;
+        }
+
+        .hero-feature {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .hero-feature i {
+            font-size: 1.4rem;
+            color: #99f6e4;
+        }
+
+        .hero-feature strong {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .hero-feature small {
+            display: block;
+            font-size: 0.78rem;
+            color: rgba(255, 255, 255, 0.78);
+            line-height: 1.35;
+        }
+
+        .access-list {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .access-card {
+            background: white;
+            border-radius: 26px;
+            padding: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            transition: 0.2s ease;
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        .access-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.11);
+        }
+
+        .access-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .access-icon {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 107, 99, 0.12);
+        }
+
+        .access-text h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .access-text p {
+            color: var(--muted);
+            line-height: 1.45;
+            font-size: 0.96rem;
+            max-width: 320px;
+        }
+
+        .btn-access {
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 13px 22px;
+            border-radius: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 10px 18px rgba(0, 107, 99, 0.18);
+        }
+
+        .btn-access:hover {
+            transform: translateX(3px);
+            box-shadow: 0 14px 24px rgba(0, 107, 99, 0.25);
+        }
+
+        .btn-round {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            text-decoration: none;
+            background: #f8fafc;
+            color: var(--primary);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* ESTATÍSTICAS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 24px;
+            padding: 26px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .stat-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .stat-card h4 {
+            color: #475569;
+            font-size: 0.9rem;
             margin-bottom: 6px;
         }
 
-        .descricao {
-            color: #64748b;
-            font-size: 1rem;
-            line-height: 1.5;
+        .stat-number {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.8px;
         }
 
-        /* Botões Estilo "Acessar" com Seta */
-        a.btn-access {
-            text-decoration: none;
-            color: white;
-            background: #005954;
-            padding: 14px 28px;
-            border-radius: 12px;
+        .stat-info {
+            color: var(--green);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .stat-info i {
+            margin-right: 4px;
+        }
+
+        /* BANNER SEGURANÇA */
+        .security-card {
+            background:
+                linear-gradient(90deg, #e9fbf8, #ffffff);
+            border: 1px solid rgba(0, 107, 99, 0.08);
+            border-radius: 26px;
+            padding: 30px 34px;
+            box-shadow: var(--shadow);
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            white-space: nowrap;
-            transition: background 0.2s ease;
-        }
-
-        a.btn-access:hover {
-            background: #00403c;
-        }
-
-        /* Seção do Rodapé (Recursos inferiores) */
-        .footer-features {
-            background: white;
-            border-radius: 20px;
-            padding: 24px 30px;
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
-            width: 100%;
+            gap: 24px;
         }
 
-        .feature-item {
+        .security-left {
             display: flex;
             align-items: center;
-            gap: 15px;
-            width: 23%;
+            gap: 24px;
         }
 
-        .feature-icon {
-            font-size: 24px;
-            color: #005954;
-            background: #f0fdfa;
-            width: 50px;
-            height: 50px;
+        .security-illustration {
+            width: 105px;
+            height: 105px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            flex-shrink: 0;
+            font-size: 3rem;
+            box-shadow: 0 18px 30px rgba(0, 107, 99, 0.22);
         }
 
-        .feature-text h4 {
-            font-size: 0.95rem;
-            color: #0f172a;
-            font-weight: 700;
-            margin-bottom: 2px;
+        .security-text h3 {
+            color: var(--primary-dark);
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin-bottom: 8px;
         }
 
-        .feature-text p {
-            font-size: 0.85rem;
-            color: #64748b;
+        .security-text p {
+            color: var(--muted);
+            line-height: 1.55;
+            max-width: 760px;
         }
 
-        /* Bloco "Precisa de ajuda?" */
-        .help-box {
-            background: #e6f2f1;
-            padding: 15px 20px;
-            border-radius: 12px;
+        .btn-light {
+            text-decoration: none;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 14px 22px;
+            border-radius: 14px;
+            font-weight: 800;
+            white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 12px;
-            width: 25%;
+            gap: 10px;
         }
 
-        .help-box i {
-            font-size: 24px;
-            color: #005954;
+        /* RESPONSIVO */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .access-list {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .search-box {
+                width: 260px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            body {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+                border-radius: 0 0 28px 28px;
+            }
+
+            .brand {
+                margin-bottom: 24px;
+            }
+
+            .menu {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 18px;
+            }
+
+            .top-actions {
+                width: 100%;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .hero-card {
+                min-height: 380px;
+            }
+
+            .hero-card h2 {
+                font-size: 2.6rem;
+            }
+
+            .access-list {
+                grid-template-columns: 1fr;
+            }
+
+            .security-card,
+            .security-left {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .main {
+                padding: 16px;
+            }
+
+            .menu {
+                grid-template-columns: 1fr;
+            }
+
+            .top-actions .action-icon,
+            .profile-circle {
+                display: none;
+            }
+
+            .hero-card {
+                padding: 28px;
+            }
+
+            .hero-card h2 {
+                font-size: 2.15rem;
+            }
+
+            .hero-features {
+                grid-template-columns: 1fr;
+            }
+
+            .access-card {
+                padding: 24px;
+            }
+
+            .access-left {
+                align-items: flex-start;
+            }
+
+            .btn-access {
+                display: none;
+            }
+
+            .btn-round {
+                display: flex;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="main-wrapper">
-
-    <div class="layout-top">
-        
-        <div class="header">
-            <img src="{{ url_for('static', filename='logo2.png') }}" class="logo" alt="Logo">
-            <h1>Essencial Clínica</h1>
-            <p>Sistema de Gestão Profissional</p>
-            
-            <div class="header-footer">
-                <i class="bi bi-shield-check" style="font-size: 20px;"></i>
-                <span>Segurança, agilidade e organização para o dia a dia da sua clínica.</span>
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <img src="{{ url_for('static', filename='logo2.png') }}" alt="Essencial Clínica">
+                <h2>Essencial</h2>
+                <span>CLÍNICA</span>
             </div>
+
+            <nav class="menu">
+                <a href="/" class="active">
+                    <i class="bi bi-house-door-fill"></i>
+                    Dashboard
+                </a>
+
+                <a href="/profissionais">
+                    <i class="bi bi-person-badge"></i>
+                    Profissionais
+                </a>
+
+                <a href="/pacientes">
+                    <i class="bi bi-people"></i>
+                    Pacientes
+                </a>
+
+                <a href="/agendamentos">
+                    <i class="bi bi-calendar-check"></i>
+                    Agendamentos
+                </a>
+
+                <a href="/financeiro">
+                    <i class="bi bi-cash-coin"></i>
+                    Financeiro
+                </a>
+
+                <a href="#">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    Relatórios
+                </a>
+
+                <a href="#">
+                    <i class="bi bi-gear"></i>
+                    Configurações
+                </a>
+            </nav>
         </div>
 
-        <div class="container">
-            
-            <div class="card">
-                <div class="card-content-left">
-                    <div class="icon">
+        <div class="sidebar-bottom">
+            <div class="user-box">
+                <div class="user-avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div>
+                    <strong>Administrador</strong>
+                    <small>admin@clinica.com</small>
+                </div>
+            </div>
+
+            <a href="/logout" class="logout">
+                <i class="bi bi-box-arrow-right"></i>
+                Sair
+            </a>
+        </div>
+    </aside>
+
+    <main class="main">
+
+        <section class="topbar">
+            <div class="welcome">
+                <div class="menu-btn">
+                    <i class="bi bi-list"></i>
+                </div>
+
+                <div>
+                    <h1>Olá, Administrador! 👋</h1>
+                    <p>Bem-vindo ao sistema da Essencial Clínica</p>
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" placeholder="Buscar...">
+                </div>
+
+                <div class="action-icon">
+                    <i class="bi bi-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+
+                <div class="action-icon">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+
+                <div class="profile-circle">
+                    A
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+
+            <div class="hero-card">
+                <div>
+                    <div class="tag">
+                        <i class="bi bi-check2-circle"></i>
+                        Sistema de Gestão
+                    </div>
+                </div>
+
+                <div>
+                    <h2>
+                        Essencial
+                        <span>Clínica</span>
+                    </h2>
+
+                    <p>
+                        Gestão inteligente para sua clínica funcionar melhor todos os dias,
+                        com organização, segurança e praticidade.
+                    </p>
+
+                    <div class="hero-features">
+                        <div class="hero-feature">
+                            <i class="bi bi-shield-check"></i>
+                            <div>
+                                <strong>Seguro</strong>
+                                <small>Dados protegidos com mais segurança.</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-feature">
+                            <i class="bi bi-clock"></i>
+                            <div>
+                                <strong>Rápido</strong>
+                                <small>Processos ágeis e intuitivos.</small>
+                            </div>
+                        </div>
+
+                        <div class="hero-feature">
+                            <i class="bi bi-people"></i>
+                            <div>
+                                <strong>Confiável</strong>
+                                <small>Sistema estável para sua rotina.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="access-list">
+
+                <div class="access-card">
+                    <div class="access-left">
+                        <div class="access-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+
+                        <div class="access-text">
+                            <h3>Profissionais</h3>
+                            <p>Cadastre e gerencie médicos, especialidades e equipes.</p>
+                        </div>
+                    </div>
+
+                    <a href="/profissionais" class="btn-access">
+                        Acessar
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+
+                    <a href="/profissionais" class="btn-round">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+
+                <div class="access-card">
+                    <div class="access-left">
+                        <div class="access-icon">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+
+                        <div class="access-text">
+                            <h3>Agendamentos</h3>
+                            <p>Gerencie consultas, horários e compromissos dos pacientes.</p>
+                        </div>
+                    </div>
+
+                    <a href="/agendamentos" class="btn-access">
+                        Acessar
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+
+                    <a href="/agendamentos" class="btn-round">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+
+                <div class="access-card">
+                    <div class="access-left">
+                        <div class="access-icon">
+                            <i class="bi bi-person"></i>
+                        </div>
+
+                        <div class="access-text">
+                            <h3>Pacientes</h3>
+                            <p>Cadastre e gerencie informações dos seus pacientes.</p>
+                        </div>
+                    </div>
+
+                    <a href="/pacientes" class="btn-access">
+                        Acessar
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+
+                    <a href="/pacientes" class="btn-round">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon">
                         <i class="bi bi-person-badge"></i>
                     </div>
-                    <div class="card-text">
-                        <h3>Profissionais</h3>
-                        <p class="descricao">Cadastre médicos, especialidades e equipes.</p>
+
+                    <div>
+                        <h4>Profissionais</h4>
+                        <div class="stat-number">
+                            {{ total_profissionais|default(0) }}
+                        </div>
                     </div>
                 </div>
-                <a href="/profissionais" class="btn-access">Acessar <i class="bi bi-arrow-right"></i></a>
+
+                <div class="stat-info">
+                    <i class="bi bi-arrow-up"></i>
+                    ativos no sistema
+                </div>
             </div>
 
-            <div class="card">
-                <div class="card-content-left">
-                    <div class="icon">
-                        <i class="bi bi-calendar-check"></i>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon">
+                        <i class="bi bi-calendar2-check"></i>
                     </div>
-                    <div class="card-text">
-                        <h3>Agendamentos</h3>
-                        <p class="descricao">Gerencie consultas e horários dos pacientes.</p>
+
+                    <div>
+                        <h4>Agendamentos</h4>
+                        <div class="stat-number">
+                            {{ total_agendamentos|default(0) }}
+                        </div>
                     </div>
                 </div>
-                <a href="/agendamentos" class="btn-access">Acessar <i class="bi bi-arrow-right"></i></a>
+
+                <div class="stat-info">
+                    <i class="bi bi-arrow-up"></i>
+                    consultas registradas
+                </div>
             </div>
 
-        </div>
-    </div>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
 
-    <div class="footer-features">
-        <div class="feature-item">
-            <div class="feature-icon"><i class="bi bi-shield-lock"></i></div>
-            <div class="feature-text">
-                <h4>Seguro</h4>
-                <p>Seus dados protegidos com segurança avançada.</p>
+                    <div>
+                        <h4>Pacientes</h4>
+                        <div class="stat-number">
+                            {{ total_pacientes|default(0) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-info">
+                    <i class="bi bi-arrow-up"></i>
+                    cadastrados
+                </div>
             </div>
-        </div>
 
-        <div class="feature-item">
-            <div class="feature-icon"><i class="bi bi-clock"></i></div>
-            <div class="feature-text">
-                <h4>Ágil</h4>
-                <p>Processos rápidos e intuitivos para o seu dia render mais.</p>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+
+                    <div>
+                        <h4>Faturamento</h4>
+                        <div class="stat-number">
+                            R$ {{ "%.2f"|format(faturamento|default(0)) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-info">
+                    <i class="bi bi-arrow-up"></i>
+                    total registrado
+                </div>
             </div>
-        </div>
 
-        <div class="feature-item">
-            <div class="feature-icon"><i class="bi bi-grid"></i></div>
-            <div class="feature-text">
-                <h4>Organizado</h4>
-                <p>Tudo que você precisa em um só lugar.</p>
+        </section>
+
+        <section class="security-card">
+            <div class="security-left">
+                <div class="security-illustration">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+
+                <div class="security-text">
+                    <h3>Segurança é nossa prioridade</h3>
+                    <p>
+                        Seus dados e os dados dos seus pacientes ficam organizados em um sistema
+                        simples, profissional e preparado para facilitar o dia a dia da clínica.
+                    </p>
+                </div>
             </div>
-        </div>
 
-        <div class="help-box">
-            <i class="bi bi-headset"></i>
-            <div class="feature-text">
-                <h4>Precisa de ajuda?</h4>
-                <p>Nossa equipe está à disposição.</p>
-            </div>
-        </div>
-    </div>
+            <a href="#" class="btn-light">
+                Saiba mais
+                <i class="bi bi-arrow-right"></i>
+            </a>
+        </section>
 
-</div>
+    </main>
 
 </body>
 </html>
