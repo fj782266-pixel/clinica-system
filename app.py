@@ -7,7 +7,6 @@ import string
 import os
 from datetime import datetime
 from sqlalchemy import func
-from datetime import datetime
 
 
 # ==========================
@@ -25,19 +24,38 @@ if not os.path.exists(app.instance_path):
 
 db_url = os.environ.get("DATABASE_URL")
 
-# se NÃO tiver variável (local), usa sqlite
 if not db_url:
     db_url = "sqlite:///clinica.db"
 else:
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-print("SQLALCHEMY_DATABASE_URI:", app.config['SQLALCHEMY_DATABASE_URI'])
+print("SQLALCHEMY_DATABASE_URI:", app.config["SQLALCHEMY_DATABASE_URI"])
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+
+# ==========================
+# PROTEÇÃO GLOBAL DE LOGIN
+# ==========================
+@app.before_request
+def proteger_rotas():
+    rotas_livres = [
+        "login",
+        "static",
+        "verificar_usuario"
+    ]
+
+    if request.endpoint in rotas_livres:
+        return
+
+    if not session.get("logado"):
+        return redirect("/login")
+
 
 # ==========================
 # MODELOS
@@ -54,6 +72,7 @@ class Servico(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100), nullable=False)
     especialidade = db.Column(db.String(100), nullable=False)
+
 
 class Agendamento(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -127,6 +146,7 @@ class RecuperacaoSenha(db.Model):
     status = db.Column(db.String(20), default="Pendente")
     nova_senha = db.Column(db.String(100))
 
+
 class Paciente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -165,24 +185,29 @@ class Autorizacao(db.Model):
 
 with app.app_context():
     db.create_all()
+
+
 # ==========================
 # VERIFICAR USUARIO
 # ==========================
 @app.route("/verificar-usuario", methods=["POST"])
 def verificar_usuario():
     usuario = request.form.get("usuario")
-
     user = Usuario.query.filter_by(usuario=usuario).first()
 
     return jsonify({
         "existe": user is not None
     })
 
+
 # ==========================
 # LOGIN
 # ==========================
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if session.get("logado"):
+        return redirect("/")
+
     if request.method == "POST":
         usuario = request.form.get("usuario")
         senha = request.form.get("senha")
@@ -206,9 +231,6 @@ def login():
 # ==========================
 @app.route("/")
 def home():
-    if not session.get("logado"):
-        return redirect("/login")
-
     total_profissionais = Profissional.query.count()
     total_pacientes = Paciente.query.count()
     total_agendamentos = Agendamento.query.count()
@@ -229,9 +251,6 @@ def home():
 # ==========================
 @app.route("/profissionais", methods=["GET", "POST"])
 def profissionais():
-    if not session.get("logado"):
-        return redirect("/login")
-
     if request.method == "POST":
         novo = Profissional(
             nome=request.form.get("nome"),
@@ -295,9 +314,6 @@ def profissionais():
 # ==========================
 @app.route("/pacientes", methods=["GET", "POST"])
 def pacientes():
-    if not session.get("logado"):
-        return redirect("/login")
-
     if request.method == "POST":
         novo = Paciente(
             nome=request.form.get("nome"),
@@ -325,9 +341,6 @@ def pacientes():
 # ==========================
 @app.route("/agendamentos", methods=["GET", "POST"])
 def agendamentos():
-    if not session.get("logado"):
-        return redirect("/login")
-
     profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
     servicos = Servico.query.order_by(Servico.nome.asc()).all()
 
@@ -352,18 +365,22 @@ def agendamentos():
         )
 
         db.session.add(novo)
+        db.session.flush()
 
         if novo.valor and novo.valor > 0:
             financeiro = Financeiro(
-    descricao=f"Consulta - {novo.cliente_nome}",
-    tipo="Receita",
-    categoria="Consultas",
-    valor=novo.valor,
-    data=datetime.strptime(novo.data, "%Y-%m-%d").date() if novo.data else None,
-    forma_pagamento="Não informado",
-    status="Pendente",
-    observacoes="Lançamento criado automaticamente pelo agendamento."
-)
+                descricao=f"Consulta - {novo.cliente_nome}",
+                tipo="Receita",
+                categoria="Consultas",
+                valor=novo.valor,
+                data=datetime.strptime(novo.data, "%Y-%m-%d").date() if novo.data else None,
+                forma_pagamento="Não informado",
+                status="Pendente",
+                agendamento_id=novo.id,
+                profissional_id=novo.profissional_id,
+                observacoes="Lançamento criado automaticamente pelo agendamento."
+            )
+
             db.session.add(financeiro)
 
         db.session.commit()
@@ -388,9 +405,6 @@ def agendamentos():
 # ==========================
 @app.route("/financeiro", methods=["GET", "POST"])
 def financeiro():
-    if not session.get("logado"):
-        return redirect("/login")
-
     if request.method == "POST":
         descricao = request.form.get("descricao")
         tipo = request.form.get("tipo")
@@ -472,21 +486,37 @@ def financeiro():
         agendamentos=agendamentos
     )
 
+
 # ==========================
 # FINALIZAR / CANCELAR
 # ==========================
 @app.route("/finalizar/<int:id>")
 @app.route("/cancelar/<int:id>")
 def remover_agendamento(id):
-    if not session.get("logado"):
-        return redirect("/login")
-
     agendamento = Agendamento.query.get_or_404(id)
 
     db.session.delete(agendamento)
     db.session.commit()
 
     return redirect("/agendamentos")
+
+
+# ==========================
+# RECUPERAÇÕES
+# ==========================
+@app.route("/recuperacoes")
+def recuperacoes():
+    pedidos = RecuperacaoSenha.query.all()
+    return render_template("recuperacoes.html", pedidos=pedidos)
+
+
+# ==========================
+# FICHA DO PACIENTE
+# ==========================
+@app.route("/paciente/<int:id>")
+def ficha_paciente(id):
+    paciente = Paciente.query.get_or_404(id)
+    return render_template("ficha_paciente.html", paciente=paciente)
 
 
 # ==========================
@@ -499,55 +529,7 @@ def logout():
 
 
 # ==========================
-# RECUPERAÇÃO
-# ==========================
-@app.route('/recuperacoes')
-def recuperacoes():
-    pedidos = RecuperacaoSenha.query.all()
-    return render_template('recuperacoes.html', pedidos=pedidos)
-
-@app.route("/init-db")
-def init_db():
-    with app.app_context():
-        db.create_all()
-    return "DB criado com sucesso"
-
-@app.route("/criar-admin")
-def criar_admin():
-    admin = Usuario.query.filter_by(usuario="admin felipe").first()
-
-    if not admin:
-        admin = Usuario(
-            usuario="admin felipe",
-            senha=generate_password_hash("felipegk@18")
-        )
-        db.session.add(admin)
-        db.session.commit()
-
-    return "ok"
-
-@app.route("/paciente/<int:id>")
-def ficha_paciente(id):
-    paciente = Paciente.query.get_or_404(id)
-    return render_template("ficha_paciente.html", paciente=paciente)
-# ==========================
 # INICIAR APP
 # ==========================
 if __name__ == "__main__":
-
-    with app.app_context():
-
-
-        admin = Usuario.query.filter_by(usuario="admin felipe").first()
-
-        if not admin:
-            admin = Usuario(
-                usuario="admin felipe",
-                senha=generate_password_hash("felipegk@18")
-            )
-            db.session.add(admin)
-            db.session.commit()
-
-        print("BANCO OK")
-
     app.run(debug=True)
