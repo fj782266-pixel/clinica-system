@@ -1132,19 +1132,51 @@
 </div>
 
 <script>
-    const buscar = document.getElementById("buscar");
-    const linhas = document.querySelectorAll("#tabelaFinanceiro tr");
+const campoBusca = document.getElementById("buscar");
 
-    if (buscar) {
-        buscar.addEventListener("keyup", function () {
-            let texto = this.value.toLowerCase();
+if (campoBusca) {
+    campoBusca.addEventListener("keyup", function () {
+        let valor = this.value.toLowerCase();
+        let linhas = document.querySelectorAll("table tbody tr.linha-tabela");
 
-            linhas.forEach(function (linha) {
-                let conteudo = linha.innerText.toLowerCase();
-                linha.style.display = conteudo.includes(texto) ? "" : "none";
-            });
+        linhas.forEach(linha => {
+            let texto = linha.innerText.toLowerCase();
+            linha.style.display = texto.includes(valor) ? "" : "none";
         });
-    }
+    });
+}
+
+function editarProfissional(botao) {
+    document.getElementById("profissional_id").value = botao.dataset.id || "";
+    document.getElementsByName("nome")[0].value = botao.dataset.nome || "";
+    document.getElementsByName("especialidade")[0].value = botao.dataset.especialidade || "";
+    document.getElementsByName("telefone")[0].value = botao.dataset.telefone || "";
+    document.getElementsByName("email")[0].value = botao.dataset.email || "";
+
+    document.querySelector(".form-title h2").innerText = "Editar profissional";
+    document.querySelector(".form-title p").innerText = "Altere os dados abaixo e salve a atualização";
+    document.querySelector(".btn-salvar").innerHTML = '<i class="bi bi-check-lg"></i> Atualizar profissional';
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+function visualizarProfissional(botao) {
+    const nome = botao.dataset.nome || "-";
+    const especialidade = botao.dataset.especialidade || "-";
+    const telefone = botao.dataset.telefone || "-";
+    const email = botao.dataset.email || "-";
+
+    alert(
+        "Dados do profissional:\n\n" +
+        "Nome: " + nome + "\n" +
+        "Especialidade: " + especialidade + "\n" +
+        "Telefone: " + telefone + "\n" +
+        "E-mail: " + email
+    );
+}
 </script>
 
 </body>
