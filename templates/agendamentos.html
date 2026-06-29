@@ -955,6 +955,52 @@
             word-break: break-word;
         }
 
+
+
+        .modal-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .modal-form-grid .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .modal-footer {
+            padding: 0 22px 22px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-cancel,
+        .modal-save {
+            height: 40px;
+            border-radius: 8px;
+            padding: 0 18px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .modal-cancel {
+            background: white;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+
+        .modal-save {
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 20px rgba(15, 118, 110, 0.22);
+        }
+
         @media (max-width: 1200px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -1549,9 +1595,29 @@
                                     <i class="bi bi-eye"></i>
                                 </button>
 
-                                <a href="/agendamento/editar/{{ ag.id }}" class="action-btn edit" title="Editar">
+                                <button type="button"
+                                        class="action-btn edit"
+                                        title="Editar"
+                                        onclick='editarAgendamento({
+                                            "id": {{ ag.id|tojson }},
+                                            "cliente_nome": {{ (ag.cliente_nome if ag.cliente_nome else ag.paciente if ag.paciente else "")|tojson }},
+                                            "cliente_telefone": {{ (ag.cliente_telefone if ag.cliente_telefone else "")|tojson }},
+                                            "cliente_email": {{ (ag.cliente_email if ag.cliente_email else "")|tojson }},
+                                            "cliente_cpf": {{ (ag.cliente_cpf if ag.cliente_cpf else "")|tojson }},
+                                            "cliente_data_nascimento": {{ (ag.cliente_data_nascimento if ag.cliente_data_nascimento else "")|tojson }},
+                                            "observacoes_paciente": {{ (ag.observacoes_paciente if ag.observacoes_paciente else "")|tojson }},
+                                            "profissional_id": {{ (ag.profissional_id if ag.profissional_id else "")|tojson }},
+                                            "servico_id": {{ (ag.servico_id if ag.servico_id else "")|tojson }},
+                                            "data": {{ (ag.data if ag.data else "")|tojson }},
+                                            "horario": {{ (ag.horario if ag.horario else "")|tojson }},
+                                            "valor": {{ (ag.valor if ag.valor else 0)|tojson }},
+                                            "forma_pagamento": {{ (ag.forma_pagamento if ag.forma_pagamento else "")|tojson }},
+                                            "pagamento_realizado": {{ ("sim" if ag.pagamento_realizado else "nao")|tojson }},
+                                            "status": {{ (ag.status if ag.status else "Aguardando")|tojson }},
+                                            "observacoes_consulta": {{ (ag.observacoes_consulta if ag.observacoes_consulta else "")|tojson }}
+                                        })'>
                                     <i class="bi bi-pencil-square"></i>
-                                </a>
+                                </button>
 
                                 <form method="POST"
                                       action="/agendamento/excluir/{{ ag.id }}"
@@ -1705,6 +1771,138 @@
         </div>
     </div>
 
+
+    <div class="modal-overlay" id="modalEditar">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="bi bi-pencil-square"></i> Editar Agendamento</h3>
+                <button type="button" class="modal-close" onclick="fecharModalEditar()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <form method="POST" id="formEditarAgendamento">
+                <div class="modal-body">
+                    <div class="modal-form-grid">
+                        <div class="form-group">
+                            <label>Nome do Paciente <span class="required">*</span></label>
+                            <input type="text" name="cliente_nome" id="edit_cliente_nome" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Telefone <span class="required">*</span></label>
+                            <input type="text" name="cliente_telefone" id="edit_cliente_telefone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>E-mail</label>
+                            <input type="email" name="cliente_email" id="edit_cliente_email">
+                        </div>
+
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" name="cliente_cpf" id="edit_cliente_cpf">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Data de Nascimento</label>
+                            <input type="text" name="cliente_data_nascimento" id="edit_cliente_data_nascimento" placeholder="dd/mm/aaaa">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Profissional <span class="required">*</span></label>
+                            <select name="profissional_id" id="edit_profissional_id" required>
+                                <option value="">Selecione o profissional</option>
+                                {% for prof in profissionais %}
+                                    <option value="{{ prof.id }}">{{ prof.nome }} - {{ prof.especialidade }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Serviço / Especialidade <span class="required">*</span></label>
+                            <select name="servico_id" id="edit_servico_id" required>
+                                <option value="">Selecione o serviço</option>
+                                {% for servico in servicos %}
+                                    <option value="{{ servico.id }}">{{ servico.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Data da Consulta <span class="required">*</span></label>
+                            <input type="date" name="data" id="edit_data" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Horário <span class="required">*</span></label>
+                            <input type="time" name="horario" id="edit_horario" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Valor (R$)</label>
+                            <input type="number" step="0.01" min="0" name="valor" id="edit_valor">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Forma de Pagamento <span class="required">*</span></label>
+                            <select name="forma_pagamento" id="edit_forma_pagamento" required>
+                                <option value="">Selecione</option>
+                                <option value="Dinheiro">Dinheiro</option>
+                                <option value="PIX">PIX</option>
+                                <option value="Cartão de Débito">Cartão de Débito</option>
+                                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                                <option value="Boleto">Boleto</option>
+                                <option value="Convênio">Convênio</option>
+                                <option value="Transferência">Transferência</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pagamento realizado? <span class="required">*</span></label>
+                            <select name="pagamento_realizado" id="edit_pagamento_realizado" required>
+                                <option value="nao">Não</option>
+                                <option value="sim">Sim</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Situação <span class="required">*</span></label>
+                            <select name="status" id="edit_status" required>
+                                <option value="Aguardando">Aguardando</option>
+                                <option value="Finalizado">Finalizado</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Observações do Paciente</label>
+                            <textarea name="observacoes_paciente" id="edit_observacoes_paciente"></textarea>
+                        </div>
+
+                        <div class="form-group full">
+                            <label>Observações da Consulta</label>
+                            <textarea name="observacoes_consulta" id="edit_observacoes_consulta"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="modal-cancel" onclick="fecharModalEditar()">
+                        <i class="bi bi-x-circle"></i>
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="modal-save">
+                        <i class="bi bi-check-circle"></i>
+                        Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </main>
 
 <script>
@@ -1764,15 +1962,57 @@
         document.getElementById("modalVisualizar").classList.remove("active");
     }
 
+
+    function definirValorCampo(id, valor) {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.value = valor || "";
+        }
+    }
+
+    function editarAgendamento(agendamento) {
+        const form = document.getElementById("formEditarAgendamento");
+        form.action = `/agendamento/editar/${agendamento.id}`;
+
+        definirValorCampo("edit_cliente_nome", agendamento.cliente_nome);
+        definirValorCampo("edit_cliente_telefone", agendamento.cliente_telefone);
+        definirValorCampo("edit_cliente_email", agendamento.cliente_email);
+        definirValorCampo("edit_cliente_cpf", agendamento.cliente_cpf);
+        definirValorCampo("edit_cliente_data_nascimento", agendamento.cliente_data_nascimento);
+        definirValorCampo("edit_observacoes_paciente", agendamento.observacoes_paciente);
+        definirValorCampo("edit_profissional_id", agendamento.profissional_id);
+        definirValorCampo("edit_servico_id", agendamento.servico_id);
+        definirValorCampo("edit_data", agendamento.data);
+        definirValorCampo("edit_horario", agendamento.horario);
+        definirValorCampo("edit_valor", agendamento.valor);
+        definirValorCampo("edit_forma_pagamento", agendamento.forma_pagamento);
+        definirValorCampo("edit_pagamento_realizado", agendamento.pagamento_realizado);
+        definirValorCampo("edit_status", agendamento.status);
+        definirValorCampo("edit_observacoes_consulta", agendamento.observacoes_consulta);
+
+        document.getElementById("modalEditar").classList.add("active");
+    }
+
+    function fecharModalEditar() {
+        document.getElementById("modalEditar").classList.remove("active");
+    }
+
     document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
             fecharModalVisualizar();
+            fecharModalEditar();
         }
     });
 
     document.getElementById("modalVisualizar").addEventListener("click", function (event) {
         if (event.target === this) {
             fecharModalVisualizar();
+        }
+    });
+
+    document.getElementById("modalEditar").addEventListener("click", function (event) {
+        if (event.target === this) {
+            fecharModalEditar();
         }
     });
 
