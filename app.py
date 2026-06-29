@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from sqlalchemy import inspect, text
 from datetime import datetime, date
+from datetime import date, timedelta
 import os
 
 
@@ -582,9 +583,46 @@ def agendamentos():
 
         return redirect("/agendamentos")
 
-    lista_agendamentos = Agendamento.query.order_by(
-        Agendamento.data.desc(),
-        Agendamento.horario.desc()
+    profissional_filtro = request.args.get("profissional_id", "")
+    periodo_filtro = request.args.get("periodo", "todas")
+
+    query = Agendamento.query
+
+    if profissional_filtro:
+        query = query.filter(Agendamento.profissional_id == int(profissional_filtro))
+
+    hoje = date.today()
+
+    if periodo_filtro == "hoje":
+        query = query.filter(Agendamento.data == hoje.isoformat())
+
+    elif periodo_filtro == "amanha":
+        amanha = hoje + timedelta(days=1)
+        query = query.filter(Agendamento.data == amanha.isoformat())
+
+    elif periodo_filtro == "semana":
+        fim_semana = hoje + timedelta(days=7)
+        query = query.filter(
+            Agendamento.data >= hoje.isoformat(),
+            Agendamento.data <= fim_semana.isoformat()
+        )
+
+    elif periodo_filtro == "mes":
+        inicio_mes = hoje.replace(day=1)
+
+        if hoje.month == 12:
+            proximo_mes = hoje.replace(year=hoje.year + 1, month=1, day=1)
+        else:
+            proximo_mes = hoje.replace(month=hoje.month + 1, day=1)
+
+        query = query.filter(
+            Agendamento.data >= inicio_mes.isoformat(),
+            Agendamento.data < proximo_mes.isoformat()
+        )
+
+    lista_agendamentos = query.order_by(
+        Agendamento.data.asc(),
+        Agendamento.horario.asc()
     ).all()
 
     profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
@@ -594,7 +632,9 @@ def agendamentos():
         "agendamentos.html",
         agendamentos=lista_agendamentos,
         profissionais=profissionais,
-        servicos=servicos
+        servicos=servicos,
+        profissional_filtro=profissional_filtro,
+        periodo_filtro=periodo_filtro
     )
 
 
