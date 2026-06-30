@@ -920,6 +920,30 @@ def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
 
+@app.route("/criar-usuario-seguro")
+@login_obrigatorio
+@admin_obrigatorio
+def criar_usuario_seguro():
+    usuario = "essencialclinica31"
+    senha = "essencialc12"
+    tipo = "recepcao"
+
+    usuario = usuario.strip()
+
+    existente = Usuario.query.filter_by(usuario=usuario).first()
+    if existente:
+        return "Esse usuário já existe."
+
+    novo = Usuario(
+        usuario=usuario,
+        senha=generate_password_hash(senha),
+        tipo=tipo
+    )
+
+    db.session.add(novo)
+    db.session.commit()
+
+    return "Usuário criado com sucesso. Remova esta rota agora."
 
 # ============================================================
 # INICIAR APP
