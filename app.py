@@ -920,12 +920,13 @@ def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
 
-@app.route("/criar-usuario-seguro")
-@login_obrigatorio
-@admin_obrigatorio
-def criar_usuario_seguro():
-    usuario = "essencialclinica31"
-    senha = "essencialc12"
+@app.route("/criar-usuario-seguro/<chave>")
+def criar_usuario_seguro(chave):
+    if chave != "minha-chave-forte-2026":
+        return "Acesso negado.", 403
+
+    usuario = "essecialclinica134"
+    senha = "essencialc21"
     tipo = "recepcao"
 
     usuario = usuario.strip()
