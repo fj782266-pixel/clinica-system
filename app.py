@@ -920,31 +920,6 @@ def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
 
-@app.route("/criar-usuario-seguro/<chave>")
-def criar_usuario_seguro(chave):
-    if chave != "minha-chave-forte-2026":
-        return "Acesso negado.", 403
-
-    usuario = "essecialclinica134"
-    senha = "essencialc21"
-    tipo = "recepcao"
-
-    usuario = usuario.strip()
-
-    existente = Usuario.query.filter_by(usuario=usuario).first()
-    if existente:
-        return "Esse usuário já existe."
-
-    novo = Usuario(
-        usuario=usuario,
-        senha=generate_password_hash(senha),
-        tipo=tipo
-    )
-
-    db.session.add(novo)
-    db.session.commit()
-
-    return "Usuário criado com sucesso. Remova esta rota agora."
 
 # ============================================================
 # INICIAR APP
