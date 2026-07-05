@@ -3,35 +3,804 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atestados - ClínicaSys</title>
+    <title>Atestados Médicos - ClínicaSys</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
-        body{margin:0;font-family:Inter,Arial,sans-serif;background:#f8fafc;color:#0f172a;display:flex;min-height:100vh}.sidebar{width:270px;background:linear-gradient(180deg,#064e55,#052e34);padding:30px 18px;box-sizing:border-box;color:white}.logo{font-size:25px;font-weight:800;margin-bottom:45px}.menu{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}.menu a{display:flex;gap:14px;align-items:center;padding:16px 18px;border-radius:12px;color:#d1e7e8;text-decoration:none;font-weight:700}.menu .active a,.menu a:hover{background:linear-gradient(135deg,#14b8a6,#0f766e);color:white}.main{flex:1;padding:34px 42px}.card{background:white;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 12px 32px rgba(15,23,42,.06);padding:28px;max-width:900px}.field{margin-bottom:16px}.field label{display:block;font-weight:800;margin-bottom:7px}input,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:13px;font-size:14px;box-sizing:border-box}textarea{min-height:150px}.btn{background:linear-gradient(135deg,#14b8a6,#0f766e);border:0;color:white;border-radius:10px;padding:13px 22px;font-weight:800;cursor:pointer}.line{height:1px;background:rgba(255,255,255,.15);margin:18px 0}.user{margin-top:35px;color:#cbd5e1;font-size:14px}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #064e55;
+            --sidebar: #063f46;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 45%, #f1f5f9 100%);
+            color: var(--text);
+            display: flex;
+        }
+
+        .sidebar {
+            width: 270px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #064e55 0%, #063f46 45%, #052e34 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            padding: 30px 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 10px 0 35px rgba(15, 23, 42, 0.12);
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffffff;
+            font-size: 25px;
+            font-weight: 800;
+            margin-bottom: 45px;
+            padding-left: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 18px rgba(20, 184, 166, 0.35);
+        }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: 12px;
+            color: #d1e7e8;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 700;
+            transition: 0.25s ease;
+        }
+
+        .menu a:hover, .menu li.active a {
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            color: #fff;
+            box-shadow: 0 10px 25px rgba(20, 184, 166, 0.28);
+        }
+
+        .sidebar-line {
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.12);
+            margin: 18px 0;
+        }
+
+        .user-box {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .user-info strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .user-info span {
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        .main {
+            margin-left: 270px;
+            width: calc(100% - 270px);
+            padding: 32px 42px 45px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.8px;
+            margin-bottom: 6px;
+        }
+
+        .page-title p {
+            color: var(--muted);
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .btn-print {
+            height: 46px;
+            padding: 0 24px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #14b8a6, #0f766e);
+            color: #fff;
+            border: none;
+            font-size: 14px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(20, 184, 166, 0.28);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 360px minmax(720px, 1fr);
+            gap: 22px;
+            align-items: flex-start;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.97);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+            padding: 22px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .card p {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 7px;
+            color: #0f172a;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            padding: 11px 12px;
+            font-size: 13px;
+            color: #334155;
+            outline: none;
+            background: #fff;
+        }
+
+        textarea {
+            min-height: 72px;
+            resize: vertical;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.12);
+        }
+
+        .hint {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.45;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .certificate-wrap {
+            background: #eef7f6;
+            border: 1px solid #d6eeee;
+            border-radius: 20px;
+            padding: 18px;
+            overflow-x: auto;
+        }
+
+        .certificate {
+            width: 794px;
+            min-height: 1123px;
+            margin: 0 auto;
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+            padding: 48px 46px 38px;
+            border: 2px solid #0f766e;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.10);
+        }
+
+        .certificate::after {
+            content: "";
+            position: absolute;
+            right: -110px;
+            bottom: 70px;
+            width: 360px;
+            height: 360px;
+            border: 42px solid rgba(15, 118, 110, 0.07);
+            border-radius: 70px;
+            transform: rotate(45deg);
+        }
+
+        .certificate::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 72px;
+            background: linear-gradient(135deg, #064e55, #0f766e);
+            clip-path: ellipse(70% 100% at 50% 100%);
+        }
+
+        .cert-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cert-header {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 25px;
+            align-items: center;
+            padding-bottom: 26px;
+            border-bottom: 2px solid #0f766e;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .brand-icon {
+            width: 92px;
+            height: 92px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #0f766e, #063f46);
+            color: #ccfbf1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            box-shadow: inset 0 0 18px rgba(255,255,255,.22), 0 10px 22px rgba(15,118,110,.22);
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 44px;
+            font-weight: 800;
+            color: #064e55;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .brand-text span {
+            display: inline-block;
+            color: #0f766e;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            margin-top: 6px;
+        }
+
+        .brand-text small {
+            display: block;
+            color: #334155;
+            font-size: 12px;
+            letter-spacing: 3px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .clinic-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            color: #064e55;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        .clinic-info div {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .clinic-info i {
+            color: #0f766e;
+            font-size: 17px;
+            margin-top: 1px;
+        }
+
+        .cert-title {
+            text-align: center;
+            margin: 48px 0 40px;
+        }
+
+        .cert-title h2 {
+            color: #0f766e;
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: .5px;
+        }
+
+        .cert-title .pulse {
+            margin: 8px auto 0;
+            color: #14b8a6;
+            font-size: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .cert-title .pulse::before,
+        .cert-title .pulse::after {
+            content: "";
+            width: 90px;
+            height: 1px;
+            background: #14b8a6;
+            opacity: .6;
+        }
+
+        .cert-body {
+            font-size: 17px;
+            line-height: 1.9;
+            color: #111827;
+        }
+
+        .row-line {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            margin: 18px 0;
+            flex-wrap: wrap;
+        }
+
+        .label {
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .fill-line {
+            flex: 1;
+            min-width: 180px;
+            border-bottom: 1.8px dashed #64748b;
+            height: 32px;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 12px 2px;
+            color: #064e55;
+            font-weight: 800;
+        }
+
+        .fill-line.short { flex: .45; min-width: 135px; }
+        .fill-line.medium { flex: .7; min-width: 200px; }
+        .fill-line.long { min-width: 380px; }
+        .fill-line.blank { color: transparent; }
+
+        .textarea-line {
+            border-bottom: 1.8px dashed #64748b;
+            min-height: 32px;
+            flex: 1;
+            padding: 0 12px 2px;
+            color: #064e55;
+            font-weight: 800;
+        }
+
+        .city-date {
+            text-align: right;
+            margin-top: 44px;
+            font-size: 17px;
+        }
+
+        .city-date strong {
+            color: #064e55;
+            border-bottom: 1.8px dashed #64748b;
+            padding: 0 8px 2px;
+        }
+
+        .signature {
+            width: 360px;
+            margin: 62px auto 0;
+            text-align: center;
+            color: #0f172a;
+        }
+
+        .signature-line {
+            height: 42px;
+            border-bottom: 2px solid #0f766e;
+            margin-bottom: 8px;
+        }
+
+        .signature strong {
+            display: block;
+            color: #064e55;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .signature span {
+            display: block;
+            font-size: 14px;
+            margin-top: 3px;
+        }
+
+        .cert-footer {
+            position: absolute;
+            left: 46px;
+            right: 46px;
+            bottom: 78px;
+            z-index: 3;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1.1fr;
+            gap: 18px;
+            background: rgba(255,255,255,.88);
+            border: 1px solid #dbeafe;
+            border-radius: 12px;
+            padding: 14px 18px;
+            box-shadow: 0 12px 30px rgba(15,23,42,.08);
+        }
+
+        .footer-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            color: #064e55;
+            font-size: 12px;
+            line-height: 1.35;
+            border-right: 1px solid #0f766e;
+            padding-right: 14px;
+        }
+
+        .footer-item:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .footer-item i {
+            font-size: 28px;
+            color: #0f766e;
+        }
+
+        .footer-item strong {
+            display: block;
+            font-size: 12px;
+            color: #064e55;
+        }
+
+        @media (max-width: 1200px) {
+            .layout { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 900px) {
+            body { display: block; }
+            .sidebar { position: relative; width: 100%; min-height: auto; }
+            .main { margin-left: 0; width: 100%; padding: 25px 16px; }
+        }
+
+        @media print {
+            body { background: #fff; display: block; }
+            .sidebar, .topbar, .card { display: none !important; }
+            .main { margin: 0; width: 100%; padding: 0; }
+            .layout { display: block; }
+            .certificate-wrap { border: none; padding: 0; background: #fff; }
+            .certificate {
+                width: 210mm;
+                min-height: 297mm;
+                box-shadow: none;
+                margin: 0;
+                border: 2px solid #0f766e;
+                page-break-after: avoid;
+            }
+            @page { size: A4; margin: 0; }
+        }
     </style>
 </head>
 <body>
+
 <aside class="sidebar">
-    <div class="logo"><i class="bi bi-heart-pulse-fill"></i> ClínicaSys</div>
-    <ul class="menu">
-        <li><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agendamentos</a></li>
-        <li><a href="/receitas"><i class="bi bi-file-earmark-medical"></i> Receitas</a></li>
-        <li class="active"><a href="/atestados"><i class="bi bi-shield-check"></i> Atestados</a></li>
-        <div class="line"></div>
-        <li><a href="/logout"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
-    </ul>
-    <div class="user">Olá, {{ session.get('usuario', 'Usuário') }}<br>Médico</div>
+    <div>
+        <div class="logo">
+            <div class="logo-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+            ClínicaSys
+        </div>
+
+        <ul class="menu">
+            <li><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agendamentos</a></li>
+            <li><a href="/receitas"><i class="bi bi-file-earmark-medical"></i> Receitas</a></li>
+            <li class="active"><a href="/atestados"><i class="bi bi-shield-check"></i> Atestados</a></li>
+            <div class="sidebar-line"></div>
+            <li><a href="/logout"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
+        </ul>
+    </div>
+
+    <div class="user-box">
+        <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+        <div class="user-info">
+            <strong>Olá, {{ session.get('usuario', 'Médico') }}!</strong>
+            <span>Médico</span>
+        </div>
+    </div>
 </aside>
+
 <main class="main">
-    <h1>Atestados Médicos</h1>
-    <p>Emita atestados médicos para seus pacientes.</p>
-    <div class="card">
-        <form>
-            <div class="field"><label>Paciente</label><input type="text" placeholder="Nome do paciente"></div>
-            <div class="field"><label>Dias de afastamento</label><input type="number" min="1" placeholder="Ex: 3"></div>
-            <div class="field"><label>Texto do atestado</label><textarea placeholder="Digite o texto do atestado..."></textarea></div>
-            <button type="button" class="btn"><i class="bi bi-printer"></i> Gerar Atestado</button>
-        </form>
+    <div class="topbar">
+        <div class="page-title">
+            <h1>Atestado Médico</h1>
+            <p>Modelo profissional para imprimir e preencher à mão, com campo para CRM/COREN.</p>
+        </div>
+        <button type="button" class="btn-print" onclick="window.print()">
+            <i class="bi bi-printer"></i> Imprimir Atestado
+        </button>
+    </div>
+
+    <div class="layout">
+        <section class="card">
+            <h2>Preenchimento rápido</h2>
+            <p>Você pode digitar alguns dados antes de imprimir ou deixar tudo em branco para preencher à mão.</p>
+
+            <div class="field">
+                <label>Nome do paciente</label>
+                <input type="text" id="paciente" oninput="atualizarAtestado()" placeholder="Ex: Maria Silva Santos">
+            </div>
+
+            <div class="field">
+                <label>CPF</label>
+                <input type="text" id="cpf" oninput="atualizarAtestado()" placeholder="Ex: 123.456.789-00">
+            </div>
+
+            <div class="field">
+                <label>Data de nascimento</label>
+                <input type="text" id="nascimento" oninput="atualizarAtestado()" placeholder="Ex: 15/06/1990">
+            </div>
+
+            <div class="field">
+                <label>Data do atendimento</label>
+                <input type="text" id="data_atendimento" oninput="atualizarAtestado()" placeholder="Ex: 05/07/2026">
+            </div>
+
+            <div class="field">
+                <label>Motivo / finalidade</label>
+                <input type="text" id="motivo" oninput="atualizarAtestado()" placeholder="Ex: afastamento de suas atividades">
+            </div>
+
+            <div class="field">
+                <label>CID</label>
+                <input type="text" id="cid" oninput="atualizarAtestado()" placeholder="Ex: Z54.0 - Convalescença">
+            </div>
+
+            <div class="field">
+                <label>Período de afastamento</label>
+                <input type="text" id="periodo" oninput="atualizarAtestado()" placeholder="Ex: 05/07/2026 a 07/07/2026 (3 dias)">
+            </div>
+
+            <div class="field">
+                <label>Observações</label>
+                <textarea id="observacoes" oninput="atualizarAtestado()" placeholder="Ex: Repouso e cuidados."></textarea>
+            </div>
+
+            <div class="field">
+                <label>Nome do profissional</label>
+                <input type="text" id="medico" oninput="atualizarAtestado()" placeholder="Ex: Dr. João Silva">
+            </div>
+
+            <div class="field">
+                <label>Registro profissional</label>
+                <input type="text" id="registro" oninput="atualizarAtestado()" placeholder="Ex: CRM/SP 123456 ou COREN/SP 123456">
+            </div>
+
+            <div class="field">
+                <label>Especialidade / cargo</label>
+                <input type="text" id="especialidade" oninput="atualizarAtestado()" placeholder="Ex: Clínico Geral">
+            </div>
+
+            <div class="hint">
+                Para deixar algum campo para preencher à mão, basta deixar o campo vazio. Na impressão ficará apenas a linha pontilhada.
+            </div>
+        </section>
+
+        <section class="certificate-wrap">
+            <div class="certificate" id="atestadoPrint">
+                <div class="cert-content">
+                    <header class="cert-header">
+                        <div class="brand">
+                            <div class="brand-icon"><i class="bi bi-heart-pulse"></i></div>
+                            <div class="brand-text">
+                                <strong>Ecenssial</strong>
+                                <span>Clínica</span>
+                                <small>CUIDANDO DA SUA SAÚDE</small>
+                            </div>
+                        </div>
+
+                        <div class="clinic-info">
+                            <div><i class="bi bi-geo-alt-fill"></i><span>Rua das Flores, 123 - Centro<br>São Paulo - SP - CEP: 01234-567</span></div>
+                            <div><i class="bi bi-telephone-fill"></i><span>(11) 99999-1111</span></div>
+                            <div><i class="bi bi-envelope-fill"></i><span>contato@ecenssialclinica.com.br</span></div>
+                        </div>
+                    </header>
+
+                    <div class="cert-title">
+                        <h2>ATESTADO MÉDICO</h2>
+                        <div class="pulse"><i class="bi bi-activity"></i></div>
+                    </div>
+
+                    <div class="cert-body">
+                        <p>Atesto para os devidos fins que o(a) paciente:</p>
+
+                        <div class="row-line">
+                            <span class="label">Nome:</span>
+                            <span class="fill-line long" id="outPaciente"></span>
+                        </div>
+
+                        <div class="row-line">
+                            <span class="label">CPF:</span>
+                            <span class="fill-line medium" id="outCpf"></span>
+                            <span class="label">Data de Nascimento:</span>
+                            <span class="fill-line short" id="outNascimento"></span>
+                        </div>
+
+                        <div class="row-line">
+                            <span class="label">Foi atendido(a) nesta clínica no dia</span>
+                            <span class="fill-line short" id="outDataAtendimento"></span>
+                            <span class="label">, necessitando de</span>
+                            <span class="fill-line medium" id="outMotivo"></span>
+                        </div>
+
+                        <p>atividades por motivo de saúde.</p>
+
+                        <div class="row-line">
+                            <span class="label">CID:</span>
+                            <span class="fill-line medium" id="outCid"></span>
+                        </div>
+
+                        <div class="row-line">
+                            <span class="label">Período de afastamento:</span>
+                            <span class="fill-line long" id="outPeriodo"></span>
+                        </div>
+
+                        <div class="row-line">
+                            <span class="label">Observações:</span>
+                            <span class="textarea-line" id="outObservacoes"></span>
+                        </div>
+
+                        <div class="row-line">
+                            <span class="textarea-line blank">.</span>
+                        </div>
+                    </div>
+
+                    <div class="city-date">
+                        São Paulo, <strong>____ de __________________ de ______</strong>.
+                    </div>
+
+                    <div class="signature">
+                        <div class="signature-line"></div>
+                        <strong id="outMedico">Nome do profissional</strong>
+                        <span id="outRegistro">CRM/COREN: __________________</span>
+                        <span id="outEspecialidade">Especialidade / Cargo</span>
+                    </div>
+                </div>
+
+                <footer class="cert-footer">
+                    <div class="footer-item">
+                        <i class="bi bi-clock"></i>
+                        <div><strong>Horário de Atendimento</strong>Segunda a Sexta: 08h às 18h<br>Sábado: 08h às 12h</div>
+                    </div>
+                    <div class="footer-item">
+                        <i class="bi bi-globe2"></i>
+                        <div><strong>www.ecenssialclinica.com.br</strong></div>
+                    </div>
+                    <div class="footer-item">
+                        <i class="bi bi-calendar2-check"></i>
+                        <div><strong>Agende sua consulta</strong>(11) 99999-1111</div>
+                    </div>
+                </footer>
+            </div>
+        </section>
     </div>
 </main>
+
+<script>
+    function valor(id) {
+        return document.getElementById(id).value.trim();
+    }
+
+    function preencher(id, texto, vazio) {
+        const el = document.getElementById(id);
+        el.textContent = texto || vazio || "";
+        if (!texto && !vazio) {
+            el.classList.add("blank");
+        } else {
+            el.classList.remove("blank");
+        }
+    }
+
+    function atualizarAtestado() {
+        preencher("outPaciente", valor("paciente"));
+        preencher("outCpf", valor("cpf"));
+        preencher("outNascimento", valor("nascimento"));
+        preencher("outDataAtendimento", valor("data_atendimento"));
+        preencher("outMotivo", valor("motivo"));
+        preencher("outCid", valor("cid"));
+        preencher("outPeriodo", valor("periodo"));
+        preencher("outObservacoes", valor("observacoes"));
+
+        preencher("outMedico", valor("medico"), "Nome do profissional");
+        preencher("outRegistro", valor("registro"), "CRM/COREN: __________________");
+        preencher("outEspecialidade", valor("especialidade"), "Especialidade / Cargo");
+    }
+
+    atualizarAtestado();
+</script>
+
 </body>
 </html>
