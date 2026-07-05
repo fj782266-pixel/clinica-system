@@ -359,8 +359,9 @@ def proteger_rotas():
 
     if not session.get("logado"):
         return redirect("/login")
-    
-    @app.before_request
+
+
+@app.before_request
 def bloquear_telas_medico():
     if not session.get("logado"):
         return
