@@ -4,8 +4,7 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from sqlalchemy import inspect, text
-from datetime import datetime, date
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 import os
 
 
@@ -148,6 +147,10 @@ class Usuario(db.Model):
     senha = db.Column(db.String(255), nullable=False)
     tipo = db.Column(db.String(20), default="recepcao")
 
+    # Quando o usuário for médico, este campo liga o login ao cadastro do profissional.
+    profissional_id = db.Column(db.Integer, db.ForeignKey("profissional.id"), nullable=True)
+    profissional = db.relationship("Profissional")
+
 
 class RecuperacaoSenha(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -196,6 +199,35 @@ def admin_obrigatorio(f):
 
         return f(*args, **kwargs)
     return verificar_admin
+
+
+def usuario_eh_medico():
+    return session.get("tipo") == "medico"
+
+
+def medico_tem_profissional_vinculado():
+    return bool(session.get("profissional_id"))
+
+
+def bloquear_medico_sem_vinculo():
+    if usuario_eh_medico() and not medico_tem_profissional_vinculado():
+        flash("Seu usuário médico ainda não está vinculado a um profissional. Fale com o administrador.")
+        return True
+    return False
+
+
+def medico_pode_acessar_agendamento(agendamento):
+    if not usuario_eh_medico():
+        return True
+
+    profissional_id = session.get("profissional_id")
+    return profissional_id and agendamento.profissional_id == profissional_id
+
+
+def aplicar_filtro_medico_agendamentos(query):
+    if usuario_eh_medico():
+        return query.filter(Agendamento.profissional_id == session.get("profissional_id"))
+    return query
 
 
 def converter_data_financeiro(data_texto):
@@ -263,6 +295,21 @@ def garantir_colunas_agendamento():
     db.session.commit()
 
 
+def garantir_colunas_usuario():
+    inspector = inspect(db.engine)
+    tabelas = inspector.get_table_names()
+
+    if "usuario" not in tabelas:
+        return
+
+    colunas = [coluna["name"] for coluna in inspector.get_columns("usuario")]
+
+    if "profissional_id" not in colunas:
+        db.session.execute(text("ALTER TABLE usuario ADD COLUMN profissional_id INTEGER"))
+
+    db.session.commit()
+
+
 def criar_servicos_padrao():
     if Servico.query.count() > 0:
         return
@@ -314,6 +361,7 @@ def proteger_rotas():
 with app.app_context():
     db.create_all()
     garantir_colunas_agendamento()
+    garantir_colunas_usuario()
     criar_servicos_padrao()
 
 
@@ -347,6 +395,8 @@ def login():
             session["logado"] = True
             session["usuario"] = user.usuario
             session["tipo"] = user.tipo or "recepcao"
+            session["usuario_id"] = user.id
+            session["profissional_id"] = user.profissional_id
             return redirect("/")
 
         flash("Usuário ou senha inválidos.")
@@ -368,14 +418,31 @@ def logout():
 @app.route("/")
 @login_obrigatorio
 def home():
-    total_profissionais = Profissional.query.count()
-    total_pacientes = Paciente.query.count()
-    total_agendamentos = Agendamento.query.count()
+    if bloquear_medico_sem_vinculo():
+        return redirect(url_for("logout"))
 
-    faturamento = db.session.query(db.func.sum(Financeiro.valor)).filter(
-        Financeiro.tipo == "Receita",
-        Financeiro.status == "Recebido"
-    ).scalar() or 0
+    if usuario_eh_medico():
+        profissional_id = session.get("profissional_id")
+        total_profissionais = 1
+        total_pacientes = Paciente.query.join(Agendamento, Agendamento.paciente_id == Paciente.id).filter(
+            Agendamento.profissional_id == profissional_id
+        ).distinct().count()
+        total_agendamentos = Agendamento.query.filter_by(profissional_id=profissional_id).count()
+
+        faturamento = db.session.query(db.func.sum(Financeiro.valor)).filter(
+            Financeiro.tipo == "Receita",
+            Financeiro.status == "Recebido",
+            Financeiro.profissional_id == profissional_id
+        ).scalar() or 0
+    else:
+        total_profissionais = Profissional.query.count()
+        total_pacientes = Paciente.query.count()
+        total_agendamentos = Agendamento.query.count()
+
+        faturamento = db.session.query(db.func.sum(Financeiro.valor)).filter(
+            Financeiro.tipo == "Receita",
+            Financeiro.status == "Recebido"
+        ).scalar() or 0
 
     return render_template(
         "index.html",
@@ -491,7 +558,12 @@ def pacientes():
 
         return redirect("/pacientes")
 
-    lista = Paciente.query.order_by(Paciente.id.desc()).all()
+    if usuario_eh_medico():
+        lista = Paciente.query.join(Agendamento, Agendamento.paciente_id == Paciente.id).filter(
+            Agendamento.profissional_id == session.get("profissional_id")
+        ).distinct().order_by(Paciente.id.desc()).all()
+    else:
+        lista = Paciente.query.order_by(Paciente.id.desc()).all()
 
     return render_template("pacientes.html", pacientes=lista)
 
@@ -530,6 +602,17 @@ def excluir_paciente(id):
 @login_obrigatorio
 def ficha_paciente(id):
     paciente = Paciente.query.get_or_404(id)
+
+    if usuario_eh_medico():
+        tem_vinculo = Agendamento.query.filter_by(
+            paciente_id=paciente.id,
+            profissional_id=session.get("profissional_id")
+        ).first()
+
+        if not tem_vinculo:
+            flash("Você não tem permissão para acessar este paciente.")
+            return redirect(url_for("pacientes"))
+
     return render_template("ficha_paciente.html", paciente=paciente)
 
 
@@ -540,8 +623,15 @@ def ficha_paciente(id):
 @app.route("/agendamentos", methods=["GET", "POST"])
 @login_obrigatorio
 def agendamentos():
+    if bloquear_medico_sem_vinculo():
+        return redirect(url_for("logout"))
+
     if request.method == "POST":
         pagamento_realizado = request.form.get("pagamento_realizado") == "sim"
+        profissional_id_form = int_ou_none(request.form.get("profissional_id"))
+
+        if usuario_eh_medico():
+            profissional_id_form = session.get("profissional_id")
 
         novo_agendamento = Agendamento(
             cliente_nome=request.form.get("cliente_nome"),
@@ -550,7 +640,7 @@ def agendamentos():
             cliente_cpf=request.form.get("cliente_cpf"),
             cliente_data_nascimento=request.form.get("cliente_data_nascimento"),
             observacoes_paciente=request.form.get("observacoes_paciente"),
-            profissional_id=int_ou_none(request.form.get("profissional_id")),
+            profissional_id=profissional_id_form,
             servico_id=int_ou_none(request.form.get("servico_id")),
             data=request.form.get("data"),
             horario=request.form.get("horario"),
@@ -586,10 +676,13 @@ def agendamentos():
     profissional_filtro = request.args.get("profissional_id", "")
     periodo_filtro = request.args.get("periodo", "todas")
 
-    query = Agendamento.query
+    query = aplicar_filtro_medico_agendamentos(Agendamento.query)
 
-    if profissional_filtro:
+    if profissional_filtro and not usuario_eh_medico():
         query = query.filter(Agendamento.profissional_id == int(profissional_filtro))
+
+    if usuario_eh_medico():
+        profissional_filtro = str(session.get("profissional_id"))
 
     hoje = date.today()
 
@@ -625,7 +718,10 @@ def agendamentos():
         Agendamento.horario.asc()
     ).all()
 
-    profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
+    if usuario_eh_medico():
+        profissionais = Profissional.query.filter_by(id=session.get("profissional_id")).all()
+    else:
+        profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
     servicos = Servico.query.order_by(Servico.nome.asc()).all()
 
     return render_template(
@@ -642,6 +738,11 @@ def agendamentos():
 @login_obrigatorio
 def atualizar_status_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
+
+    if not medico_pode_acessar_agendamento(agendamento):
+        flash("Você não tem permissão para alterar este agendamento.")
+        return redirect(url_for("agendamentos"))
+
     agendamento.status = request.form.get("status") or "Aguardando"
 
     financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
@@ -658,6 +759,9 @@ def atualizar_status_agendamento(id):
 @login_obrigatorio
 def visualizar_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
+
+    if not medico_pode_acessar_agendamento(agendamento):
+        return jsonify({"erro": "Sem permissão para acessar este agendamento."}), 403
 
     return jsonify({
         "id": agendamento.id,
@@ -684,13 +788,20 @@ def visualizar_agendamento(id):
 def editar_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
 
+    if not medico_pode_acessar_agendamento(agendamento):
+        flash("Você não tem permissão para editar este agendamento.")
+        return redirect(url_for("agendamentos"))
+
     agendamento.cliente_nome = request.form.get("cliente_nome")
     agendamento.cliente_telefone = request.form.get("cliente_telefone")
     agendamento.cliente_email = request.form.get("cliente_email")
     agendamento.cliente_cpf = request.form.get("cliente_cpf")
     agendamento.cliente_data_nascimento = request.form.get("cliente_data_nascimento")
     agendamento.observacoes_paciente = request.form.get("observacoes_paciente")
-    agendamento.profissional_id = int_ou_none(request.form.get("profissional_id"))
+    if usuario_eh_medico():
+        agendamento.profissional_id = session.get("profissional_id")
+    else:
+        agendamento.profissional_id = int_ou_none(request.form.get("profissional_id"))
     agendamento.servico_id = int_ou_none(request.form.get("servico_id"))
     agendamento.data = request.form.get("data")
     agendamento.horario = request.form.get("horario")
@@ -727,6 +838,10 @@ def editar_agendamento(id):
 def excluir_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
 
+    if usuario_eh_medico():
+        flash("Médico não pode excluir agendamento. Peça para a recepção ou administrador.")
+        return redirect(url_for("agendamentos"))
+
     financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
 
     if financeiro:
@@ -742,6 +857,11 @@ def excluir_agendamento(id):
 @login_obrigatorio
 def finalizar_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
+
+    if not medico_pode_acessar_agendamento(agendamento):
+        flash("Você não tem permissão para finalizar este agendamento.")
+        return redirect(url_for("agendamentos"))
+
     agendamento.status = "Finalizado"
 
     financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
@@ -757,6 +877,11 @@ def finalizar_agendamento(id):
 @login_obrigatorio
 def cancelar_agendamento(id):
     agendamento = Agendamento.query.get_or_404(id)
+
+    if not medico_pode_acessar_agendamento(agendamento):
+        flash("Você não tem permissão para cancelar este agendamento.")
+        return redirect(url_for("agendamentos"))
+
     agendamento.status = "Cancelado"
 
     financeiro = Financeiro.query.filter_by(agendamento_id=agendamento.id).first()
@@ -775,6 +900,10 @@ def cancelar_agendamento(id):
 @app.route("/financeiro", methods=["GET", "POST"])
 @login_obrigatorio
 def financeiro():
+    if usuario_eh_medico():
+        flash("Médico não tem acesso ao financeiro.")
+        return redirect(url_for("agendamentos"))
+
     if request.method == "POST":
         financeiro_id = request.form.get("financeiro_id")
 
@@ -850,6 +979,9 @@ def financeiro():
 @app.route("/financeiro/visualizar/<int:id>")
 @login_obrigatorio
 def visualizar_financeiro(id):
+    if usuario_eh_medico():
+        return jsonify({"erro": "Médico não tem acesso ao financeiro."}), 403
+
     lancamento = Financeiro.query.get_or_404(id)
 
     return jsonify({
@@ -877,6 +1009,10 @@ def visualizar_financeiro(id):
 @app.route("/financeiro/editar/<int:id>", methods=["GET", "POST"])
 @login_obrigatorio
 def editar_financeiro(id):
+    if usuario_eh_medico():
+        flash("Médico não tem acesso ao financeiro.")
+        return redirect(url_for("agendamentos"))
+
     lancamento = Financeiro.query.get_or_404(id)
 
     if request.method == "POST":
@@ -902,6 +1038,10 @@ def editar_financeiro(id):
 @app.route("/financeiro/excluir/<int:id>", methods=["POST", "GET"])
 @login_obrigatorio
 def excluir_financeiro(id):
+    if usuario_eh_medico():
+        flash("Médico não tem acesso ao financeiro.")
+        return redirect(url_for("agendamentos"))
+
     lancamento = Financeiro.query.get_or_404(id)
 
     db.session.delete(lancamento)
