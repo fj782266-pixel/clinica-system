@@ -1176,18 +1176,15 @@ def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
 
-@app.route("/promover-admin-felipe")
-def promover_admin_felipe():
-    usuario = Usuario.query.filter_by(usuario="felipe").first()
+@app.route("/listar-usuarios-temp")
+def listar_usuarios_temp():
+    usuarios = Usuario.query.all()
 
-    if not usuario:
-        return "Usuário felipe não encontrado."
+    resposta = ""
+    for u in usuarios:
+        resposta += f"ID: {u.id} | Usuário: {u.usuario} | Tipo: {u.tipo} | Ativo: {u.ativo}<br>"
 
-    usuario.tipo = "admin"
-    usuario.ativo = True
-    db.session.commit()
-
-    return "Usuário felipe agora é admin."
+    return resposta
 # ============================================================
 # INICIAR APP
 # ============================================================
