@@ -359,6 +359,30 @@ def proteger_rotas():
 
     if not session.get("logado"):
         return redirect("/login")
+    
+    @app.before_request
+def bloquear_telas_medico():
+    if not session.get("logado"):
+        return
+
+    if session.get("tipo") != "medico":
+        return
+
+    rotas_permitidas_medico = [
+        "home",
+        "logout",
+        "agendamentos",
+        "visualizar_agendamento",
+        "atualizar_status_agendamento",
+        "finalizar_agendamento",
+        "cancelar_agendamento",
+        "editar_agendamento",
+        "static",
+    ]
+
+    if request.endpoint not in rotas_permitidas_medico:
+        flash("Médico não tem permissão para acessar essa área.")
+        return redirect(url_for("agendamentos"))
 
 
 # ============================================================
@@ -1176,18 +1200,7 @@ def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
 
-@app.route("/promover-admin-felipe")
-def promover_admin_felipe():
-    usuario = Usuario.query.filter_by(usuario="admin felipe").first()
 
-    if not usuario:
-        return "Usuário admin felipe não encontrado."
-
-    usuario.tipo = "admin"
-    usuario.ativo = True
-    db.session.commit()
-
-    return "Usuário admin felipe agora é admin."
 # ============================================================
 # INICIAR APP
 # ============================================================
