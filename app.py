@@ -378,6 +378,8 @@ def bloquear_telas_medico():
         "finalizar_agendamento",
         "cancelar_agendamento",
         "editar_agendamento",
+        "receitas",
+        "atestados",
         "static",
     ]
 
@@ -1189,6 +1191,30 @@ def bloquear_usuario(id):
     db.session.commit()
     flash("Status do usuário atualizado.")
     return redirect(url_for("usuarios"))
+
+
+# ============================================================
+# RECEITAS / ATESTADOS
+# ============================================================
+
+@app.route("/receitas")
+@login_obrigatorio
+def receitas():
+    if session.get("tipo") not in ["medico", "admin"]:
+        flash("Acesso permitido apenas para médico ou administrador.")
+        return redirect(url_for("agendamentos"))
+
+    return render_template("receitas.html")
+
+
+@app.route("/atestados")
+@login_obrigatorio
+def atestados():
+    if session.get("tipo") not in ["medico", "admin"]:
+        flash("Acesso permitido apenas para médico ou administrador.")
+        return redirect(url_for("agendamentos"))
+
+    return render_template("atestados.html")
 
 
 # ============================================================
