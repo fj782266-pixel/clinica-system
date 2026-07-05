@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários - ClínicaSys</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            display: flex;
+            color: #0f172a;
+        }
+
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: #fff;
+            padding: 24px 18px;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 34px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #0f766e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .brand h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: rgba(15, 118, 110, .18);
+            color: #fff;
+        }
+
+        .main {
+            margin-left: 260px;
+            padding: 28px;
+            width: calc(100% - 260px);
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .topbar h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .topbar p {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .04);
+        }
+
+        .card small {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .card strong {
+            display: block;
+            font-size: 28px;
+            margin-top: 6px;
+            color: #0f766e;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 390px 1fr;
+            gap: 22px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .04);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 7px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px 13px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #0f766e;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .checkbox-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .checkbox-line input {
+            width: auto;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 11px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: .2s;
+        }
+
+        .btn-primary {
+            background: #0f766e;
+            color: #fff;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background: #115e59;
+        }
+
+        .btn-light {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 14px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            color: #64748b;
+            background: #f8fafc;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-admin { background: #dbeafe; color: #1e40af; }
+        .badge-recepcao { background: #f1f5f9; color: #334155; }
+        .badge-medico { background: #dcfce7; color: #166534; }
+        .badge-ativo { background: #dcfce7; color: #166534; }
+        .badge-bloqueado { background: #fee2e2; color: #991b1b; }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .actions form {
+            display: inline;
+        }
+
+        .alert {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        @media(max-width: 1100px) {
+            .layout,
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+                width: 100%;
+                min-height: auto;
+            }
+            body {
+                display: block;
+            }
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="bi bi-hospital"></i></div>
+            <h2>ClínicaSys</h2>
+        </div>
+
+        <nav class="menu">
+            <a href="/"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="/agendamentos"><i class="bi bi-calendar-check"></i> Agendamentos</a>
+            <a href="/pacientes"><i class="bi bi-people"></i> Pacientes</a>
+            <a href="/profissionais"><i class="bi bi-person-badge"></i> Profissionais</a>
+            <a href="/financeiro"><i class="bi bi-cash-coin"></i> Financeiro</a>
+            <a href="/usuarios" class="active"><i class="bi bi-shield-lock"></i> Usuários</a>
+            <a href="/logout"><i class="bi bi-box-arrow-right"></i> Sair</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>Usuários e Permissões</h1>
+                <p>Cadastre administradores, recepção e médicos vinculados aos profissionais.</p>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert"><i class="bi bi-info-circle"></i> {{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="cards">
+            <div class="card">
+                <small>Total de usuários</small>
+                <strong>{{ usuarios|length }}</strong>
+            </div>
+            <div class="card">
+                <small>Médicos vinculados</small>
+                <strong>{{ usuarios|selectattr('tipo', 'equalto', 'medico')|list|length }}</strong>
+            </div>
+            <div class="card">
+                <small>Profissionais cadastrados</small>
+                <strong>{{ profissionais|length }}</strong>
+            </div>
+        </section>
+
+        <section class="layout">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3><i class="bi bi-person-plus"></i> Novo / Editar usuário</h3>
+                </div>
+                <div class="panel-body">
+                    <form method="POST" action="/usuarios" id="formUsuario">
+                        <input type="hidden" name="usuario_id" id="usuario_id">
+
+                        <div class="form-group">
+                            <label>Usuário de login</label>
+                            <input type="text" name="usuario" id="usuario" placeholder="Ex: drjoao" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Senha</label>
+                            <input type="password" name="senha" id="senha" placeholder="Preencha para criar ou alterar a senha">
+                            <div class="hint">Ao editar, deixe vazio para manter a senha atual.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de usuário</label>
+                            <select name="tipo" id="tipo" onchange="controlarCampoMedico()" required>
+                                <option value="recepcao">Recepção</option>
+                                <option value="admin">Administrador</option>
+                                <option value="medico">Médico</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="campoProfissional" style="display:none;">
+                            <label>Médico / Profissional vinculado</label>
+                            <select name="profissional_id" id="profissional_id">
+                                <option value="">Selecione o profissional</option>
+                                {% for profissional in profissionais %}
+                                    <option value="{{ profissional.id }}">{{ profissional.nome }} - {{ profissional.especialidade }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="hint">O médico verá somente os agendamentos desse profissional.</div>
+                        </div>
+
+                        <label class="checkbox-line">
+                            <input type="checkbox" name="ativo" id="ativo" value="sim" checked>
+                            Usuário ativo
+                        </label>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Salvar usuário
+                        </button>
+
+                        <button type="button" class="btn btn-light" style="width:100%; justify-content:center; margin-top:10px;" onclick="limparFormulario()">
+                            <i class="bi bi-arrow-clockwise"></i> Limpar formulário
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3><i class="bi bi-people"></i> Usuários cadastrados</h3>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Tipo</th>
+                                <th>Profissional vinculado</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in usuarios %}
+                                <tr>
+                                    <td><strong>{{ usuario.usuario }}</strong></td>
+                                    <td>
+                                        {% if usuario.tipo == 'admin' %}
+                                            <span class="badge badge-admin"><i class="bi bi-shield-check"></i> Admin</span>
+                                        {% elif usuario.tipo == 'medico' %}
+                                            <span class="badge badge-medico"><i class="bi bi-person-heart"></i> Médico</span>
+                                        {% else %}
+                                            <span class="badge badge-recepcao"><i class="bi bi-headset"></i> Recepção</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if usuario.profissional %}
+                                            {{ usuario.profissional.nome }}
+                                        {% else %}
+                                            <span style="color:#94a3b8;">Não vinculado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if usuario.ativo %}
+                                            <span class="badge badge-ativo"><i class="bi bi-check-circle"></i> Ativo</span>
+                                        {% else %}
+                                            <span class="badge badge-bloqueado"><i class="bi bi-lock"></i> Bloqueado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <button type="button" class="btn btn-light" onclick="editarUsuario('{{ usuario.id }}', '{{ usuario.usuario }}', '{{ usuario.tipo }}', '{{ usuario.profissional_id or '' }}', '{{ 'sim' if usuario.ativo else 'nao' }}')">
+                                                <i class="bi bi-pencil"></i> Editar
+                                            </button>
+
+                                            <form method="POST" action="/usuarios/bloquear/{{ usuario.id }}">
+                                                <button type="submit" class="btn btn-warning">
+                                                    {% if usuario.ativo %}
+                                                        <i class="bi bi-lock"></i> Bloquear
+                                                    {% else %}
+                                                        <i class="bi bi-unlock"></i> Ativar
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+
+                                            <form method="POST" action="/usuarios/excluir/{{ usuario.id }}" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="bi bi-trash"></i> Excluir
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" style="text-align:center; color:#64748b; padding:30px;">
+                                        Nenhum usuário cadastrado ainda.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function controlarCampoMedico() {
+            const tipo = document.getElementById('tipo').value;
+            const campo = document.getElementById('campoProfissional');
+            const profissional = document.getElementById('profissional_id');
+
+            if (tipo === 'medico') {
+                campo.style.display = 'block';
+                profissional.required = true;
+            } else {
+                campo.style.display = 'none';
+                profissional.required = false;
+                profissional.value = '';
+            }
+        }
+
+        function editarUsuario(id, usuario, tipo, profissionalId, ativo) {
+            document.getElementById('usuario_id').value = id;
+            document.getElementById('usuario').value = usuario;
+            document.getElementById('senha').value = '';
+            document.getElementById('tipo').value = tipo;
+            document.getElementById('profissional_id').value = profissionalId;
+            document.getElementById('ativo').checked = ativo === 'sim';
+            controlarCampoMedico();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function limparFormulario() {
+            document.getElementById('formUsuario').reset();
+            document.getElementById('usuario_id').value = '';
+            document.getElementById('ativo').checked = true;
+            controlarCampoMedico();
+        }
+
+        controlarCampoMedico();
+    </script>
+</body>
+</html>

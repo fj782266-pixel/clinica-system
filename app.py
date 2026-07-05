@@ -146,6 +146,7 @@ class Usuario(db.Model):
     usuario = db.Column(db.String(50), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     tipo = db.Column(db.String(20), default="recepcao")
+    ativo = db.Column(db.Boolean, default=True)
 
     # Quando o usuário for médico, este campo liga o login ao cadastro do profissional.
     profissional_id = db.Column(db.Integer, db.ForeignKey("profissional.id"), nullable=True)
@@ -307,6 +308,12 @@ def garantir_colunas_usuario():
     if "profissional_id" not in colunas:
         db.session.execute(text("ALTER TABLE usuario ADD COLUMN profissional_id INTEGER"))
 
+    if "ativo" not in colunas:
+        if db.engine.dialect.name == "postgresql":
+            db.session.execute(text("ALTER TABLE usuario ADD COLUMN ativo BOOLEAN DEFAULT TRUE"))
+        else:
+            db.session.execute(text("ALTER TABLE usuario ADD COLUMN ativo BOOLEAN DEFAULT 1"))
+
     db.session.commit()
 
 
@@ -391,6 +398,10 @@ def login():
         user = Usuario.query.filter_by(usuario=usuario).first()
 
         if user and check_password_hash(user.senha, senha):
+            if getattr(user, "ativo", True) is False:
+                flash("Este usuário está bloqueado. Fale com o administrador.")
+                return redirect("/login")
+
             session.clear()
             session["logado"] = True
             session["usuario"] = user.usuario
@@ -1048,6 +1059,111 @@ def excluir_financeiro(id):
     db.session.commit()
 
     return redirect("/financeiro")
+
+
+
+# ============================================================
+# USUÁRIOS / PERMISSÕES
+# ============================================================
+
+@app.route("/usuarios", methods=["GET", "POST"])
+@admin_obrigatorio
+def usuarios():
+    if request.method == "POST":
+        usuario_id = request.form.get("usuario_id")
+        nome_usuario = (request.form.get("usuario") or "").strip()
+        senha = request.form.get("senha") or ""
+        tipo = request.form.get("tipo") or "recepcao"
+        profissional_id = int_ou_none(request.form.get("profissional_id"))
+        ativo = request.form.get("ativo") == "sim"
+
+        if tipo != "medico":
+            profissional_id = None
+
+        if tipo == "medico" and not profissional_id:
+            flash("Para usuário do tipo médico, selecione o profissional vinculado.")
+            return redirect(url_for("usuarios"))
+
+        if not nome_usuario:
+            flash("Informe o nome de usuário.")
+            return redirect(url_for("usuarios"))
+
+        usuario_existente = Usuario.query.filter_by(usuario=nome_usuario).first()
+
+        if usuario_id:
+            usuario_obj = Usuario.query.get_or_404(int(usuario_id))
+
+            if usuario_existente and usuario_existente.id != usuario_obj.id:
+                flash("Já existe outro usuário com esse login.")
+                return redirect(url_for("usuarios"))
+
+            usuario_obj.usuario = nome_usuario
+            usuario_obj.tipo = tipo
+            usuario_obj.profissional_id = profissional_id
+            usuario_obj.ativo = ativo
+
+            if senha.strip():
+                usuario_obj.senha = generate_password_hash(senha.strip())
+        else:
+            if usuario_existente:
+                flash("Já existe um usuário com esse login.")
+                return redirect(url_for("usuarios"))
+
+            if not senha.strip():
+                flash("Informe uma senha para o novo usuário.")
+                return redirect(url_for("usuarios"))
+
+            usuario_obj = Usuario(
+                usuario=nome_usuario,
+                senha=generate_password_hash(senha.strip()),
+                tipo=tipo,
+                profissional_id=profissional_id,
+                ativo=ativo
+            )
+            db.session.add(usuario_obj)
+
+        db.session.commit()
+        flash("Usuário salvo com sucesso.")
+        return redirect(url_for("usuarios"))
+
+    lista_usuarios = Usuario.query.order_by(Usuario.id.desc()).all()
+    profissionais = Profissional.query.order_by(Profissional.nome.asc()).all()
+
+    return render_template(
+        "usuarios.html",
+        usuarios=lista_usuarios,
+        profissionais=profissionais
+    )
+
+
+@app.route("/usuarios/excluir/<int:id>", methods=["POST"])
+@admin_obrigatorio
+def excluir_usuario(id):
+    usuario_obj = Usuario.query.get_or_404(id)
+
+    if session.get("usuario_id") == usuario_obj.id:
+        flash("Você não pode excluir o próprio usuário logado.")
+        return redirect(url_for("usuarios"))
+
+    db.session.delete(usuario_obj)
+    db.session.commit()
+    flash("Usuário excluído com sucesso.")
+    return redirect(url_for("usuarios"))
+
+
+@app.route("/usuarios/bloquear/<int:id>", methods=["POST"])
+@admin_obrigatorio
+def bloquear_usuario(id):
+    usuario_obj = Usuario.query.get_or_404(id)
+
+    if session.get("usuario_id") == usuario_obj.id:
+        flash("Você não pode bloquear o próprio usuário logado.")
+        return redirect(url_for("usuarios"))
+
+    usuario_obj.ativo = not bool(getattr(usuario_obj, "ativo", True))
+    db.session.commit()
+    flash("Status do usuário atualizado.")
+    return redirect(url_for("usuarios"))
 
 
 # ============================================================
