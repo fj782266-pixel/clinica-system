@@ -1245,13 +1245,17 @@ def chamar_paciente(agendamento_id):
         flash("Você não tem permissão para chamar este paciente.")
         return redirect(url_for("agendamentos"))
 
+    # Nome do paciente vindo do próprio agendamento.
     paciente_nome = agendamento.cliente_nome
 
     if not paciente_nome and agendamento.paciente:
         paciente_nome = agendamento.paciente.nome
 
-    medico_nome = agendamento.profissional.nome if agendamento.profissional else ""
-    consultorio = request.form.get("consultorio") or "Consultório 2"
+    # Nome do médico/profissional escolhido no agendamento.
+    medico_nome = agendamento.profissional.nome if agendamento.profissional else "médico responsável"
+
+    # Texto que aparecerá no painel da TV.
+    consultorio = f"Consultório do Dr. {medico_nome}"
 
     chamada = ChamadaPaciente(
         paciente_nome=paciente_nome or "Paciente",
@@ -1260,12 +1264,13 @@ def chamar_paciente(agendamento_id):
         status="chamando"
     )
 
+    # Mantém o agendamento como chamado para a equipe saber que o paciente já foi chamado.
     agendamento.status = "Chamado"
 
     db.session.add(chamada)
     db.session.commit()
 
-    flash(f"Paciente {chamada.paciente_nome} chamado no painel da recepção.")
+    flash(f"Paciente {chamada.paciente_nome} chamado para o consultório do Dr. {medico_nome}.")
     return redirect(url_for("agendamentos"))
 
 

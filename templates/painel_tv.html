@@ -370,18 +370,19 @@
                     ultimaChamadaId = dados.id;
 
                     const paciente = dados.paciente_nome || "Paciente";
-                    const consultorio = dados.consultorio || "Consultório";
                     const medico = dados.medico_nome || "";
+                    const destinoVisual = medico ? `Consultório do ${medico}` : (dados.consultorio || "Consultório");
+                    const destinoFala = medico ? `consultório do ${medico.replace("Dr.", "Doutor").replace("Dra.", "Doutora")}` : (dados.consultorio || "consultório");
 
                     document.getElementById("paciente").innerText = paciente;
-                    document.getElementById("consultorio").innerText = consultorio;
-                    document.getElementById("medico").innerText = medico ? medico : "Atendimento médico";
+                    document.getElementById("consultorio").innerText = destinoVisual;
+                    document.getElementById("medico").innerText = medico ? "Atendimento médico" : "Aguarde sua vez";
 
                     animarCard();
                     tocarSino();
 
                     setTimeout(function () {
-                        falar(`${paciente}, ${consultorio}, por favor.`);
+                        falar(`${paciente}, dirigir-se ao ${destinoFala}, por favor.`);
                     }, 450);
                 }
             } catch (erro) {
