@@ -301,11 +301,29 @@
             });
         }
 
+        let audioContextoGlobal = null;
+
         function liberarAudio() {
             audioLiberado = true;
-            const teste = new SpeechSynthesisUtterance("");
-            teste.lang = "pt-BR";
-            window.speechSynthesis.speak(teste);
+
+            try {
+                audioContextoGlobal = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContextoGlobal.state === "suspended") {
+                    audioContextoGlobal.resume();
+                }
+            } catch (erro) {
+                console.log("AudioContext indisponível:", erro);
+            }
+
+            try {
+                const aviso = new Audio();
+                aviso.src = "";
+                aviso.volume = 1;
+            } catch (erro) {
+                console.log("Pré-liberação de áudio indisponível:", erro);
+            }
+
+            console.log("Som do painel liberado.");
         }
 
         document.addEventListener("click", liberarAudio, { once: true });
@@ -313,7 +331,7 @@
 
         function tocarSino() {
             try {
-                const contexto = new (window.AudioContext || window.webkitAudioContext)();
+                const contexto = audioContextoGlobal || new (window.AudioContext || window.webkitAudioContext)();
                 const oscilador = contexto.createOscillator();
                 const ganho = contexto.createGain();
 
@@ -332,11 +350,35 @@
             }
         }
 
-        function falar(texto) {
+        function tocarAudioMp3(urlAudio, textoFallback) {
             if (!audioLiberado) {
-                console.log("Clique uma vez na tela para liberar a voz do navegador.");
+                console.log("Clique uma vez na tela para liberar o som do painel.");
             }
 
+            if (!urlAudio) {
+                falar(textoFallback);
+                return;
+            }
+
+            try {
+                const audio = new Audio(urlAudio + "?t=" + Date.now());
+                audio.volume = 1;
+
+                const promessa = audio.play();
+
+                if (promessa !== undefined) {
+                    promessa.catch(function (erro) {
+                        console.log("Navegador bloqueou o MP3, usando voz padrão como reserva:", erro);
+                        falar(textoFallback);
+                    });
+                }
+            } catch (erro) {
+                console.log("Erro ao tocar MP3:", erro);
+                falar(textoFallback);
+            }
+        }
+
+        function falar(texto) {
             try {
                 window.speechSynthesis.cancel();
                 const voz = new SpeechSynthesisUtterance(texto);
@@ -370,19 +412,19 @@
                     ultimaChamadaId = dados.id;
 
                     const paciente = dados.paciente_nome || "Paciente";
-                    const medico = dados.medico_nome || "";
-                    const destinoVisual = medico ? `Consultório do ${medico}` : (dados.consultorio || "Consultório");
-                    const destinoFala = medico ? `consultório do ${medico.replace("Dr.", "Doutor").replace("Dra.", "Doutora")}` : (dados.consultorio || "consultório");
+                    const medico = dados.medico_nome || "Médico";
+                    const destino = `Consultório do ${medico}`;
+                    const textoFallback = `${paciente}, dirigir-se ao consultório do ${medico}, por favor.`;
 
                     document.getElementById("paciente").innerText = paciente;
-                    document.getElementById("consultorio").innerText = destinoVisual;
-                    document.getElementById("medico").innerText = medico ? "Atendimento médico" : "Aguarde sua vez";
+                    document.getElementById("consultorio").innerText = destino;
+                    document.getElementById("medico").innerText = "Atendimento com " + medico;
 
                     animarCard();
                     tocarSino();
 
                     setTimeout(function () {
-                        falar(`${paciente}, dirigir-se ao ${destinoFala}, por favor.`);
+                        tocarAudioMp3(dados.audio_url, textoFallback);
                     }, 450);
                 }
             } catch (erro) {

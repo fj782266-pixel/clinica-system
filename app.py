@@ -6,6 +6,13 @@ from functools import wraps
 from sqlalchemy import inspect, text
 from datetime import datetime, date, timedelta
 import os
+import asyncio
+import uuid
+
+try:
+    import edge_tts
+except ImportError:
+    edge_tts = None
 
 
 # ============================================================
@@ -265,6 +272,51 @@ def int_ou_none(valor):
     try:
         return int(valor) if valor else None
     except (TypeError, ValueError):
+        return None
+
+
+def formatar_nome_medico_para_chamada(nome):
+    nome = (nome or "").strip()
+
+    if not nome:
+        return "Médico"
+
+    nome_lower = nome.lower()
+
+    if nome_lower.startswith("dr.") or nome_lower.startswith("dra.") or nome_lower.startswith("doutor") or nome_lower.startswith("doutora"):
+        return nome
+
+    return f"Dr. {nome}"
+
+
+def garantir_pasta_chamadas():
+    pasta = os.path.join(app.static_folder, "chamadas")
+    os.makedirs(pasta, exist_ok=True)
+    return pasta
+
+
+async def gerar_audio_chamada_async(texto, caminho_audio):
+    communicate = edge_tts.Communicate(
+        texto,
+        voice="pt-BR-FranciscaNeural",
+        rate="-5%",
+        volume="+0%"
+    )
+    await communicate.save(caminho_audio)
+
+
+def gerar_audio_chamada(texto, nome_arquivo):
+    if edge_tts is None:
+        print("edge-tts não instalado. Instale com: pip install edge-tts")
+        return None
+
+    try:
+        pasta = garantir_pasta_chamadas()
+        caminho_audio = os.path.join(pasta, nome_arquivo)
+        asyncio.run(gerar_audio_chamada_async(texto, caminho_audio))
+        return f"/static/chamadas/{nome_arquivo}"
+    except Exception as erro:
+        print("Erro ao gerar áudio da chamada:", erro)
         return None
 
 
@@ -1234,7 +1286,6 @@ def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
 
-from datetime import datetime
 
 @app.route("/chamar-paciente/<int:agendamento_id>", methods=["POST"])
 @login_obrigatorio
@@ -1245,34 +1296,35 @@ def chamar_paciente(agendamento_id):
         flash("Você não tem permissão para chamar este paciente.")
         return redirect(url_for("agendamentos"))
 
-    # Nome do paciente vindo do próprio agendamento.
     paciente_nome = agendamento.cliente_nome
 
     if not paciente_nome and agendamento.paciente:
         paciente_nome = agendamento.paciente.nome
 
-    # Nome do médico/profissional escolhido no agendamento.
-    medico_nome = agendamento.profissional.nome if agendamento.profissional else "médico responsável"
+    paciente_nome = paciente_nome or "Paciente"
+    medico_nome = formatar_nome_medico_para_chamada(
+        agendamento.profissional.nome if agendamento.profissional else "Médico"
+    )
 
-    # Texto que aparecerá no painel da TV.
-    consultorio = f"Consultório do Dr. {medico_nome}"
+    texto_chamada = f"{paciente_nome}, dirigir-se ao consultório do {medico_nome}, por favor."
 
     chamada = ChamadaPaciente(
-        paciente_nome=paciente_nome or "Paciente",
+        paciente_nome=paciente_nome,
         medico_nome=medico_nome,
-        consultorio=consultorio,
+        consultorio=medico_nome[:50],
         status="chamando"
     )
 
-    # Mantém o agendamento como chamado para a equipe saber que o paciente já foi chamado.
     agendamento.status = "Chamado"
 
     db.session.add(chamada)
     db.session.commit()
 
-    flash(f"Paciente {chamada.paciente_nome} chamado para o consultório do Dr. {medico_nome}.")
-    return redirect(url_for("agendamentos"))
+    nome_arquivo = f"chamada_{chamada.id}_{uuid.uuid4().hex[:8]}.mp3"
+    gerar_audio_chamada(texto_chamada, nome_arquivo)
 
+    flash(f"Paciente {chamada.paciente_nome} chamado no painel da recepção.")
+    return redirect(url_for("agendamentos"))
 
 @app.route("/painel-tv")
 def painel_tv():
@@ -1289,12 +1341,24 @@ def api_ultima_chamada():
     if not chamada:
         return jsonify({"existe": False})
 
+    audio_url = None
+    pasta = os.path.join(app.static_folder, "chamadas")
+
+    if os.path.exists(pasta):
+        prefixo = f"chamada_{chamada.id}_"
+        arquivos = [arquivo for arquivo in os.listdir(pasta) if arquivo.startswith(prefixo) and arquivo.endswith(".mp3")]
+
+        if arquivos:
+            arquivos.sort(reverse=True)
+            audio_url = f"/static/chamadas/{arquivos[0]}"
+
     return jsonify({
         "existe": True,
         "id": chamada.id,
         "paciente_nome": chamada.paciente_nome,
         "medico_nome": chamada.medico_nome,
-        "consultorio": chamada.consultorio
+        "consultorio": chamada.consultorio,
+        "audio_url": audio_url
     })
 
 
