@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Chamada - ClínicaSys</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(20, 184, 166, 0.35), transparent 35%),
+                radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.22), transparent 30%),
+                linear-gradient(135deg, #042f35 0%, #064e55 42%, #0f172a 100%);
+            color: white;
+        }
+
+        .screen {
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            padding: 42px 60px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .brand-logo {
+            width: 92px;
+            height: 92px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.96);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .brand-logo img {
+            width: 78px;
+            height: 78px;
+            object-fit: contain;
+        }
+
+        .brand-logo-fallback {
+            color: #0f766e;
+            font-size: 42px;
+            font-weight: 900;
+        }
+
+        .brand-text span {
+            display: block;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: #99f6e4;
+            margin-bottom: 6px;
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .clock-box {
+            text-align: right;
+        }
+
+        .clock-box strong {
+            display: block;
+            font-size: 46px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .clock-box span {
+            display: block;
+            font-size: 18px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-top: 6px;
+        }
+
+        .main-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .call-card {
+            width: min(1120px, 96%);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.13);
+            backdrop-filter: blur(18px);
+            border-radius: 42px;
+            padding: 58px 60px;
+            box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .call-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent 45%);
+            pointer-events: none;
+        }
+
+        .badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 26px;
+            border-radius: 999px;
+            background: rgba(20, 184, 166, 0.25);
+            border: 1px solid rgba(153, 246, 228, 0.45);
+            color: #ccfbf1;
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            margin-bottom: 42px;
+        }
+
+        .pulse-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #2dd4bf;
+            box-shadow: 0 0 0 rgba(45, 212, 191, 0.7);
+            animation: pulse 1.5s infinite;
+        }
+
+        .label {
+            position: relative;
+            font-size: 28px;
+            color: #d1fae5;
+            font-weight: 800;
+            margin-bottom: 22px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .patient-name {
+            position: relative;
+            font-size: clamp(64px, 8vw, 118px);
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: -3px;
+            text-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
+            margin-bottom: 42px;
+            word-break: break-word;
+        }
+
+        .room-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 46px;
+            border-radius: 24px;
+            background: #ffffff;
+            color: #0f766e;
+            font-size: clamp(36px, 4vw, 58px);
+            font-weight: 900;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+            margin-bottom: 30px;
+        }
+
+        .doctor-name {
+            position: relative;
+            color: #cbd5e1;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .waiting {
+            color: #e2e8f0;
+            font-size: 54px;
+            font-weight: 900;
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            color: #cbd5e1;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .status-line {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .flash {
+            animation: flash 0.9s ease;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.65); }
+            70% { box-shadow: 0 0 0 18px rgba(45, 212, 191, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+        }
+
+        @keyframes flash {
+            0% { transform: scale(0.98); opacity: 0.65; }
+            45% { transform: scale(1.03); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="screen">
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-logo">
+                    <img src="/static/img/logo2.png" alt="Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;brand-logo-fallback&quot;>CS</div>'">
+                </div>
+                <div class="brand-text">
+                    <span>Painel de atendimento</span>
+                    <strong>Clínica Essencial</strong>
+                </div>
+            </div>
+
+            <div class="clock-box">
+                <strong id="hora">--:--</strong>
+                <span id="data">--/--/----</span>
+            </div>
+        </header>
+
+        <main class="main-panel">
+            <section class="call-card" id="callCard">
+                <div class="badge">
+                    <span class="pulse-dot"></span>
+                    Paciente chamado
+                </div>
+
+                <div class="label">Aguardando chamada</div>
+                <div class="patient-name" id="paciente">Aguardando...</div>
+                <div class="room-box" id="consultorio">Recepção</div>
+                <div class="doctor-name" id="medico">Aguarde sua vez</div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <div class="status-line">
+                <span class="pulse-dot"></span>
+                Sistema conectado ao atendimento
+            </div>
+            <div>Por favor, aguarde ser chamado</div>
+        </footer>
+    </div>
+
+    <script>
+        let ultimaChamadaId = null;
+        let audioLiberado = false;
+
+        function atualizarRelogio() {
+            const agora = new Date();
+            document.getElementById("hora").innerText = agora.toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+            document.getElementById("data").innerText = agora.toLocaleDateString("pt-BR", {
+                weekday: "long",
+                day: "2-digit",
+                month: "long",
+                year: "numeric"
+            });
+        }
+
+        function liberarAudio() {
+            audioLiberado = true;
+            const teste = new SpeechSynthesisUtterance("");
+            teste.lang = "pt-BR";
+            window.speechSynthesis.speak(teste);
+        }
+
+        document.addEventListener("click", liberarAudio, { once: true });
+        document.addEventListener("touchstart", liberarAudio, { once: true });
+
+        function tocarSino() {
+            try {
+                const contexto = new (window.AudioContext || window.webkitAudioContext)();
+                const oscilador = contexto.createOscillator();
+                const ganho = contexto.createGain();
+
+                oscilador.type = "sine";
+                oscilador.frequency.setValueAtTime(880, contexto.currentTime);
+                ganho.gain.setValueAtTime(0.001, contexto.currentTime);
+                ganho.gain.exponentialRampToValueAtTime(0.25, contexto.currentTime + 0.03);
+                ganho.gain.exponentialRampToValueAtTime(0.001, contexto.currentTime + 0.8);
+
+                oscilador.connect(ganho);
+                ganho.connect(contexto.destination);
+                oscilador.start();
+                oscilador.stop(contexto.currentTime + 0.85);
+            } catch (erro) {
+                console.log("Áudio indisponível:", erro);
+            }
+        }
+
+        function falar(texto) {
+            if (!audioLiberado) {
+                console.log("Clique uma vez na tela para liberar a voz do navegador.");
+            }
+
+            try {
+                window.speechSynthesis.cancel();
+                const voz = new SpeechSynthesisUtterance(texto);
+                voz.lang = "pt-BR";
+                voz.rate = 0.86;
+                voz.pitch = 1;
+                voz.volume = 1;
+                window.speechSynthesis.speak(voz);
+            } catch (erro) {
+                console.log("Erro na fala:", erro);
+            }
+        }
+
+        function animarCard() {
+            const card = document.getElementById("callCard");
+            card.classList.remove("flash");
+            void card.offsetWidth;
+            card.classList.add("flash");
+        }
+
+        async function buscarChamada() {
+            try {
+                const resposta = await fetch("/api/ultima-chamada", { cache: "no-store" });
+                const dados = await resposta.json();
+
+                if (!dados.existe) {
+                    return;
+                }
+
+                if (dados.id !== ultimaChamadaId) {
+                    ultimaChamadaId = dados.id;
+
+                    const paciente = dados.paciente_nome || "Paciente";
+                    const consultorio = dados.consultorio || "Consultório";
+                    const medico = dados.medico_nome || "";
+
+                    document.getElementById("paciente").innerText = paciente;
+                    document.getElementById("consultorio").innerText = consultorio;
+                    document.getElementById("medico").innerText = medico ? medico : "Atendimento médico";
+
+                    animarCard();
+                    tocarSino();
+
+                    setTimeout(function () {
+                        falar(`${paciente}, ${consultorio}, por favor.`);
+                    }, 450);
+                }
+            } catch (erro) {
+                console.log("Erro ao buscar chamada:", erro);
+            }
+        }
+
+        atualizarRelogio();
+        setInterval(atualizarRelogio, 1000);
+        buscarChamada();
+        setInterval(buscarChamada, 2500);
+    </script>
+</body>
+</html>

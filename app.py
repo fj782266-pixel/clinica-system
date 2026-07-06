@@ -174,7 +174,13 @@ class Autorizacao(db.Model):
     assinatura = db.Column(db.Text)
     aceite = db.Column(db.Boolean, default=False)
 
-
+class ChamadaPaciente(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    paciente_nome = db.Column(db.String(120), nullable=False)
+    medico_nome = db.Column(db.String(120))
+    consultorio = db.Column(db.String(50))
+    status = db.Column(db.String(20), default="chamando")
+    criada_em = db.Column(db.DateTime, default=datetime.utcnow)
 # ============================================================
 # FUNÇÕES AUXILIARES
 # ============================================================
@@ -378,6 +384,7 @@ def bloquear_telas_medico():
         "finalizar_agendamento",
         "cancelar_agendamento",
         "editar_agendamento",
+        "chamar_paciente",
         "receitas",
         "atestados",
         "static",
@@ -1226,6 +1233,64 @@ def atestados():
 def recuperacoes():
     pedidos = RecuperacaoSenha.query.all()
     return render_template("recuperacoes.html", pedidos=pedidos)
+
+from datetime import datetime
+
+@app.route("/chamar-paciente/<int:agendamento_id>", methods=["POST"])
+@login_obrigatorio
+def chamar_paciente(agendamento_id):
+    agendamento = Agendamento.query.get_or_404(agendamento_id)
+
+    if not medico_pode_acessar_agendamento(agendamento):
+        flash("Você não tem permissão para chamar este paciente.")
+        return redirect(url_for("agendamentos"))
+
+    paciente_nome = agendamento.cliente_nome
+
+    if not paciente_nome and agendamento.paciente:
+        paciente_nome = agendamento.paciente.nome
+
+    medico_nome = agendamento.profissional.nome if agendamento.profissional else ""
+    consultorio = request.form.get("consultorio") or "Consultório 2"
+
+    chamada = ChamadaPaciente(
+        paciente_nome=paciente_nome or "Paciente",
+        medico_nome=medico_nome,
+        consultorio=consultorio,
+        status="chamando"
+    )
+
+    agendamento.status = "Chamado"
+
+    db.session.add(chamada)
+    db.session.commit()
+
+    flash(f"Paciente {chamada.paciente_nome} chamado no painel da recepção.")
+    return redirect(url_for("agendamentos"))
+
+
+@app.route("/painel-tv")
+def painel_tv():
+    if not session.get("logado"):
+        return redirect("/login")
+
+    return render_template("painel_tv.html")
+
+
+@app.route("/api/ultima-chamada")
+def api_ultima_chamada():
+    chamada = ChamadaPaciente.query.order_by(ChamadaPaciente.id.desc()).first()
+
+    if not chamada:
+        return jsonify({"existe": False})
+
+    return jsonify({
+        "existe": True,
+        "id": chamada.id,
+        "paciente_nome": chamada.paciente_nome,
+        "medico_nome": chamada.medico_nome,
+        "consultorio": chamada.consultorio
+    })
 
 
 # ============================================================

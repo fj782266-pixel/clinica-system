@@ -801,6 +801,18 @@
             color: #ef4444;
         }
 
+        .action-btn.call {
+            border: 1px solid #2563eb;
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .call-form {
+            margin: 0;
+            padding: 0;
+            display: inline-flex;
+        }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
@@ -1486,6 +1498,7 @@
                                 <label>Situação <span class="required">*</span></label>
                                 <select name="status" required>
                                     <option value="Aguardando">Aguardando</option>
+                                    <option value="Chamado">Chamado</option>
                                     <option value="Finalizado">Finalizado</option>
                                     <option value="Cancelado">Cancelado</option>
                                 </select>
@@ -1698,6 +1711,7 @@
                             <form method="POST" action="/agendamento/status/{{ ag.id }}">
                                 <select name="status" class="status-select" onchange="this.form.submit()">
                                     <option value="Aguardando" {% if ag.status == 'Aguardando' %}selected{% endif %}>Aguardando</option>
+                                    <option value="Chamado" {% if ag.status == 'Chamado' %}selected{% endif %}>Chamado</option>
                                     <option value="Finalizado" {% if ag.status == 'Finalizado' %}selected{% endif %}>Finalizado</option>
                                     <option value="Cancelado" {% if ag.status == 'Cancelado' %}selected{% endif %}>Cancelado</option>
                                 </select>
@@ -1706,6 +1720,16 @@
 
                         <td>
                             <div class="action-buttons">
+                                <form method="POST"
+                                      action="/chamar-paciente/{{ ag.id }}"
+                                      class="call-form"
+                                      onsubmit="return confirm('Chamar este paciente no painel da TV?')">
+                                    <input type="hidden" name="consultorio" value="Consultório 2">
+                                    <button type="submit" class="action-btn call" title="Chamar Paciente">
+                                        <i class="bi bi-megaphone-fill"></i>
+                                    </button>
+                                </form>
+
                                 <button type="button"
                                         class="action-btn view"
                                         title="Visualizar"
@@ -2042,6 +2066,7 @@
                             <label>Situação <span class="required">*</span></label>
                             <select name="status" id="edit_status" required>
                                 <option value="Aguardando">Aguardando</option>
+                                <option value="Chamado">Chamado</option>
                                 <option value="Finalizado">Finalizado</option>
                                 <option value="Cancelado">Cancelado</option>
                             </select>
