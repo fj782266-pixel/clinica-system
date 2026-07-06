@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Chamada - ClínicaSys</title>
+    <title>Painel de Chamada - Clínica Essencial</title>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -18,25 +18,44 @@
         body {
             min-height: 100vh;
             overflow: hidden;
+            color: #082f36;
             background:
-                radial-gradient(circle at top left, rgba(20, 184, 166, 0.35), transparent 35%),
-                radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.22), transparent 30%),
-                linear-gradient(135deg, #042f35 0%, #064e55 42%, #0f172a 100%);
-            color: white;
+                radial-gradient(circle at top left, rgba(20, 184, 166, 0.35), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.35), transparent 34%),
+                linear-gradient(135deg, #ecfeff 0%, #f8fafc 45%, #dff7f4 100%);
         }
 
         .screen {
             min-height: 100vh;
             display: grid;
             grid-template-rows: auto 1fr auto;
-            padding: 42px 60px;
+            padding: 36px 58px 28px;
+            gap: 24px;
+            position: relative;
+        }
+
+        .screen::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(120deg, rgba(15, 118, 110, 0.95) 0%, rgba(15, 118, 110, 0.88) 17%, transparent 17.2%),
+                linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+            pointer-events: none;
+        }
+
+        .topbar,
+        .main,
+        .footer {
+            position: relative;
+            z-index: 2;
         }
 
         .topbar {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            justify-content: space-between;
-            gap: 30px;
+            gap: 28px;
         }
 
         .brand {
@@ -45,254 +64,695 @@
             gap: 22px;
         }
 
-        .brand-logo {
-            width: 92px;
-            height: 92px;
+        .brand-card {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: rgba(255, 255, 255, 0.88);
             border-radius: 28px;
-            background: rgba(255, 255, 255, 0.96);
+            padding: 18px 28px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+            backdrop-filter: blur(14px);
+        }
+
+        .brand-logo {
+            width: 74px;
+            height: 74px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #0f766e, #14b8a6);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
             overflow: hidden;
+            color: white;
+            font-size: 34px;
+            font-weight: 900;
         }
 
         .brand-logo img {
-            width: 78px;
-            height: 78px;
+            width: 68px;
+            height: 68px;
             object-fit: contain;
-        }
-
-        .brand-logo-fallback {
-            color: #0f766e;
-            font-size: 42px;
-            font-weight: 900;
         }
 
         .brand-text span {
             display: block;
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 700;
-            letter-spacing: 2.5px;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            color: #99f6e4;
-            margin-bottom: 6px;
+            color: #0f766e;
         }
 
         .brand-text strong {
             display: block;
-            font-size: 42px;
+            font-size: 36px;
             font-weight: 900;
+            color: #083344;
             letter-spacing: -1px;
         }
 
-        .clock-box {
-            text-align: right;
+        .title-pill {
+            height: 86px;
+            min-width: 530px;
+            padding: 0 46px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #083344, #0f766e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.22);
+            text-transform: uppercase;
+            letter-spacing: 7px;
+            font-size: 25px;
+            font-weight: 900;
+        }
+
+        .title-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            border: 2px solid rgba(153, 246, 228, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clock-card {
+            justify-self: end;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            border-radius: 28px;
+            padding: 20px 34px;
+            min-width: 310px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .clock-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 4px solid #0f766e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0f766e;
         }
 
         .clock-box strong {
             display: block;
-            font-size: 46px;
+            font-size: 48px;
+            line-height: 1;
             font-weight: 900;
+            color: #082f49;
             letter-spacing: -1px;
         }
 
         .clock-box span {
             display: block;
-            font-size: 18px;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-top: 6px;
+            margin-top: 8px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #334155;
         }
 
-        .main-panel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+        .main {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 28px;
+            align-items: stretch;
         }
 
         .call-card {
-            width: min(1120px, 96%);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            background: rgba(255, 255, 255, 0.13);
+            background: rgba(255, 255, 255, 0.88);
+            border-radius: 44px;
+            box-shadow: 0 30px 75px rgba(15, 23, 42, 0.16);
             backdrop-filter: blur(18px);
-            border-radius: 42px;
-            padding: 58px 60px;
-            box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
-            position: relative;
+            padding: 46px 62px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.9);
         }
 
         .call-card::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent 45%);
+            background:
+                radial-gradient(circle at center, rgba(20, 184, 166, 0.11), transparent 34%),
+                linear-gradient(135deg, rgba(255,255,255,0.85), transparent 45%);
             pointer-events: none;
+        }
+
+        .call-card::after {
+            content: "";
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: rgba(15, 118, 110, 0.06);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .badge {
             position: relative;
+            z-index: 2;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 14px 26px;
+            gap: 18px;
+            padding: 16px 36px;
             border-radius: 999px;
-            background: rgba(20, 184, 166, 0.25);
-            border: 1px solid rgba(153, 246, 228, 0.45);
-            color: #ccfbf1;
-            font-size: 20px;
+            background: linear-gradient(135deg, #0f766e, #0d9488);
+            color: white;
+            font-size: 28px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 1.8px;
-            margin-bottom: 42px;
+            letter-spacing: 2px;
+            margin-bottom: 38px;
+            box-shadow: 0 16px 34px rgba(15, 118, 110, 0.36);
         }
 
-        .pulse-dot {
-            width: 14px;
-            height: 14px;
+        .bell {
+            width: 58px;
+            height: 58px;
+            margin-left: -20px;
             border-radius: 50%;
-            background: #2dd4bf;
-            box-shadow: 0 0 0 rgba(45, 212, 191, 0.7);
-            animation: pulse 1.5s infinite;
+            background: radial-gradient(circle, #2dd4bf, #0f766e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 28px rgba(45, 212, 191, 0.8);
+            animation: pulseGlow 1.5s infinite;
         }
 
         .label {
             position: relative;
-            font-size: 28px;
-            color: #d1fae5;
-            font-weight: 800;
-            margin-bottom: 22px;
+            z-index: 2;
+            font-size: 30px;
+            color: #0f766e;
+            font-weight: 900;
+            margin-bottom: 24px;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 7px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
         }
+
+        .label::before,
+        .label::after {
+            content: "";
+            width: 130px;
+            height: 2px;
+            background: #5eead4;
+        }
+
+        .sound-wave {
+            position: relative;
+            z-index: 2;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .sound-wave span {
+            width: 6px;
+            border-radius: 999px;
+            background: #14b8a6;
+            animation: wave 1.1s infinite ease-in-out;
+        }
+
+        .sound-wave span:nth-child(1) { height: 14px; animation-delay: 0s; }
+        .sound-wave span:nth-child(2) { height: 28px; animation-delay: .1s; }
+        .sound-wave span:nth-child(3) { height: 42px; animation-delay: .2s; }
+        .sound-wave span:nth-child(4) { height: 24px; animation-delay: .3s; }
+        .sound-wave span:nth-child(5) { height: 34px; animation-delay: .4s; }
 
         .patient-name {
             position: relative;
-            font-size: clamp(64px, 8vw, 118px);
-            line-height: 1;
+            z-index: 2;
+            font-size: clamp(74px, 8.5vw, 138px);
+            line-height: 0.95;
+            text-align: center;
             font-weight: 900;
-            letter-spacing: -3px;
-            text-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
-            margin-bottom: 42px;
+            color: #082f49;
+            letter-spacing: -5px;
+            margin-bottom: 48px;
+            max-width: 100%;
+            text-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
             word-break: break-word;
         }
 
         .room-box {
             position: relative;
-            display: inline-flex;
+            z-index: 2;
+            width: min(760px, 94%);
+            min-height: 100px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #e6fffb, #ffffff);
+            border: 1px solid rgba(20, 184, 166, 0.28);
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px 46px;
-            border-radius: 24px;
-            background: #ffffff;
+            gap: 22px;
+            padding: 24px 36px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7), 0 16px 34px rgba(15,23,42,0.09);
+        }
+
+        .room-icon {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: #0f766e;
-            font-size: clamp(36px, 4vw, 58px);
-            font-weight: 900;
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
-            margin-bottom: 30px;
+            flex: 0 0 auto;
+            box-shadow: 0 10px 22px rgba(15, 118, 110, 0.14);
         }
 
-        .doctor-name {
-            position: relative;
-            color: #cbd5e1;
-            font-size: 28px;
+        .room-info {
+            text-align: left;
+        }
+
+        .room-info strong {
+            display: block;
+            font-size: clamp(28px, 3vw, 42px);
+            color: #0f766e;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .room-info span {
+            display: block;
+            margin-top: 8px;
+            font-size: 24px;
             font-weight: 700;
+            color: #334155;
         }
 
-        .waiting {
-            color: #e2e8f0;
-            font-size: 54px;
+        .side-card {
+            background: linear-gradient(180deg, #083344, #0f766e);
+            border-radius: 34px;
+            color: white;
+            padding: 34px 30px;
+            box-shadow: 0 26px 60px rgba(15, 23, 42, 0.22);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 22px;
+        }
+
+        .side-title {
+            font-size: 28px;
             font-weight: 900;
+            line-height: 1.2;
+            text-transform: uppercase;
+            color: #ccfbf1;
+        }
+
+        .info-item {
+            display: grid;
+            grid-template-columns: 64px 1fr;
+            gap: 18px;
+            align-items: center;
+            padding: 22px 0;
+            border-top: 1px solid rgba(153, 246, 228, 0.22);
+        }
+
+        .info-icon {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: rgba(20, 184, 166, 0.22);
+            border: 1px solid rgba(153, 246, 228, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #99f6e4;
+            box-shadow: 0 0 26px rgba(45, 212, 191, 0.24);
+        }
+
+        .info-item strong {
+            display: block;
+            font-size: 22px;
+            font-weight: 900;
+            text-transform: uppercase;
+            line-height: 1.15;
+        }
+
+        .info-item span {
+            display: block;
+            margin-top: 8px;
+            font-size: 17px;
+            line-height: 1.35;
+            color: #d9fffa;
+        }
+
+        .thanks {
+            text-align: center;
+            color: #99f6e4;
+            font-size: 24px;
+            font-weight: 800;
+            margin-top: 8px;
         }
 
         .footer {
-            display: flex;
+            min-height: 92px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #083344, #064e3b);
+            color: white;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             align-items: center;
-            justify-content: space-between;
-            gap: 24px;
-            color: #cbd5e1;
-            font-size: 20px;
-            font-weight: 700;
+            overflow: hidden;
         }
 
-        .status-line {
+        .footer-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 18px;
+            padding: 0 34px;
+            min-height: 92px;
+            border-right: 1px solid rgba(255,255,255,0.18);
+        }
+
+        .footer-item:last-child {
+            border-right: none;
+        }
+
+        .footer-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccfbf1;
+            flex: 0 0 auto;
+        }
+
+        .footer-item strong {
+            display: block;
+            font-size: 22px;
+            color: #2dd4bf;
+            font-weight: 900;
+        }
+
+        .footer-item span {
+            display: block;
+            margin-top: 4px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #e2e8f0;
         }
 
         .flash {
-            animation: flash 0.9s ease;
+            animation: flash 1s ease;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.65); }
-            70% { box-shadow: 0 0 0 18px rgba(45, 212, 191, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0); }
+        .flash .patient-name {
+            animation: patientIn 1s ease;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.65), 0 0 28px rgba(45, 212, 191, 0.8); }
+            70% { box-shadow: 0 0 0 22px rgba(45, 212, 191, 0), 0 0 28px rgba(45, 212, 191, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0), 0 0 28px rgba(45, 212, 191, 0.8); }
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: scaleY(0.55); opacity: 0.65; }
+            50% { transform: scaleY(1.15); opacity: 1; }
         }
 
         @keyframes flash {
-            0% { transform: scale(0.98); opacity: 0.65; }
-            45% { transform: scale(1.03); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(0.985); filter: brightness(1); }
+            45% { transform: scale(1.012); filter: brightness(1.08); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        @keyframes patientIn {
+            0% { opacity: 0; transform: translateY(24px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (max-width: 1300px) {
+            .screen {
+                padding: 28px 34px;
+            }
+
+            .topbar {
+                grid-template-columns: 1fr auto;
+            }
+
+            .title-pill {
+                display: none;
+            }
+
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .side-card {
+                display: none;
+            }
+
+            .patient-name {
+                font-size: clamp(72px, 10vw, 130px);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .topbar {
+                grid-template-columns: 1fr;
+            }
+
+            .clock-card {
+                justify-self: start;
+            }
+
+            .footer {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .footer-item {
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.18);
+            }
+
+            .footer-item:last-child {
+                border-bottom: none;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="screen">
+
         <header class="topbar">
             <div class="brand">
-                <div class="brand-logo">
-                    <img src="/static/img/logo2.png" alt="Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;brand-logo-fallback&quot;>CS</div>'">
-                </div>
-                <div class="brand-text">
-                    <span>Painel de atendimento</span>
-                    <strong>Clínica Essencial</strong>
+                <div class="brand-card">
+                    <div class="brand-logo">
+                        <img src="/static/img/logo2.png" alt="Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='CS'">
+                    </div>
+
+                    <div class="brand-text">
+                        <span>Clínica</span>
+                        <strong>Essencial</strong>
+                    </div>
                 </div>
             </div>
 
-            <div class="clock-box">
-                <strong id="hora">--:--</strong>
-                <span id="data">--/--/----</span>
+            <div class="title-pill">
+                <div class="title-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 5h16v11H4V5Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9 21h6M12 16v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M16 9l3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                Painel de Atendimento
+            </div>
+
+            <div class="clock-card">
+                <div class="clock-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+
+                <div class="clock-box">
+                    <strong id="hora">--:--</strong>
+                    <span id="data">--/--/----</span>
+                </div>
             </div>
         </header>
 
-        <main class="main-panel">
+        <main class="main">
             <section class="call-card" id="callCard">
                 <div class="badge">
-                    <span class="pulse-dot"></span>
-                    Paciente chamado
+                    <div class="bell">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                            <path d="M15 17H9m9-1V11a6 6 0 1 0-12 0v5l-2 2h16l-2-2Z" fill="white"/>
+                            <path d="M10 20a2 2 0 0 0 4 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    Paciente Chamado
                 </div>
 
-                <div class="label">Aguardando chamada</div>
+                <div class="label">Aguardando Chamada</div>
+
+                <div class="sound-wave">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
                 <div class="patient-name" id="paciente">Aguardando...</div>
-                <div class="room-box" id="consultorio">Recepção</div>
-                <div class="doctor-name" id="medico">Aguarde sua vez</div>
+
+                <div class="room-box">
+                    <div class="room-icon">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M19 8v4M17 10h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <div class="room-info">
+                        <strong id="consultorio">Recepção</strong>
+                        <span id="medico">Aguarde sua vez</span>
+                    </div>
+                </div>
             </section>
+
+            <aside class="side-card">
+                <div class="side-title">
+                    Sua saúde é nossa prioridade
+                </div>
+
+                <div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                                <path d="M20.8 8.6c0 5.2-8.8 10.4-8.8 10.4S3.2 13.8 3.2 8.6A4.6 4.6 0 0 1 12 6.7a4.6 4.6 0 0 1 8.8 1.9Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M7 12h3l1-2 2 5 1-3h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <strong>Atendimento humanizado</strong>
+                            <span>Cada paciente é único para nós.</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 3 5 6v5c0 4.5 3 8.5 7 10 4-1.5 7-5.5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="2"/>
+                                <path d="m9 12 2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <strong>Segurança e confiança</strong>
+                            <span>Ambiente seguro e equipe qualificada.</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                                <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <strong>Organização e eficiência</strong>
+                            <span>Mais agilidade para seu atendimento.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="thanks">Obrigado pela confiança!</div>
+            </aside>
         </main>
 
         <footer class="footer">
-            <div class="status-line">
-                <span class="pulse-dot"></span>
-                Sistema conectado ao atendimento
+            <div class="footer-item">
+                <div class="footer-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <strong>Seja bem-vindo!</strong>
+                    <span>Estamos aqui para cuidar de você.</span>
+                </div>
             </div>
-            <div>Por favor, aguarde ser chamado</div>
+
+            <div class="footer-item">
+                <div class="footer-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <strong>Aguarde com tranquilidade.</strong>
+                    <span>Em breve será a sua vez!</span>
+                </div>
+            </div>
+
+            <div class="footer-item">
+                <div class="footer-icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <path d="M21 12a8 8 0 0 1-8 8H7l-4 2 2-4a8 8 0 1 1 16-6Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 12h8M8 9h8M8 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <strong>Dúvidas?</strong>
+                    <span>Fale com nossa equipe na recepção.</span>
+                </div>
+            </div>
         </footer>
     </div>
 
     <script>
         let ultimaChamadaId = null;
         let audioLiberado = false;
+        let audioContextoGlobal = null;
 
         function atualizarRelogio() {
             const agora = new Date();
+
             document.getElementById("hora").innerText = agora.toLocaleTimeString("pt-BR", {
                 hour: "2-digit",
                 minute: "2-digit"
             });
+
             document.getElementById("data").innerText = agora.toLocaleDateString("pt-BR", {
                 weekday: "long",
                 day: "2-digit",
@@ -301,26 +761,17 @@
             });
         }
 
-        let audioContextoGlobal = null;
-
         function liberarAudio() {
             audioLiberado = true;
 
             try {
                 audioContextoGlobal = new (window.AudioContext || window.webkitAudioContext)();
+
                 if (audioContextoGlobal.state === "suspended") {
                     audioContextoGlobal.resume();
                 }
             } catch (erro) {
                 console.log("AudioContext indisponível:", erro);
-            }
-
-            try {
-                const aviso = new Audio();
-                aviso.src = "";
-                aviso.volume = 1;
-            } catch (erro) {
-                console.log("Pré-liberação de áudio indisponível:", erro);
             }
 
             console.log("Som do painel liberado.");
@@ -337,14 +788,16 @@
 
                 oscilador.type = "sine";
                 oscilador.frequency.setValueAtTime(880, contexto.currentTime);
+
                 ganho.gain.setValueAtTime(0.001, contexto.currentTime);
-                ganho.gain.exponentialRampToValueAtTime(0.25, contexto.currentTime + 0.03);
-                ganho.gain.exponentialRampToValueAtTime(0.001, contexto.currentTime + 0.8);
+                ganho.gain.exponentialRampToValueAtTime(0.28, contexto.currentTime + 0.03);
+                ganho.gain.exponentialRampToValueAtTime(0.001, contexto.currentTime + 0.85);
 
                 oscilador.connect(ganho);
                 ganho.connect(contexto.destination);
+
                 oscilador.start();
-                oscilador.stop(contexto.currentTime + 0.85);
+                oscilador.stop(contexto.currentTime + 0.9);
             } catch (erro) {
                 console.log("Áudio indisponível:", erro);
             }
@@ -368,7 +821,7 @@
 
                 if (promessa !== undefined) {
                     promessa.catch(function (erro) {
-                        console.log("Navegador bloqueou o MP3, usando voz padrão como reserva:", erro);
+                        console.log("Navegador bloqueou o MP3, usando voz padrão:", erro);
                         falar(textoFallback);
                     });
                 }
@@ -381,11 +834,13 @@
         function falar(texto) {
             try {
                 window.speechSynthesis.cancel();
+
                 const voz = new SpeechSynthesisUtterance(texto);
                 voz.lang = "pt-BR";
                 voz.rate = 0.86;
                 voz.pitch = 1;
                 voz.volume = 1;
+
                 window.speechSynthesis.speak(voz);
             } catch (erro) {
                 console.log("Erro na fala:", erro);
@@ -394,9 +849,18 @@
 
         function animarCard() {
             const card = document.getElementById("callCard");
+
             card.classList.remove("flash");
             void card.offsetWidth;
             card.classList.add("flash");
+        }
+
+        function formatarDestino(medico) {
+            if (!medico) {
+                return "Recepção";
+            }
+
+            return "Consultório do " + medico;
         }
 
         async function buscarChamada() {
@@ -413,12 +877,12 @@
 
                     const paciente = dados.paciente_nome || "Paciente";
                     const medico = dados.medico_nome || "Médico";
-                    const destino = `Consultório do ${medico}`;
+                    const destino = formatarDestino(medico);
                     const textoFallback = `${paciente}, dirigir-se ao consultório do ${medico}, por favor.`;
 
                     document.getElementById("paciente").innerText = paciente;
                     document.getElementById("consultorio").innerText = destino;
-                    document.getElementById("medico").innerText = "Atendimento com " + medico;
+                    document.getElementById("medico").innerText = "Por favor, aguarde ser chamado.";
 
                     animarCard();
                     tocarSino();
@@ -434,6 +898,7 @@
 
         atualizarRelogio();
         setInterval(atualizarRelogio, 1000);
+
         buscarChamada();
         setInterval(buscarChamada, 2500);
     </script>
