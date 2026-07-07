@@ -1111,11 +1111,14 @@
 
                     const promessa = audio.play();
 
-                    if (promessa !== undefined) {
+                    if (promessa && typeof promessa.then === "function") {
                         promessa.catch(function (erro) {
                             console.log("Navegador bloqueou o MP3, usando voz padrão:", erro);
                             falar(textoFallback).then(resolve);
                         });
+                    } else {
+                        // Navegadores mais antigos podem não retornar Promise no audio.play().
+                        // Nesse caso, deixamos o onended resolver quando o áudio terminar.
                     }
                 } catch (erro) {
                     console.log("Erro ao tocar MP3:", erro);
@@ -1125,32 +1128,41 @@
         }
 
         function falar(texto) {
-    speechSynthesis.cancel();
+            return new Promise((resolve) => {
+                try {
+                    speechSynthesis.cancel();
 
-    const msg = new SpeechSynthesisUtterance(texto);
+                    const msg = new SpeechSynthesisUtterance(texto);
 
-    msg.lang = "pt-BR";
-    msg.rate = 0.95;
-    msg.pitch = 1;
-    msg.volume = 1;
+                    msg.lang = "pt-BR";
+                    msg.rate = 0.92;
+                    msg.pitch = 1;
+                    msg.volume = 1;
 
-    const vozes = speechSynthesis.getVoices();
+                    const vozes = speechSynthesis.getVoices();
 
-    // Prioridade 1: Google PT-BR
-    msg.voice =
-        vozes.find(v => v.name === "Google português do Brasil") ||
+                    msg.voice =
+                        vozes.find(v => v.name === "Google português do Brasil") ||
+                        vozes.find(v => v.name.includes("Maria")) ||
+                        vozes.find(v => v.name.includes("Daniel")) ||
+                        vozes.find(v => v.lang === "pt-BR");
 
-        // Prioridade 2: Microsoft Maria
-        vozes.find(v => v.name.includes("Maria")) ||
+                    msg.onend = function () {
+                        resolve();
+                    };
 
-        // Prioridade 3: Microsoft Daniel
-        vozes.find(v => v.name.includes("Daniel")) ||
+                    msg.onerror = function () {
+                        console.log("Erro na voz padrão.");
+                        resolve();
+                    };
 
-        // Qualquer PT-BR
-        vozes.find(v => v.lang === "pt-BR");
-
-    speechSynthesis.speak(msg);
-}
+                    speechSynthesis.speak(msg);
+                } catch (erro) {
+                    console.log("Erro ao falar:", erro);
+                    resolve();
+                }
+            });
+        }
 
         async function repetirChamadaTresVezes(urlAudio, textoFallback) {
             for (let tentativa = 1; tentativa <= 3; tentativa++) {
@@ -1202,7 +1214,9 @@
                     document.getElementById("medico").innerText = "Por favor, aguarde ser chamado.";
 
                     animarCard();
-                    repetirChamadaTresVezes(dados.audio_url, textoFallback);
+                    repetirChamadaTresVezes(dados.audio_url, textoFallback).catch((erro) => {
+                        console.log("Erro ao repetir chamada:", erro);
+                    });
                 }
             } catch (erro) {
                 console.log("Erro ao buscar chamada:", erro);
