@@ -1163,12 +1163,24 @@
                     document.getElementById("medico").innerText = "Por favor, aguarde ser chamado.";
 
                     animarCard();
-                    tocarSino();
 
-                    setTimeout(function () {
-                        tocarAudioMp3(dados.audio_url, textoFallback);
-                    }, 450);
-                }
+// Primeira chamada
+tocarSino();
+setTimeout(() => {
+    tocarAudioMp3(dados.audio_url, textoFallback);
+}, 500);
+
+// Segunda chamada (4 segundos depois)
+setTimeout(() => {
+    tocarSino();
+    tocarAudioMp3(dados.audio_url, textoFallback);
+}, 4500);
+
+// Terceira chamada (8 segundos depois)
+setTimeout(() => {
+    tocarSino();
+    tocarAudioMp3(dados.audio_url, textoFallback);
+}, 8500);
             } catch (erro) {
                 console.log("Erro ao buscar chamada:", erro);
             }
