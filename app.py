@@ -325,7 +325,7 @@ def garantir_pasta_chamadas():
 async def gerar_audio_chamada_async(texto, caminho_audio):
     communicate = edge_tts.Communicate(
         texto,
-        voice="pt-BR-ThalitaMultilingualNeural",
+       voice="pt-BR-FranciscaNeural",
         rate="-10%",
         volume="+10%"
     )
