@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, jsonify, flash, url_for
+from flask import Flask, render_template, request, redirect, session, jsonify, flash, url_for, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -215,6 +215,33 @@ def admin_obrigatorio(f):
     return verificar_admin
 
 
+def usuario_eh_tv():
+    return session.get("tipo") == "tv"
+
+
+def exige_tipo(*tipos_permitidos):
+    def decorator(f):
+        @wraps(f)
+        def verificar_tipo(*args, **kwargs):
+            if not session.get("logado"):
+                return redirect(url_for("login"))
+
+            if session.get("tipo") not in tipos_permitidos:
+                flash("Você não tem permissão para acessar essa área.")
+
+                if session.get("tipo") == "tv":
+                    return redirect(url_for("painel_tv"))
+
+                if session.get("tipo") == "medico":
+                    return redirect(url_for("agendamentos"))
+
+                return redirect(url_for("home"))
+
+            return f(*args, **kwargs)
+        return verificar_tipo
+    return decorator
+
+
 def usuario_eh_medico():
     return session.get("tipo") == "medico"
 
@@ -363,6 +390,9 @@ def garantir_colunas_usuario():
 
     colunas = [coluna["name"] for coluna in inspector.get_columns("usuario")]
 
+    if "tipo" not in colunas:
+        db.session.execute(text("ALTER TABLE usuario ADD COLUMN tipo VARCHAR(20) DEFAULT 'recepcao'"))
+
     if "profissional_id" not in colunas:
         db.session.execute(text("ALTER TABLE usuario ADD COLUMN profissional_id INTEGER"))
 
@@ -417,6 +447,26 @@ def proteger_rotas():
 
     if not session.get("logado"):
         return redirect("/login")
+
+
+@app.before_request
+def bloquear_telas_tv():
+    if not session.get("logado"):
+        return
+
+    if session.get("tipo") != "tv":
+        return
+
+    rotas_permitidas_tv = [
+        "painel_tv",
+        "api_ultima_chamada",
+        "logout",
+        "static",
+    ]
+
+    if request.endpoint not in rotas_permitidas_tv:
+        flash("Usuário da TV só pode acessar o painel da recepção.")
+        return redirect(url_for("painel_tv"))
 
 
 @app.before_request
@@ -475,7 +525,11 @@ def verificar_usuario():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if session.get("logado"):
-        return redirect("/")
+        if session.get("tipo") == "tv":
+            return redirect(url_for("painel_tv"))
+        if session.get("tipo") == "medico":
+            return redirect(url_for("agendamentos"))
+        return redirect(url_for("home"))
 
     if request.method == "POST":
         usuario = request.form.get("usuario")
@@ -494,7 +548,15 @@ def login():
             session["tipo"] = user.tipo or "recepcao"
             session["usuario_id"] = user.id
             session["profissional_id"] = user.profissional_id
-            return redirect("/")
+
+            # Redirecionamento por perfil de acesso
+            if session["tipo"] == "tv":
+                return redirect(url_for("painel_tv"))
+
+            if session["tipo"] == "medico":
+                return redirect(url_for("agendamentos"))
+
+            return redirect(url_for("home"))
 
         flash("Usuário ou senha inválidos.")
         return redirect("/login")
@@ -997,9 +1059,11 @@ def cancelar_agendamento(id):
 @app.route("/financeiro", methods=["GET", "POST"])
 @login_obrigatorio
 def financeiro():
-    if usuario_eh_medico():
-        flash("Médico não tem acesso ao financeiro.")
-        return redirect(url_for("agendamentos"))
+    if session.get("tipo") != "admin":
+        flash("Acesso ao financeiro permitido apenas para administrador.")
+        if session.get("tipo") == "medico":
+            return redirect(url_for("agendamentos"))
+        return redirect(url_for("home"))
 
     if request.method == "POST":
         financeiro_id = request.form.get("financeiro_id")
@@ -1076,8 +1140,8 @@ def financeiro():
 @app.route("/financeiro/visualizar/<int:id>")
 @login_obrigatorio
 def visualizar_financeiro(id):
-    if usuario_eh_medico():
-        return jsonify({"erro": "Médico não tem acesso ao financeiro."}), 403
+    if session.get("tipo") != "admin":
+        return jsonify({"erro": "Acesso ao financeiro permitido apenas para administrador."}), 403
 
     lancamento = Financeiro.query.get_or_404(id)
 
@@ -1106,9 +1170,11 @@ def visualizar_financeiro(id):
 @app.route("/financeiro/editar/<int:id>", methods=["GET", "POST"])
 @login_obrigatorio
 def editar_financeiro(id):
-    if usuario_eh_medico():
-        flash("Médico não tem acesso ao financeiro.")
-        return redirect(url_for("agendamentos"))
+    if session.get("tipo") != "admin":
+        flash("Acesso ao financeiro permitido apenas para administrador.")
+        if session.get("tipo") == "medico":
+            return redirect(url_for("agendamentos"))
+        return redirect(url_for("home"))
 
     lancamento = Financeiro.query.get_or_404(id)
 
@@ -1135,9 +1201,11 @@ def editar_financeiro(id):
 @app.route("/financeiro/excluir/<int:id>", methods=["POST", "GET"])
 @login_obrigatorio
 def excluir_financeiro(id):
-    if usuario_eh_medico():
-        flash("Médico não tem acesso ao financeiro.")
-        return redirect(url_for("agendamentos"))
+    if session.get("tipo") != "admin":
+        flash("Acesso ao financeiro permitido apenas para administrador.")
+        if session.get("tipo") == "medico":
+            return redirect(url_for("agendamentos"))
+        return redirect(url_for("home"))
 
     lancamento = Financeiro.query.get_or_404(id)
 
@@ -1252,6 +1320,34 @@ def bloquear_usuario(id):
     return redirect(url_for("usuarios"))
 
 
+@app.route("/criar-usuario-tv")
+@admin_obrigatorio
+def criar_usuario_tv():
+    usuario_existente = Usuario.query.filter_by(usuario="tv").first()
+
+    if usuario_existente:
+        usuario_existente.tipo = "tv"
+        usuario_existente.profissional_id = None
+        usuario_existente.ativo = True
+        db.session.commit()
+        flash("Usuário TV já existia e foi atualizado para o perfil TV.")
+        return redirect(url_for("usuarios"))
+
+    novo_usuario = Usuario(
+        usuario="tv",
+        senha=generate_password_hash("tv123456"),
+        tipo="tv",
+        profissional_id=None,
+        ativo=True
+    )
+
+    db.session.add(novo_usuario)
+    db.session.commit()
+
+    flash("Usuário TV criado com sucesso. Login: tv | Senha: tv123456")
+    return redirect(url_for("usuarios"))
+
+
 # ============================================================
 # RECEITAS / ATESTADOS
 # ============================================================
@@ -1327,9 +1423,11 @@ def chamar_paciente(agendamento_id):
     return redirect(url_for("agendamentos"))
 
 @app.route("/painel-tv")
+@login_obrigatorio
 def painel_tv():
-    if not session.get("logado"):
-        return redirect("/login")
+    if session.get("tipo") not in ["tv", "admin", "recepcao"]:
+        flash("Acesso permitido apenas para TV, recepção ou administrador.")
+        return redirect(url_for("agendamentos"))
 
     return render_template("painel_tv.html")
 
