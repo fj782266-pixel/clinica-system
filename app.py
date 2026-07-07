@@ -325,9 +325,9 @@ def garantir_pasta_chamadas():
 async def gerar_audio_chamada_async(texto, caminho_audio):
     communicate = edge_tts.Communicate(
         texto,
-        voice="pt-BR-FranciscaNeural",
-        rate="-5%",
-        volume="+0%"
+        voice="pt-BR-ThalitaMultilingualNeural",
+        rate="-10%",
+        volume="+10%"
     )
     await communicate.save(caminho_audio)
 
@@ -1402,7 +1402,11 @@ def chamar_paciente(agendamento_id):
         agendamento.profissional.nome if agendamento.profissional else "Médico"
     )
 
-    texto_chamada = f"{paciente_nome}, dirigir-se ao consultório do {medico_nome}, por favor."
+    texto_chamada = (
+    f"Atenção, senhor(a) {paciente_nome}. "
+    f"Favor dirigir-se ao consultório do {medico_nome}. "
+    f"Obrigado."
+)
 
     chamada = ChamadaPaciente(
         paciente_nome=paciente_nome,
