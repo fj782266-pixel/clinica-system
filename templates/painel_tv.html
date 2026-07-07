@@ -1125,31 +1125,32 @@
         }
 
         function falar(texto) {
-            return new Promise((resolve) => {
-                try {
-                    window.speechSynthesis.cancel();
+    speechSynthesis.cancel();
 
-                    const voz = new SpeechSynthesisUtterance(texto);
-                    voz.lang = "pt-BR";
-                    voz.rate = 0.86;
-                    voz.pitch = 1;
-                    voz.volume = 1;
+    const msg = new SpeechSynthesisUtterance(texto);
 
-                    voz.onend = function () {
-                        resolve();
-                    };
+    msg.lang = "pt-BR";
+    msg.rate = 0.95;
+    msg.pitch = 1;
+    msg.volume = 1;
 
-                    voz.onerror = function () {
-                        resolve();
-                    };
+    const vozes = speechSynthesis.getVoices();
 
-                    window.speechSynthesis.speak(voz);
-                } catch (erro) {
-                    console.log("Erro na fala:", erro);
-                    resolve();
-                }
-            });
-        }
+    // Prioridade 1: Google PT-BR
+    msg.voice =
+        vozes.find(v => v.name === "Google português do Brasil") ||
+
+        // Prioridade 2: Microsoft Maria
+        vozes.find(v => v.name.includes("Maria")) ||
+
+        // Prioridade 3: Microsoft Daniel
+        vozes.find(v => v.name.includes("Daniel")) ||
+
+        // Qualquer PT-BR
+        vozes.find(v => v.lang === "pt-BR");
+
+    speechSynthesis.speak(msg);
+}
 
         async function repetirChamadaTresVezes(urlAudio, textoFallback) {
             for (let tentativa = 1; tentativa <= 3; tentativa++) {
