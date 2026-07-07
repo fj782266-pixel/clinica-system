@@ -1081,47 +1081,85 @@
             }
         }
 
+        function esperar(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
         function tocarAudioMp3(urlAudio, textoFallback) {
-            if (!audioLiberado) {
-                console.log("Clique uma vez na tela para liberar o som do painel.");
-            }
-
-            if (!urlAudio) {
-                falar(textoFallback);
-                return;
-            }
-
-            try {
-                const audio = new Audio(urlAudio + "?t=" + Date.now());
-                audio.volume = 1;
-
-                const promessa = audio.play();
-
-                if (promessa !== undefined) {
-                    promessa.catch(function (erro) {
-                        console.log("Navegador bloqueou o MP3, usando voz padrão:", erro);
-                        falar(textoFallback);
-                    });
+            return new Promise((resolve) => {
+                if (!audioLiberado) {
+                    console.log("Clique uma vez na tela para liberar o som do painel.");
                 }
-            } catch (erro) {
-                console.log("Erro ao tocar MP3:", erro);
-                falar(textoFallback);
-            }
+
+                if (!urlAudio) {
+                    falar(textoFallback).then(resolve);
+                    return;
+                }
+
+                try {
+                    const audio = new Audio(urlAudio + "?t=" + Date.now());
+                    audio.volume = 1;
+
+                    audio.onended = function () {
+                        resolve();
+                    };
+
+                    audio.onerror = function () {
+                        console.log("Erro ao carregar MP3, usando voz padrão.");
+                        falar(textoFallback).then(resolve);
+                    };
+
+                    const promessa = audio.play();
+
+                    if (promessa !== undefined) {
+                        promessa.catch(function (erro) {
+                            console.log("Navegador bloqueou o MP3, usando voz padrão:", erro);
+                            falar(textoFallback).then(resolve);
+                        });
+                    }
+                } catch (erro) {
+                    console.log("Erro ao tocar MP3:", erro);
+                    falar(textoFallback).then(resolve);
+                }
+            });
         }
 
         function falar(texto) {
-            try {
-                window.speechSynthesis.cancel();
+            return new Promise((resolve) => {
+                try {
+                    window.speechSynthesis.cancel();
 
-                const voz = new SpeechSynthesisUtterance(texto);
-                voz.lang = "pt-BR";
-                voz.rate = 0.86;
-                voz.pitch = 1;
-                voz.volume = 1;
+                    const voz = new SpeechSynthesisUtterance(texto);
+                    voz.lang = "pt-BR";
+                    voz.rate = 0.86;
+                    voz.pitch = 1;
+                    voz.volume = 1;
 
-                window.speechSynthesis.speak(voz);
-            } catch (erro) {
-                console.log("Erro na fala:", erro);
+                    voz.onend = function () {
+                        resolve();
+                    };
+
+                    voz.onerror = function () {
+                        resolve();
+                    };
+
+                    window.speechSynthesis.speak(voz);
+                } catch (erro) {
+                    console.log("Erro na fala:", erro);
+                    resolve();
+                }
+            });
+        }
+
+        async function repetirChamadaTresVezes(urlAudio, textoFallback) {
+            for (let tentativa = 1; tentativa <= 3; tentativa++) {
+                tocarSino();
+                await esperar(500);
+                await tocarAudioMp3(urlAudio, textoFallback);
+
+                if (tentativa < 3) {
+                    await esperar(4000);
+                }
             }
         }
 
@@ -1163,25 +1201,7 @@
                     document.getElementById("medico").innerText = "Por favor, aguarde ser chamado.";
 
                     animarCard();
-
-// Primeira chamada
-tocarSino();
-setTimeout(() => {
-    tocarAudioMp3(dados.audio_url, textoFallback);
-}, 500);
-
-// Segunda chamada (4 segundos depois)
-setTimeout(() => {
-    tocarSino();
-    tocarAudioMp3(dados.audio_url, textoFallback);
-}, 4500);
-
-// Terceira chamada (8 segundos depois)
-setTimeout(() => {
-    tocarSino();
-    tocarAudioMp3(dados.audio_url, textoFallback);
-}, 8500);
-
+                    repetirChamadaTresVezes(dados.audio_url, textoFallback);
                 }
             } catch (erro) {
                 console.log("Erro ao buscar chamada:", erro);
