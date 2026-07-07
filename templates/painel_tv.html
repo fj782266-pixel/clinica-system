@@ -513,6 +513,284 @@
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
+
+        /* =========================================================
+           AJUSTE PARA TV - CABER TUDO EM 100% DA TELA
+           ========================================================= */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        .screen {
+            width: 100vw;
+            height: 100vh;
+            min-height: 0;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            padding: clamp(12px, 2vh, 24px) clamp(18px, 3vw, 42px);
+            gap: clamp(10px, 1.8vh, 18px);
+            overflow: hidden;
+        }
+
+        .topbar,
+        .main,
+        .footer,
+        .call-card,
+        .side-card {
+            min-height: 0;
+        }
+
+        .topbar {
+            gap: clamp(12px, 2vw, 24px);
+        }
+
+        .brand-card {
+            border-radius: 22px;
+            padding: clamp(10px, 1.4vh, 16px) clamp(16px, 2vw, 24px);
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: clamp(54px, 6.8vh, 68px);
+            height: clamp(54px, 6.8vh, 68px);
+            border-radius: 18px;
+            font-size: 28px;
+        }
+
+        .brand-logo img {
+            width: 88%;
+            height: 88%;
+        }
+
+        .brand-text span {
+            font-size: clamp(12px, 1.7vh, 15px);
+            letter-spacing: 3px;
+        }
+
+        .brand-text strong {
+            font-size: clamp(25px, 3.9vh, 34px);
+        }
+
+        .title-pill {
+            height: clamp(58px, 8.2vh, 76px);
+            min-width: clamp(390px, 42vw, 560px);
+            padding: 0 clamp(24px, 3vw, 42px);
+            font-size: clamp(18px, 2.8vh, 25px);
+            letter-spacing: clamp(4px, 0.5vw, 7px);
+        }
+
+        .clock-card {
+            border-radius: 22px;
+            min-width: clamp(230px, 23vw, 300px);
+            padding: clamp(10px, 1.6vh, 18px) clamp(18px, 2.4vw, 30px);
+            gap: 14px;
+        }
+
+        .clock-icon {
+            width: clamp(44px, 5.8vh, 56px);
+            height: clamp(44px, 5.8vh, 56px);
+            border-width: 3px;
+        }
+
+        .clock-box strong {
+            font-size: clamp(34px, 5.5vh, 48px);
+        }
+
+        .clock-box span {
+            margin-top: 5px;
+            font-size: clamp(12px, 1.8vh, 16px);
+        }
+
+        .main {
+            grid-template-columns: minmax(0, 1fr) clamp(250px, 23vw, 320px);
+            gap: clamp(14px, 2vw, 24px);
+            overflow: hidden;
+        }
+
+        .call-card {
+            border-radius: 34px;
+            padding: clamp(16px, 2.2vh, 30px) clamp(24px, 3.5vw, 48px);
+            justify-content: center;
+        }
+
+        .call-card::after {
+            width: clamp(220px, 32vh, 330px);
+            height: clamp(220px, 32vh, 330px);
+        }
+
+        .badge {
+            padding: clamp(9px, 1.4vh, 14px) clamp(22px, 3vw, 34px);
+            font-size: clamp(19px, 3vh, 28px);
+            margin-bottom: clamp(12px, 2vh, 24px);
+            gap: 14px;
+        }
+
+        .bell {
+            width: clamp(42px, 5.8vh, 56px);
+            height: clamp(42px, 5.8vh, 56px);
+        }
+
+        .label {
+            font-size: clamp(18px, 3vh, 28px);
+            letter-spacing: clamp(3px, 0.5vw, 7px);
+            margin-bottom: clamp(8px, 1.4vh, 16px);
+            gap: 16px;
+        }
+
+        .label::before,
+        .label::after {
+            width: clamp(48px, 9vw, 120px);
+        }
+
+        .sound-wave {
+            height: clamp(24px, 4vh, 42px);
+            margin-bottom: 2px;
+        }
+
+        .patient-name {
+            font-size: clamp(46px, 7.2vw, 105px);
+            line-height: 0.92;
+            letter-spacing: -3px;
+            margin-bottom: clamp(14px, 2.5vh, 28px);
+            max-height: 28vh;
+            overflow: hidden;
+        }
+
+        .room-box {
+            width: min(680px, 96%);
+            min-height: 0;
+            border-radius: 22px;
+            padding: clamp(12px, 1.8vh, 20px) clamp(18px, 2.4vw, 30px);
+            gap: 16px;
+        }
+
+        .room-icon {
+            width: clamp(44px, 6vh, 60px);
+            height: clamp(44px, 6vh, 60px);
+        }
+
+        .room-info strong {
+            font-size: clamp(22px, 3.5vh, 38px);
+        }
+
+        .room-info span {
+            margin-top: 4px;
+            font-size: clamp(15px, 2.2vh, 22px);
+        }
+
+        .side-card {
+            border-radius: 28px;
+            padding: clamp(18px, 2.5vh, 28px) clamp(18px, 2vw, 26px);
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .side-title {
+            font-size: clamp(19px, 3vh, 27px);
+        }
+
+        .info-item {
+            grid-template-columns: clamp(42px, 5.5vh, 56px) 1fr;
+            gap: 14px;
+            padding: clamp(12px, 2vh, 18px) 0;
+        }
+
+        .info-icon {
+            width: clamp(42px, 5.5vh, 56px);
+            height: clamp(42px, 5.5vh, 56px);
+        }
+
+        .info-item strong {
+            font-size: clamp(15px, 2.3vh, 20px);
+        }
+
+        .info-item span {
+            margin-top: 4px;
+            font-size: clamp(12px, 1.8vh, 16px);
+        }
+
+        .thanks {
+            font-size: clamp(16px, 2.3vh, 22px);
+            margin-top: 0;
+        }
+
+        .footer {
+            min-height: clamp(54px, 8vh, 76px);
+            border-radius: 22px;
+        }
+
+        .footer-item {
+            min-height: clamp(54px, 8vh, 76px);
+            padding: 0 clamp(14px, 2vw, 26px);
+            gap: 12px;
+        }
+
+        .footer-icon {
+            width: clamp(38px, 5.5vh, 52px);
+            height: clamp(38px, 5.5vh, 52px);
+        }
+
+        .footer-item strong {
+            font-size: clamp(15px, 2.2vh, 20px);
+        }
+
+        .footer-item span {
+            font-size: clamp(12px, 1.8vh, 16px);
+        }
+
+        @media (max-height: 720px) {
+            .screen {
+                padding: 10px 24px;
+                gap: 10px;
+            }
+
+            .patient-name {
+                font-size: clamp(42px, 6.4vw, 86px);
+                max-height: 24vh;
+            }
+
+            .side-card .info-item:nth-child(3) {
+                display: none;
+            }
+
+            .footer {
+                display: none;
+            }
+        }
+
+        @media (max-width: 1300px) {
+            .screen {
+                padding: 14px 22px;
+            }
+
+            .topbar {
+                grid-template-columns: 1fr auto;
+            }
+
+            .title-pill {
+                display: none;
+            }
+
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .side-card {
+                display: none;
+            }
+
+            .patient-name {
+                font-size: clamp(46px, 9vw, 96px);
+            }
+        }
+
         @media (max-width: 1300px) {
             .screen {
                 padding: 28px 34px;
