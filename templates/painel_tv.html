@@ -75,25 +75,24 @@
             backdrop-filter: blur(14px);
         }
 
-        .brand-logo {
-            width: 74px;
-            height: 74px;
-            border-radius: 22px;
-            background: linear-gradient(135deg, #0f766e, #14b8a6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            color: white;
-            font-size: 34px;
-            font-weight: 900;
-        }
+       .brand-logo{
+    width:170px;
+    height:80px;
+    background:transparent;
+    border-radius:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:visible;
+    flex-shrink:0;
+}
 
-        .brand-logo img {
-            width: 68px;
-            height: 68px;
-            object-fit: contain;
-        }
+.brand-logo img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+}
 
         .brand-text span {
             display: block;
@@ -557,17 +556,19 @@
             gap: 14px;
         }
 
-        .brand-logo {
-            width: clamp(54px, 6.8vh, 68px);
-            height: clamp(54px, 6.8vh, 68px);
-            border-radius: 18px;
-            font-size: 28px;
-        }
+       .brand-logo{
+    width:clamp(120px,11vw,170px);
+    height:clamp(60px,8vh,80px);
+    background:transparent;
+    border-radius:0;
+    overflow:visible;
+}
 
-        .brand-logo img {
-            width: 88%;
-            height: 88%;
-        }
+.brand-logo img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+}
 
         .brand-text span {
             font-size: clamp(12px, 1.7vh, 15px);
@@ -848,19 +849,16 @@
 
         <header class="topbar">
             <div class="brand">
-                <div class="brand-card">
-                    <div class="brand-logo">
-                        <i<img src="{{ url_for('static', filename='img/logo4.png') }}"
-     alt="Logo Essencial Clínica"
-     onerror="this.style.display='none'; this.parentElement.innerHTML='EC'">mg src="/static/img/logo2.png" alt="Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='CS'">
-                    </div>
+    <div class="brand-card">
 
-                    <div class="brand-text">
-                        <span>Essencial</span>
-                        <strong>Clinica</strong>
-                    </div>
-                </div>
-            </div>
+        <div class="brand-logo">
+            <img src="{{ url_for('static', filename='img/logo4.png') }}"
+                 alt="Essencial Clínica"
+                 onerror="this.style.display='none';">
+        </div>
+
+    </div>
+</div>
 
             <div class="title-pill">
                 <div class="title-icon">
