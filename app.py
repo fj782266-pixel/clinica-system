@@ -1463,7 +1463,17 @@ def api_ultima_chamada():
         "audio_url": audio_url
     })
 
-
+with app.app_context():
+    db.create_all()
+    # Substitua 'User' pelo nome correto da classe do seu utilizador no app.py
+    if not User.query.filter_by(username='admin felipe').first():
+        novo_admin = User(
+            username='admin felipe',
+            email='admin@clinica.com',
+            password='felipegk@18'
+        )
+        db.session.add(novo_admin)
+        db.session.commit()
 # ============================================================
 # INICIAR APP
 # ============================================================
