@@ -1464,36 +1464,34 @@ def api_ultima_chamada():
     })
 
 # ============================================================
+# ============================================================
 # INICIAR BANCO E CRIAR ADMIN SEGURO
 # ============================================================
 with app.app_context():
     try:
         db.create_all()
-        # Se você usa werkzeug.security para hash de senha:
         from werkzeug.security import generate_password_hash
         
-        # Verifica se o usuario já existe
-        admin_existente = Usuario.query.filter_by(username='admin felipe').first()
+        # 1. Buscamos pelo EMAIL (ou altere 'nome' se for o caso do seu modelo)
+        admin_existente = Usuario.query.filter_by(email='admin@clinica.com').first()
+        
         if not admin_existente:
-            # Tenta criar com hash de senha (padrão Flask-Login/Security)
-            try:
-                senha_hash = generate_password_hash('felipegk@18')
-                novo_admin = Usuario(
-                    username='admin felipe',
-                    email='admin@clinica.com',
-                    password=senha_hash
-                )
-            except Exception:
-                # Se o seu modelo guardar senha em texto puro:
-                novo_admin = Usuario(
-                    username='admin felipe',
-                    email='admin@clinica.com',
-                    password='felipegk@18'
-                )
+            # 2. Criamos o usuário passando os campos corretos da sua classe Usuario
+            # Se a sua classe usa 'nome' em vez de 'username', ajuste abaixo:
+            senha_hash = generate_password_hash('felipegk@18')
+            
+            novo_admin = Usuario(
+                email='admin@clinica.com',
+                password=senha_hash
+                # Adicione 'nome="admin felipe"' aqui se o seu modelo tiver essa coluna
+            )
             
             db.session.add(novo_admin)
             db.session.commit()
             print(">>> Usuario 'admin felipe' criado com sucesso! <<<")
+        else:
+            print(">>> Usuario admin já existe no banco. <<<")
+            
     except Exception as e:
         print(f">>> Erro ao inicializar o banco: {e} <<<")
 
