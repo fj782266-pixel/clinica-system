@@ -1465,33 +1465,43 @@ def api_ultima_chamada():
 
 # ============================================================
 # ============================================================
-# INICIAR BANCO E CRIAR ADMIN SEGURO
+# INICIAR BANCO E CRIAR ADMIN
 # ============================================================
 with app.app_context():
     try:
         db.create_all()
         from werkzeug.security import generate_password_hash
-        
-        # 1. Buscamos pelo EMAIL (ou altere 'nome' se for o caso do seu modelo)
-        admin_existente = Usuario.query.filter_by(email='admin@clinica.com').first()
-        
+
+        # 1. Mapeia os campos/colunas que existem na classe Usuario
+        colunas = [c.name for c in Usuario.__table__.columns]
+        print(f">>> COLUNAS ENCONTRADAS NA TABELA USUARIO: {colunas} <<<")
+
+        # 2. Identifica a coluna principal para busca (ex: 'login', 'cpf', 'nome', etc.)
+        coluna_busca = colunas[1] if len(colunas) > 1 else colunas[0]
+        print(f">>> BUSCANDO ADMIN PELA COLUNA: {coluna_busca} <<<")
+
+        admin_existente = Usuario.query.filter(getattr(Usuario, coluna_busca) == 'admin').first()
+
         if not admin_existente:
-            # 2. Criamos o usuário passando os campos corretos da sua classe Usuario
-            # Se a sua classe usa 'nome' em vez de 'username', ajuste abaixo:
-            senha_hash = generate_password_hash('felipegk@18')
-            
-            novo_admin = Usuario(
-                email='admin@clinica.com',
-                password=senha_hash
-                # Adicione 'nome="admin felipe"' aqui se o seu modelo tiver essa coluna
-            )
-            
+            # 3. Monta os dados dinamicamente de acordo com as colunas existentes
+            dados_usuario = {}
+            for col in colunas:
+                if col == 'id':
+                    continue
+                elif 'senha' in col or 'password' in col:
+                    dados_usuario[col] = generate_password_hash('felipegk@18')
+                elif col in ['nome', 'login', 'user']:
+                    dados_usuario[col] = 'admin felipe'
+                else:
+                    dados_usuario[col] = 'admin'
+
+            novo_admin = Usuario(**dados_usuario)
             db.session.add(novo_admin)
             db.session.commit()
-            print(">>> Usuario 'admin felipe' criado com sucesso! <<<")
+            print(">>> Usuario admin criado com sucesso! <<<")
         else:
-            print(">>> Usuario admin já existe no banco. <<<")
-            
+            print(">>> Usuario admin ja existe no banco. <<<")
+
     except Exception as e:
         print(f">>> Erro ao inicializar o banco: {e} <<<")
 
