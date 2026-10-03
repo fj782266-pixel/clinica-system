@@ -1465,45 +1465,40 @@ def api_ultima_chamada():
 
 # ============================================================
 # ============================================================
-# INICIAR BANCO E CRIAR ADMIN
+# ============================================================
+# INICIAR BANCO E CRIAR ADMIN SEGURO
 # ============================================================
 with app.app_context():
     try:
         db.create_all()
         from werkzeug.security import generate_password_hash
 
-        # 1. Mapeia os campos/colunas que existem na classe Usuario
-        colunas = [c.name for c in Usuario.__table__.columns]
-        print(f">>> COLUNAS ENCONTRADAS NA TABELA USUARIO: {colunas} <<<")
-
-        # 2. Identifica a coluna principal para busca (ex: 'login', 'cpf', 'nome', etc.)
-        coluna_busca = colunas[1] if len(colunas) > 1 else colunas[0]
-        print(f">>> BUSCANDO ADMIN PELA COLUNA: {coluna_busca} <<<")
-
-        admin_existente = Usuario.query.filter(getattr(Usuario, coluna_busca) == 'admin').first()
+        # Procura se o usuário admin felipe já existe
+        admin_existente = Usuario.query.filter_by(usuario='admin felipe').first()
 
         if not admin_existente:
-            # 3. Monta os dados dinamicamente de acordo com as colunas existentes
-            dados_usuario = {}
-            for col in colunas:
-                if col == 'id':
-                    continue
-                elif 'senha' in col or 'password' in col:
-                    dados_usuario[col] = generate_password_hash('felipegk@18')
-                elif col in ['nome', 'login', 'user']:
-                    dados_usuario[col] = 'admin felipe'
-                else:
-                    dados_usuario[col] = 'admin'
-
-            novo_admin = Usuario(**dados_usuario)
+            novo_admin = Usuario(
+                usuario='admin felipe',
+                senha=generate_password_hash('felipegk@18'),
+                tipo='admin',
+                ativo=True,
+                profissional_id=None  # Ou defina o ID do profissional se for obrigatório no seu fluxo
+            )
             db.session.add(novo_admin)
             db.session.commit()
-            print(">>> Usuario admin criado com sucesso! <<<")
+            print(">>> USUÁRIO 'admin felipe' CRIADO COM SUCESSO! <<<")
         else:
-            print(">>> Usuario admin ja existe no banco. <<<")
+            print(">>> USUÁRIO 'admin felipe' JÁ EXISTE NO BANCO! <<<")
 
     except Exception as e:
         print(f">>> Erro ao inicializar o banco: {e} <<<")
+
+# ============================================================
+# INICIAR APP
+# ============================================================
+
+if __name__ == "__main__":
+    app.run(debug=False)
 
 # ============================================================
 # INICIAR APP
