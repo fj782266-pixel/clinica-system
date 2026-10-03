@@ -1465,9 +1465,8 @@ def api_ultima_chamada():
 
 with app.app_context():
     db.create_all()
-    # Substitua 'User' pelo nome correto da classe do seu utilizador no app.py
-    if not User.query.filter_by(username='admin felipe').first():
-        novo_admin = User(
+    if not Usuario.query.filter_by(username='admin felipe').first():
+        novo_admin = Usuario(
             username='admin felipe',
             email='admin@clinica.com',
             password='felipegk@18'
