@@ -1463,6 +1463,23 @@ def api_ultima_chamada():
         "audio_url": audio_url
     })
 
+
+from flask import render_template, session, redirect, url_for, flash
+
+@app.route('/medicos')
+def agenda_medico():
+    # 1. Verifica se o usuário está autenticado
+    if 'usuario_id' not in session:
+        return redirect(url_for('login'))
+    
+    # 2. Pega o ID do profissional logado a partir da sessão
+    medico_id = session.get('profissional_id')
+    
+    # 3. Busca no banco de dados SOMENTE os agendamentos pertencentes a este médico
+    agendamentos = Agendamento.query.filter_by(profissional_id=medico_id).order_by(Agendamento.data_hora.asc()).all()
+
+    # 4. Renderiza o arquivo medicos.html passando os dados
+    return render_template('medicos.html', agendamentos=agendamentos)
 # ============================================================
 # ============================================================
 # ============================================================
