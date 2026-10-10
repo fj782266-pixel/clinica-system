@@ -1807,173 +1807,188 @@
     </div>
 
     <button id="ativarSom" class="audio-enable" type="button">🔊 Ativar som da TV</button>
+
     <script>
-        // Mantém a API existente: /api/ultima-chamada.
-        // O histórico abaixo é local a esta TV; não exige uma rota nova.
-        const intervaloBuscaMs = 2500;
-        const tempoDestaqueMs = 60000;
-        let ultimaChamadaId = null;
-        let primeiraConsulta = true;
-        let audioLiberado = false;
-        let audioContextoGlobal = null;
-        let filaAudio = Promise.resolve();
-        let tokenChamada = 0;
-        let horarioUltimaChamada = 0;
-        let buscando = false;
-        const historicoLocal = [];
-        const $ = (id) => document.getElementById(id);
+    (() => {
+      "use strict";
+      const $ = id => document.getElementById(id);
+      const esperar = ms => new Promise(resolve => setTimeout(resolve, ms));
+      let somAtivo = false, processando = false, chamadaAtual = null;
+      let contextoAudio = null, ultimaExibida = 0;
 
-        function atualizarRelogio() {
-            const agora = new Date();
-            $('hora').textContent = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-            $('data').textContent = agora.toLocaleDateString('pt-BR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-        }
-        function definirEspera() {
-            if (Date.now() - horarioUltimaChamada < tempoDestaqueMs) return;
-            $('callCard').classList.add('is-waiting');
-            $('callCard').classList.remove('is-calling');
-            $('estadoChamada').textContent = 'Aguardando chamada';
-            $('paciente').textContent = 'Bem-vindo!';
-            $('consultorio').textContent = 'Recepção';
-            $('medico').textContent = 'Por favor, aguarde sua vez.';
-        }
-        async function liberarAudio() {
-            try {
-                const Ctx = window.AudioContext || window.webkitAudioContext;
-                if (Ctx) {
-                    audioContextoGlobal ||= new Ctx();
-                    if (audioContextoGlobal.state === 'suspended') await audioContextoGlobal.resume();
-                }
-                // Alguns navegadores exigem um clique para habilitar a síntese de voz.
-                if ('speechSynthesis' in window) speechSynthesis.getVoices();
-                audioLiberado = true;
-                $('ativarSom').hidden = true;
-            } catch (erro) { console.warn('Não foi possível ativar o áudio:', erro); }
-        }
-        $('ativarSom').addEventListener('click', liberarAudio);
+      function relogio() {
+        const agora = new Date();
+        $('hora').textContent = agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+        $('data').textContent = agora.toLocaleDateString('pt-BR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+      }
+      function telaEspera() {
+        if (chamadaAtual) return;
+        $('callCard').classList.add('is-waiting');
+        $('callCard').classList.remove('is-calling');
+        $('estadoChamada').textContent = 'Aguardando chamada';
+        $('paciente').textContent = 'Bem-vindo!';
+        $('consultorio').textContent = 'Recepção';
+        $('medico').textContent = 'Por favor, aguarde sua vez.';
+      }
+      async function ativarSom() {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) {
+            contextoAudio ||= new Ctx();
+            await contextoAudio.resume();
+          }
+          if ('speechSynthesis' in window) speechSynthesis.getVoices();
+          somAtivo = true;
+          $('ativarSom').hidden = true;
+          await processarFila();
+        } catch (e) { console.error('Não foi possível ativar o áudio', e); }
+      }
+      $('ativarSom').addEventListener('click', ativarSom);
 
-        function tocarSino() {
-            if (!audioLiberado || !audioContextoGlobal) return;
-            try {
-                const ctx = audioContextoGlobal;
-                const osc = ctx.createOscillator();
-                const ganho = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880,ctx.currentTime);
-                ganho.gain.setValueAtTime(.001,ctx.currentTime);
-                ganho.gain.exponentialRampToValueAtTime(.2,ctx.currentTime+.03);
-                ganho.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.8);
-                osc.connect(ganho); ganho.connect(ctx.destination);
-                osc.start(); osc.stop(ctx.currentTime+.85);
-            } catch (erro) { console.warn('Sino indisponível:', erro); }
-        }
-        const esperar = ms => new Promise(resolve => setTimeout(resolve,ms));
-        function falar(texto) {
-            return new Promise(resolve => {
-                if (!audioLiberado || !('speechSynthesis' in window)) return resolve();
-                const msg = new SpeechSynthesisUtterance(texto);
-                msg.lang='pt-BR'; msg.rate=.92; msg.pitch=1; msg.volume=1;
-                const vozes = speechSynthesis.getVoices();
-                msg.voice = vozes.find(v=>v.lang.toLowerCase()==='pt-br') || vozes.find(v=>v.lang.startsWith('pt')) || null;
-                let terminou=false;
-                const concluir=()=>{ if(!terminou){ terminou=true; clearTimeout(limite); resolve(); } };
-                const limite=setTimeout(()=>{speechSynthesis.cancel(); concluir();},20000);
-                msg.onend=concluir; msg.onerror=concluir;
-                try { speechSynthesis.cancel(); speechSynthesis.speak(msg); }
-                catch(erro){ concluir(); }
-            });
-        }
-        function tocarAudioMp3(urlAudio,textoFallback) {
-            if (!audioLiberado) return Promise.resolve();
-            if (!urlAudio) return falar(textoFallback);
-            return new Promise(resolve=>{
-                let finalizado=false;
-                let audio;
-                const concluir=()=>{if(!finalizado){finalizado=true;clearTimeout(limite);if(audio){audio.pause();audio.src='';}resolve();}};
-                const fallback=()=>{if(finalizado)return; finalizado=true;clearTimeout(limite);if(audio){audio.pause();audio.src='';}falar(textoFallback).then(resolve);};
-                const limite=setTimeout(fallback,30000);
-                try {
-                    audio=new Audio(urlAudio);
-                    audio.volume=1;
-                    audio.onended=concluir;
-                    audio.onerror=fallback;
-                    const tentativa=audio.play();
-                    if(tentativa && typeof tentativa.catch==='function') tentativa.catch(fallback);
-                } catch(erro){ fallback(); }
-            });
-        }
-        async function repetirChamadaTresVezes(urlAudio,textoFallback,token) {
-            if (!audioLiberado) return;
-            for(let tentativa=1;tentativa<=3;tentativa++) {
-                if(token!==tokenChamada) return;
-                tocarSino(); await esperar(500);
-                if(token!==tokenChamada) return;
-                await tocarAudioMp3(urlAudio,textoFallback);
-                if(tentativa<3) await esperar(3000);
+      function sino() {
+        if (!contextoAudio) return;
+        const o = contextoAudio.createOscillator();
+        const g = contextoAudio.createGain();
+        o.type = 'sine'; o.frequency.value = 880;
+        g.gain.setValueAtTime(0.001, contextoAudio.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.16, contextoAudio.currentTime + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.001, contextoAudio.currentTime + 0.7);
+        o.connect(g); g.connect(contextoAudio.destination);
+        o.start(); o.stop(contextoAudio.currentTime + 0.75);
+      }
+      function falar(texto) {
+        return new Promise((resolve, reject) => {
+          if (!('speechSynthesis' in window)) return reject(new Error('Voz indisponível'));
+          const fala = new SpeechSynthesisUtterance(texto);
+          fala.lang = 'pt-BR'; fala.rate = 0.92; fala.volume = 1;
+          const vozes = speechSynthesis.getVoices();
+          fala.voice = vozes.find(v => v.lang.toLowerCase() === 'pt-br') || null;
+          let terminado = false;
+          const fim = erro => {
+            if (terminado) return;
+            terminado = true; clearTimeout(timeout);
+            erro ? reject(erro) : resolve();
+          };
+          const timeout = setTimeout(() => {
+            speechSynthesis.cancel(); fim(new Error('Tempo de voz excedido'));
+          }, 30000);
+          fala.onend = () => fim();
+          fala.onerror = e => fim(new Error('Falha na síntese de voz: ' + e.error));
+          speechSynthesis.cancel();
+          speechSynthesis.speak(fala);
+        });
+      }
+      function audioMp3(url) {
+        return new Promise((resolve, reject) => {
+          const audio = new Audio(url);
+          let terminado = false;
+          const fim = erro => {
+            if (terminado) return;
+            terminado = true; clearTimeout(timeout);
+            audio.pause(); audio.removeAttribute('src'); audio.load();
+            erro ? reject(erro) : resolve();
+          };
+          const timeout = setTimeout(() => fim(new Error('Tempo de áudio excedido')), 45000);
+          audio.onended = () => fim();
+          audio.onerror = () => fim(new Error('MP3 indisponível'));
+          audio.play().catch(fim);
+        });
+      }
+      async function anunciar(chamada) {
+        const paciente = String(chamada.paciente_nome || 'Paciente');
+        const medico = String(chamada.medico_nome || 'Profissional');
+        const consultorio = String(chamada.consultorio || `Consultório do ${medico}`);
+        $('paciente').textContent = paciente;
+        $('consultorio').textContent = consultorio;
+        $('medico').textContent = `Atendimento: ${medico}`;
+        $('callCard').classList.remove('is-waiting');
+        $('callCard').classList.add('is-calling');
+        const card = $('callCard');
+        card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+        const texto = `Atenção, ${paciente}. Favor dirigir-se ao ${consultorio}. Obrigado.`;
+        for (let i = 1; i <= 3; i++) {
+          $('estadoChamada').textContent = `Paciente chamado — anúncio ${i} de 3`;
+          sino();
+          await esperar(600);
+          if (chamada.audio_url) {
+            try { await audioMp3(chamada.audio_url); }
+            catch (erro) {
+              console.warn('MP3 indisponível; usando voz do navegador', erro);
+              await falar(texto);
             }
+          } else {
+            await falar(texto);
+          }
+          if (i < 3) await esperar(2000);
         }
-        function animarCard() {
-            const card=$('callCard');
-            card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+      }
+      async function requisicao(url) {
+        const resposta = await fetch(url, {
+          method:'POST', credentials:'same-origin', cache:'no-store',
+          headers:{'Accept':'application/json'}
+        });
+        if (!resposta.ok) throw new Error(`Erro HTTP ${resposta.status} em ${url}`);
+        return resposta.json();
+      }
+      async function atualizarHistorico() {
+        try {
+          const resposta = await fetch('/api/historico-chamadas', {cache:'no-store', credentials:'same-origin'});
+          if (!resposta.ok) return;
+          const dados = await resposta.json();
+          const container = $('historicoChamadas');
+          container.replaceChildren();
+          (dados.chamadas || []).slice(0, 4).forEach(item => {
+            const linha = document.createElement('div');
+            linha.className = 'history-row';
+            const nome = document.createElement('strong');
+            nome.textContent = item.paciente_nome || 'Paciente';
+            const info = document.createElement('span');
+            info.textContent = item.consultorio || item.medico_nome || '';
+            linha.append(nome, info); container.append(linha);
+          });
+          if (!container.childElementCount) {
+            const p = document.createElement('p');
+            p.className = 'history-empty'; p.textContent = 'Nenhuma chamada registrada.';
+            container.append(p);
+          }
+        } catch (e) { console.warn('Histórico indisponível', e); }
+      }
+      async function processarFila() {
+        if (!somAtivo || processando || document.hidden) return;
+        processando = true;
+        try {
+          const chamada = await requisicao('/api/tv/proxima-chamada');
+          if (!chamada.existe) { telaEspera(); return; }
+          chamadaAtual = chamada;
+          await anunciar(chamada);
+          // Não concluir no banco se a reprodução falhar.
+          await requisicao(`/api/tv/concluir-chamada/${encodeURIComponent(chamada.id)}`);
+          chamadaAtual = null;
+          await atualizarHistorico();
+          // Pausa também após o terceiro anúncio, antes do próximo paciente.
+          await esperar(2000);
+        } catch (e) {
+          console.error('Falha na fila de chamadas; a chamada permanece pendente:', e);
+          // Em caso de erro de áudio, exigir nova interação para evitar loop silencioso.
+          if (chamadaAtual) {
+            somAtivo = false;
+            $('ativarSom').hidden = false;
+            $('ativarSom').textContent = '🔊 Reativar som e retomar chamada';
+          }
+        } finally {
+          processando = false;
         }
-        function registrarHistorico(paciente,medico,consultorio) {
-            historicoLocal.unshift({paciente,medico,consultorio,hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
-            historicoLocal.splice(4);
-            const container=$('historicoChamadas');
-            container.replaceChildren();
-            historicoLocal.forEach(item=>{
-                const linha=document.createElement('div'); linha.className='history-row';
-                const nome=document.createElement('strong'); nome.textContent=item.paciente;
-                const info=document.createElement('span'); info.textContent=`${item.consultorio} • ${item.hora}`;
-                linha.append(nome,info); container.append(linha);
-            });
-        }
-        function exibirChamada(dados,anunciar) {
-            const paciente=String(dados.paciente_nome||'Paciente');
-            const medico=String(dados.medico_nome||'Profissional');
-            const consultorio=String(dados.consultorio||`Consultório do ${medico}`);
-            $('paciente').textContent=paciente;
-            $('consultorio').textContent=consultorio;
-            $('medico').textContent=`Atendimento: ${medico}`;
-            $('estadoChamada').textContent='Paciente chamado';
-            $('callCard').classList.remove('is-waiting');
-            $('callCard').classList.add('is-calling');
-            horarioUltimaChamada=Date.now();
-            animarCard();
-            registrarHistorico(paciente,medico,consultorio);
-            if(anunciar) {
-                const texto=`${paciente}, por favor, dirija-se ao ${consultorio}.`;
-                const token=++tokenChamada;
-                // Fila serializa chamadas, evitando duas vozes ao mesmo tempo.
-                filaAudio=filaAudio.catch(()=>{}).then(()=>repetirChamadaTresVezes(dados.audio_url,texto,token));
-            }
-        }
-        async function buscarChamada() {
-            if(buscando)return;
-            buscando=true;
-            try {
-                const resposta=await fetch('/api/ultima-chamada',{cache:'no-store',credentials:'same-origin'});
-                if(!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
-                const dados=await resposta.json();
-                if(!dados.existe) { primeiraConsulta=false; definirEspera(); return; }
-                // A API precisa fornecer um ID único por evento de chamada.
-                const id=dados.id;
-                if(id===undefined || id===null) {console.warn('API sem id da chamada');return;}
-                if(id!==ultimaChamadaId) {
-                    ultimaChamadaId=id;
-                    // Na primeira carga, apenas exibe a última chamada sem reproduzir som antigo.
-                    exibirChamada(dados,!primeiraConsulta);
-                }
-                primeiraConsulta=false;
-            } catch(erro) { console.warn('Falha ao consultar chamadas:',erro); }
-            finally { buscando=false; }
-        }
-        atualizarRelogio(); definirEspera();
-        setInterval(atualizarRelogio,1000);
-        buscarChamada();
-        setInterval(buscarChamada,intervaloBuscaMs);
-        setInterval(definirEspera,5000);
+      }
+      relogio(); telaEspera(); atualizarHistorico();
+      setInterval(relogio, 1000);
+      setInterval(processarFila, 2500);
+      setInterval(atualizarHistorico, 15000);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) processarFila();
+      });
+    })();
     </script>
+
 
 </body>
 

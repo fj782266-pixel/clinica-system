@@ -374,7 +374,7 @@ class ChamadaPaciente(db.Model):
 
     consultorio = db.Column(db.String(50))
 
-    status = db.Column(db.String(20), default="chamando")
+    status = db.Column(db.String(20), default="aguardando")
 
     criada_em = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -1091,6 +1091,9 @@ def bloquear_telas_tv():
         "painel_tv",
 
         "api_ultima_chamada",
+        "api_tv_proxima_chamada",
+        "api_tv_concluir_chamada",
+        "api_historico_chamadas",
 
         "logout",
 
@@ -3238,66 +3241,96 @@ def painel_tv():
 
 
 
-@app.route("/api/ultima-chamada")
-
-def api_ultima_chamada():
-
-    chamada = ChamadaPaciente.query.order_by(ChamadaPaciente.id.desc()).first()
-
-
-
-    if not chamada:
-
-        return jsonify({"existe": False})
-
-
-
+# FILA DA TV: uma única TV; chamadas registradas no PostgreSQL.
+# A ordenação por ID mantém a sequência de inserção dos pedidos.
+def dados_chamada_tv(chamada):
     audio_url = None
-
     pasta = os.path.join(app.static_folder, "chamadas")
-
-
-
-    if os.path.exists(pasta):
-
+    if os.path.isdir(pasta):
         prefixo = f"chamada_{chamada.id}_"
-
-        arquivos = [arquivo for arquivo in os.listdir(pasta) if arquivo.startswith(prefixo) and arquivo.endswith(".mp3")]
-
-
-
+        arquivos = sorted(
+            (nome for nome in os.listdir(pasta)
+             if nome.startswith(prefixo) and nome.endswith(".mp3")),
+            reverse=True
+        )
         if arquivos:
-
-            arquivos.sort(reverse=True)
-
-            audio_url = f"/static/chamadas/{arquivos[0]}"
-
-
-
-    return jsonify({
-
+            audio_url = url_for("static", filename="chamadas/" + arquivos[0])
+    return {
         "existe": True,
-
         "id": chamada.id,
-
         "paciente_nome": chamada.paciente_nome,
-
-        "medico_nome": chamada.medico_nome,
-
-        "consultorio": chamada.consultorio,
-
-        "audio_url": audio_url
-
-    })
+        "medico_nome": chamada.medico_nome or "",
+        "consultorio": chamada.consultorio or "",
+        "audio_url": audio_url,
+        "status": chamada.status
+    }
 
 
+def acesso_tv_api():
+    return session.get("tipo") in ("tv", "admin", "recepcao")
 
 
+@app.route("/api/ultima-chamada")
+@login_obrigatorio
+def api_ultima_chamada():
+    """Compatibilidade com clientes antigos; não consome a fila."""
+    if not acesso_tv_api():
+        return jsonify({"erro": "Acesso negado"}), 403
+    chamada = ChamadaPaciente.query.order_by(ChamadaPaciente.id.desc()).first()
+    resposta = jsonify(dados_chamada_tv(chamada) if chamada else {"existe": False})
+    resposta.headers["Cache-Control"] = "no-store, private"
+    return resposta
 
-from flask import render_template, session, redirect, url_for, flash
+
+@app.route("/api/tv/proxima-chamada", methods=["POST"])
+@login_obrigatorio
+def api_tv_proxima_chamada():
+    """Reserva a chamada mais antiga. A TV deve concluir antes de pedir outra."""
+    if not acesso_tv_api():
+        return jsonify({"erro": "Acesso negado"}), 403
+    try:
+        # Serializa reservas entre workers do Render/PostgreSQL.
+        if db.engine.dialect.name == "postgresql":
+            db.session.execute(text("SELECT pg_advisory_xact_lock(78123456)"))
+        chamada = (ChamadaPaciente.query
+                   .filter(ChamadaPaciente.status == "reproduzindo")
+                   .order_by(ChamadaPaciente.id.asc()).first())
+        if chamada is None:
+            chamada = (ChamadaPaciente.query
+                       .filter(ChamadaPaciente.status == "aguardando")
+                       .order_by(ChamadaPaciente.id.asc()).first())
+            if chamada:
+                chamada.status = "reproduzindo"
+        if chamada:
+            db.session.commit()
+            resposta = jsonify(dados_chamada_tv(chamada))
+        else:
+            db.session.commit()
+            resposta = jsonify({"existe": False})
+        resposta.headers["Cache-Control"] = "no-store, private"
+        return resposta
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Erro ao reservar chamada da TV")
+        return jsonify({"erro": "Fila temporariamente indisponível"}), 503
 
 
-
+@app.route("/api/tv/concluir-chamada/<int:chamada_id>", methods=["POST"])
+@login_obrigatorio
+def api_tv_concluir_chamada(chamada_id):
+    """Só confirma a chamada que está em reprodução."""
+    if not acesso_tv_api():
+        return jsonify({"erro": "Acesso negado"}), 403
+    chamada = db.session.get(ChamadaPaciente, chamada_id)
+    if chamada is None:
+        return jsonify({"erro": "Chamada não encontrada"}), 404
+    if chamada.status == "concluida":
+        return jsonify({"ok": True})
+    if chamada.status != "reproduzindo":
+        return jsonify({"erro": "Chamada não está em reprodução"}), 409
+    chamada.status = "concluida"
+    db.session.commit()
+    return jsonify({"ok": True})
 
 
 @app.route("/api/historico-chamadas")
