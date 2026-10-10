@@ -1,1233 +1,1980 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Painel de Chamada - Essencial Clínica</title>
 
     <style>
+
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
         * {
+
             margin: 0;
+
             padding: 0;
+
             box-sizing: border-box;
+
             font-family: 'Inter', sans-serif;
+
         }
 
         body {
+
             min-height: 100vh;
+
             overflow: hidden;
+
             color: #082f36;
+
             background:
+
                 radial-gradient(circle at top left, rgba(20, 184, 166, 0.35), transparent 32%),
+
                 radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.35), transparent 34%),
+
                 linear-gradient(135deg, #ecfeff 0%, #f8fafc 45%, #dff7f4 100%);
+
         }
 
         .screen {
+
             min-height: 100vh;
+
             display: grid;
+
             grid-template-rows: auto 1fr auto;
+
             padding: 36px 58px 28px;
+
             gap: 24px;
+
             position: relative;
+
         }
 
         .screen::before {
+
             content: "";
+
             position: absolute;
+
             inset: 0;
+
             background:
+
                 linear-gradient(120deg, rgba(15, 118, 110, 0.95) 0%, rgba(15, 118, 110, 0.88) 17%, transparent 17.2%),
+
                 linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+
             pointer-events: none;
+
         }
 
         .topbar,
+
         .main,
+
         .footer {
+
             position: relative;
+
             z-index: 2;
+
         }
 
         .topbar {
+
             display: grid;
+
             grid-template-columns: 1fr auto 1fr;
+
             align-items: center;
+
             gap: 28px;
+
         }
 
         .brand {
+
             display: flex;
+
             align-items: center;
+
             gap: 22px;
+
         }
 
         .brand-card {
+
             display: flex;
+
             align-items: center;
+
             gap: 18px;
+
             background: rgba(255, 255, 255, 0.88);
+
             border-radius: 28px;
+
             padding: 18px 28px;
+
             box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+
             backdrop-filter: blur(14px);
+
         }
 
        .brand-logo{
+
     width:170px;
+
     height:80px;
+
     background:transparent;
+
     border-radius:0;
+
     display:flex;
+
     align-items:center;
+
     justify-content:center;
+
     overflow:visible;
+
     flex-shrink:0;
+
 }
 
 .brand-logo img{
+
     width:100%;
+
     height:100%;
+
     object-fit:contain;
+
     display:block;
+
 }
 
         .brand-text span {
+
             display: block;
+
             font-size: 17px;
+
             font-weight: 700;
+
             letter-spacing: 4px;
+
             text-transform: uppercase;
+
             color: #0f766e;
+
         }
 
         .brand-text strong {
+
             display: block;
+
             font-size: 36px;
+
             font-weight: 900;
+
             color: #083344;
+
             letter-spacing: -1px;
+
         }
 
         .title-pill {
+
             height: 86px;
+
             min-width: 530px;
+
             padding: 0 46px;
+
             border-radius: 999px;
+
             background: linear-gradient(135deg, #083344, #0f766e);
+
             color: white;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 20px;
+
             box-shadow: 0 18px 45px rgba(15, 23, 42, 0.22);
+
             text-transform: uppercase;
+
             letter-spacing: 7px;
+
             font-size: 25px;
+
             font-weight: 900;
+
         }
 
         .title-icon {
+
             width: 42px;
+
             height: 42px;
+
             border-radius: 14px;
+
             border: 2px solid rgba(153, 246, 228, 0.8);
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
         }
 
         .clock-card {
+
             justify-self: end;
+
             background: linear-gradient(135deg, #ffffff, #f8fafc);
+
             border-radius: 28px;
+
             padding: 20px 34px;
+
             min-width: 310px;
+
             box-shadow: 0 18px 45px rgba(15, 23, 42, 0.15);
+
             display: flex;
+
             align-items: center;
+
             gap: 20px;
+
         }
 
         .clock-icon {
+
             width: 58px;
+
             height: 58px;
+
             border-radius: 50%;
+
             border: 4px solid #0f766e;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             color: #0f766e;
+
         }
 
         .clock-box strong {
+
             display: block;
+
             font-size: 48px;
+
             line-height: 1;
+
             font-weight: 900;
+
             color: #082f49;
+
             letter-spacing: -1px;
+
         }
 
         .clock-box span {
+
             display: block;
+
             margin-top: 8px;
+
             font-size: 16px;
+
             font-weight: 800;
+
             color: #334155;
+
         }
 
         .main {
+
             display: grid;
+
             grid-template-columns: 1fr 340px;
+
             gap: 28px;
+
             align-items: stretch;
+
         }
 
         .call-card {
+
             background: rgba(255, 255, 255, 0.88);
+
             border-radius: 44px;
+
             box-shadow: 0 30px 75px rgba(15, 23, 42, 0.16);
+
             backdrop-filter: blur(18px);
+
             padding: 46px 62px;
+
             display: flex;
+
             flex-direction: column;
+
             align-items: center;
+
             justify-content: center;
+
             overflow: hidden;
+
             position: relative;
+
             border: 1px solid rgba(255, 255, 255, 0.9);
+
         }
 
         .call-card::before {
+
             content: "";
+
             position: absolute;
+
             inset: 0;
+
             background:
+
                 radial-gradient(circle at center, rgba(20, 184, 166, 0.11), transparent 34%),
+
                 linear-gradient(135deg, rgba(255,255,255,0.85), transparent 45%);
+
             pointer-events: none;
+
         }
 
         .call-card::after {
+
             content: "";
+
             position: absolute;
+
             width: 360px;
+
             height: 360px;
+
             border-radius: 50%;
+
             background: rgba(15, 118, 110, 0.06);
+
             top: 50%;
+
             left: 50%;
+
             transform: translate(-50%, -50%);
+
         }
 
         .badge {
+
             position: relative;
+
             z-index: 2;
+
             display: inline-flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 18px;
+
             padding: 16px 36px;
+
             border-radius: 999px;
+
             background: linear-gradient(135deg, #0f766e, #0d9488);
+
             color: white;
+
             font-size: 28px;
+
             font-weight: 900;
+
             text-transform: uppercase;
+
             letter-spacing: 2px;
+
             margin-bottom: 38px;
+
             box-shadow: 0 16px 34px rgba(15, 118, 110, 0.36);
+
         }
 
         .bell {
+
             width: 58px;
+
             height: 58px;
+
             margin-left: -20px;
+
             border-radius: 50%;
+
             background: radial-gradient(circle, #2dd4bf, #0f766e);
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             box-shadow: 0 0 28px rgba(45, 212, 191, 0.8);
+
             animation: pulseGlow 1.5s infinite;
+
         }
 
         .label {
+
             position: relative;
+
             z-index: 2;
+
             font-size: 30px;
+
             color: #0f766e;
+
             font-weight: 900;
+
             margin-bottom: 24px;
+
             text-transform: uppercase;
+
             letter-spacing: 7px;
+
             display: flex;
+
             align-items: center;
+
             gap: 24px;
+
         }
 
         .label::before,
+
         .label::after {
+
             content: "";
+
             width: 130px;
+
             height: 2px;
+
             background: #5eead4;
+
         }
 
         .sound-wave {
+
             position: relative;
+
             z-index: 2;
+
             height: 48px;
+
             display: flex;
+
             align-items: center;
+
             gap: 6px;
+
             margin-bottom: 10px;
+
         }
 
         .sound-wave span {
+
             width: 6px;
+
             border-radius: 999px;
+
             background: #14b8a6;
+
             animation: wave 1.1s infinite ease-in-out;
+
         }
 
         .sound-wave span:nth-child(1) { height: 14px; animation-delay: 0s; }
+
         .sound-wave span:nth-child(2) { height: 28px; animation-delay: .1s; }
+
         .sound-wave span:nth-child(3) { height: 42px; animation-delay: .2s; }
+
         .sound-wave span:nth-child(4) { height: 24px; animation-delay: .3s; }
+
         .sound-wave span:nth-child(5) { height: 34px; animation-delay: .4s; }
 
         .patient-name {
+
             position: relative;
+
             z-index: 2;
+
             font-size: clamp(74px, 8.5vw, 138px);
+
             line-height: 0.95;
+
             text-align: center;
+
             font-weight: 900;
+
             color: #082f49;
+
             letter-spacing: -5px;
+
             margin-bottom: 48px;
+
             max-width: 100%;
+
             text-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+
             word-break: break-word;
+
         }
 
         .room-box {
+
             position: relative;
+
             z-index: 2;
+
             width: min(760px, 94%);
+
             min-height: 100px;
+
             border-radius: 28px;
+
             background: linear-gradient(135deg, #e6fffb, #ffffff);
+
             border: 1px solid rgba(20, 184, 166, 0.28);
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 22px;
+
             padding: 24px 36px;
+
             box-shadow: inset 0 0 0 1px rgba(255,255,255,0.7), 0 16px 34px rgba(15,23,42,0.09);
+
         }
 
         .room-icon {
+
             width: 66px;
+
             height: 66px;
+
             border-radius: 50%;
+
             background: white;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             color: #0f766e;
+
             flex: 0 0 auto;
+
             box-shadow: 0 10px 22px rgba(15, 118, 110, 0.14);
+
         }
 
         .room-info {
+
             text-align: left;
+
         }
 
         .room-info strong {
+
             display: block;
+
             font-size: clamp(28px, 3vw, 42px);
+
             color: #0f766e;
+
             font-weight: 900;
+
             line-height: 1.1;
+
         }
 
         .room-info span {
+
             display: block;
+
             margin-top: 8px;
+
             font-size: 24px;
+
             font-weight: 700;
+
             color: #334155;
+
         }
 
         .side-card {
+
             background: linear-gradient(180deg, #083344, #0f766e);
+
             border-radius: 34px;
+
             color: white;
+
             padding: 34px 30px;
+
             box-shadow: 0 26px 60px rgba(15, 23, 42, 0.22);
+
             display: flex;
+
             flex-direction: column;
+
             justify-content: space-between;
+
             gap: 22px;
+
         }
 
         .side-title {
+
             font-size: 28px;
+
             font-weight: 900;
+
             line-height: 1.2;
+
             text-transform: uppercase;
+
             color: #ccfbf1;
+
         }
 
         .info-item {
+
             display: grid;
+
             grid-template-columns: 64px 1fr;
+
             gap: 18px;
+
             align-items: center;
+
             padding: 22px 0;
+
             border-top: 1px solid rgba(153, 246, 228, 0.22);
+
         }
 
         .info-icon {
+
             width: 62px;
+
             height: 62px;
+
             border-radius: 50%;
+
             background: rgba(20, 184, 166, 0.22);
+
             border: 1px solid rgba(153, 246, 228, 0.45);
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             color: #99f6e4;
+
             box-shadow: 0 0 26px rgba(45, 212, 191, 0.24);
+
         }
 
         .info-item strong {
+
             display: block;
+
             font-size: 22px;
+
             font-weight: 900;
+
             text-transform: uppercase;
+
             line-height: 1.15;
+
         }
 
         .info-item span {
+
             display: block;
+
             margin-top: 8px;
+
             font-size: 17px;
+
             line-height: 1.35;
+
             color: #d9fffa;
+
         }
 
         .thanks {
+
             text-align: center;
+
             color: #99f6e4;
+
             font-size: 24px;
+
             font-weight: 800;
+
             margin-top: 8px;
+
         }
 
         .footer {
+
             min-height: 92px;
+
             border-radius: 28px;
+
             background: linear-gradient(135deg, #083344, #064e3b);
+
             color: white;
+
             box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+
             display: grid;
+
             grid-template-columns: repeat(3, 1fr);
+
             align-items: center;
+
             overflow: hidden;
+
         }
 
         .footer-item {
+
             display: flex;
+
             align-items: center;
+
             gap: 18px;
+
             padding: 0 34px;
+
             min-height: 92px;
+
             border-right: 1px solid rgba(255,255,255,0.18);
+
         }
 
         .footer-item:last-child {
+
             border-right: none;
+
         }
 
         .footer-icon {
+
             width: 58px;
+
             height: 58px;
+
             border-radius: 50%;
+
             border: 2px solid rgba(255,255,255,0.75);
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             color: #ccfbf1;
+
             flex: 0 0 auto;
+
         }
 
         .footer-item strong {
+
             display: block;
+
             font-size: 22px;
+
             color: #2dd4bf;
+
             font-weight: 900;
+
         }
 
         .footer-item span {
+
             display: block;
+
             margin-top: 4px;
+
             font-size: 18px;
+
             font-weight: 700;
+
             color: #e2e8f0;
+
         }
 
         .flash {
+
             animation: flash 1s ease;
+
         }
 
         .flash .patient-name {
+
             animation: patientIn 1s ease;
+
         }
 
         @keyframes pulseGlow {
+
             0% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.65), 0 0 28px rgba(45, 212, 191, 0.8); }
+
             70% { box-shadow: 0 0 0 22px rgba(45, 212, 191, 0), 0 0 28px rgba(45, 212, 191, 0.8); }
+
             100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0), 0 0 28px rgba(45, 212, 191, 0.8); }
+
         }
 
         @keyframes wave {
+
             0%, 100% { transform: scaleY(0.55); opacity: 0.65; }
+
             50% { transform: scaleY(1.15); opacity: 1; }
+
         }
 
         @keyframes flash {
+
             0% { transform: scale(0.985); filter: brightness(1); }
+
             45% { transform: scale(1.012); filter: brightness(1.08); }
+
             100% { transform: scale(1); filter: brightness(1); }
+
         }
 
         @keyframes patientIn {
-            0% { opacity: 0; transform: translateY(24px) scale(0.96); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
 
+            0% { opacity: 0; transform: translateY(24px) scale(0.96); }
+
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+
+        }
 
         /* =========================================================
+
            AJUSTE PARA TV - CABER TUDO EM 100% DA TELA
+
            ========================================================= */
+
         html,
+
         body {
+
             width: 100%;
+
             height: 100%;
+
             margin: 0;
+
             overflow: hidden;
+
         }
 
         body {
+
             min-height: 100vh;
+
         }
 
         .screen {
+
             width: 100vw;
+
             height: 100vh;
+
             min-height: 0;
+
             grid-template-rows: auto minmax(0, 1fr) auto;
+
             padding: clamp(12px, 2vh, 24px) clamp(18px, 3vw, 42px);
+
             gap: clamp(10px, 1.8vh, 18px);
+
             overflow: hidden;
+
         }
 
         .topbar,
+
         .main,
+
         .footer,
+
         .call-card,
+
         .side-card {
+
             min-height: 0;
+
         }
 
         .topbar {
+
             gap: clamp(12px, 2vw, 24px);
+
         }
 
         .brand-card {
+
             border-radius: 22px;
+
             padding: clamp(10px, 1.4vh, 16px) clamp(16px, 2vw, 24px);
+
             gap: 14px;
+
         }
 
        .brand-logo{
+
     width:clamp(120px,11vw,170px);
+
     height:clamp(60px,8vh,80px);
+
     background:transparent;
+
     border-radius:0;
+
     overflow:visible;
+
 }
 
 .brand-logo img{
+
     width:100%;
+
     height:100%;
+
     object-fit:contain;
+
 }
 
         .brand-text span {
+
             font-size: clamp(12px, 1.7vh, 15px);
+
             letter-spacing: 3px;
+
         }
 
         .brand-text strong {
+
             font-size: clamp(25px, 3.9vh, 34px);
+
         }
 
         .title-pill {
+
             height: clamp(58px, 8.2vh, 76px);
+
             min-width: clamp(390px, 42vw, 560px);
+
             padding: 0 clamp(24px, 3vw, 42px);
+
             font-size: clamp(18px, 2.8vh, 25px);
+
             letter-spacing: clamp(4px, 0.5vw, 7px);
+
         }
 
         .clock-card {
+
             border-radius: 22px;
+
             min-width: clamp(230px, 23vw, 300px);
+
             padding: clamp(10px, 1.6vh, 18px) clamp(18px, 2.4vw, 30px);
+
             gap: 14px;
+
         }
 
         .clock-icon {
+
             width: clamp(44px, 5.8vh, 56px);
+
             height: clamp(44px, 5.8vh, 56px);
+
             border-width: 3px;
+
         }
 
         .clock-box strong {
+
             font-size: clamp(34px, 5.5vh, 48px);
+
         }
 
         .clock-box span {
+
             margin-top: 5px;
+
             font-size: clamp(12px, 1.8vh, 16px);
+
         }
 
         .main {
+
             grid-template-columns: minmax(0, 1fr) clamp(250px, 23vw, 320px);
+
             gap: clamp(14px, 2vw, 24px);
+
             overflow: hidden;
+
         }
 
         .call-card {
+
             border-radius: 34px;
+
             padding: clamp(16px, 2.2vh, 30px) clamp(24px, 3.5vw, 48px);
+
             justify-content: center;
+
         }
 
         .call-card::after {
+
             width: clamp(220px, 32vh, 330px);
+
             height: clamp(220px, 32vh, 330px);
+
         }
 
         .badge {
+
             padding: clamp(9px, 1.4vh, 14px) clamp(22px, 3vw, 34px);
+
             font-size: clamp(19px, 3vh, 28px);
+
             margin-bottom: clamp(12px, 2vh, 24px);
+
             gap: 14px;
+
         }
 
         .bell {
+
             width: clamp(42px, 5.8vh, 56px);
+
             height: clamp(42px, 5.8vh, 56px);
+
         }
 
         .label {
+
             font-size: clamp(18px, 3vh, 28px);
+
             letter-spacing: clamp(3px, 0.5vw, 7px);
+
             margin-bottom: clamp(8px, 1.4vh, 16px);
+
             gap: 16px;
+
         }
 
         .label::before,
+
         .label::after {
+
             width: clamp(48px, 9vw, 120px);
+
         }
 
         .sound-wave {
+
             height: clamp(24px, 4vh, 42px);
+
             margin-bottom: 2px;
+
         }
 
         .patient-name {
+
             font-size: clamp(46px, 7.2vw, 105px);
+
             line-height: 0.92;
+
             letter-spacing: -3px;
+
             margin-bottom: clamp(14px, 2.5vh, 28px);
+
             max-height: 28vh;
+
             overflow: hidden;
+
         }
 
         .room-box {
+
             width: min(680px, 96%);
+
             min-height: 0;
+
             border-radius: 22px;
+
             padding: clamp(12px, 1.8vh, 20px) clamp(18px, 2.4vw, 30px);
+
             gap: 16px;
+
         }
 
         .room-icon {
+
             width: clamp(44px, 6vh, 60px);
+
             height: clamp(44px, 6vh, 60px);
+
         }
 
         .room-info strong {
+
             font-size: clamp(22px, 3.5vh, 38px);
+
         }
 
         .room-info span {
+
             margin-top: 4px;
+
             font-size: clamp(15px, 2.2vh, 22px);
+
         }
 
         .side-card {
+
             border-radius: 28px;
+
             padding: clamp(18px, 2.5vh, 28px) clamp(18px, 2vw, 26px);
+
             gap: 10px;
+
             overflow: hidden;
+
         }
 
         .side-title {
+
             font-size: clamp(19px, 3vh, 27px);
+
         }
 
         .info-item {
+
             grid-template-columns: clamp(42px, 5.5vh, 56px) 1fr;
+
             gap: 14px;
+
             padding: clamp(12px, 2vh, 18px) 0;
+
         }
 
         .info-icon {
+
             width: clamp(42px, 5.5vh, 56px);
+
             height: clamp(42px, 5.5vh, 56px);
+
         }
 
         .info-item strong {
+
             font-size: clamp(15px, 2.3vh, 20px);
+
         }
 
         .info-item span {
+
             margin-top: 4px;
+
             font-size: clamp(12px, 1.8vh, 16px);
+
         }
 
         .thanks {
+
             font-size: clamp(16px, 2.3vh, 22px);
+
             margin-top: 0;
+
         }
 
         .footer {
+
             min-height: clamp(54px, 8vh, 76px);
+
             border-radius: 22px;
+
         }
 
         .footer-item {
+
             min-height: clamp(54px, 8vh, 76px);
+
             padding: 0 clamp(14px, 2vw, 26px);
+
             gap: 12px;
+
         }
 
         .footer-icon {
+
             width: clamp(38px, 5.5vh, 52px);
+
             height: clamp(38px, 5.5vh, 52px);
+
         }
 
         .footer-item strong {
+
             font-size: clamp(15px, 2.2vh, 20px);
+
         }
 
         .footer-item span {
+
             font-size: clamp(12px, 1.8vh, 16px);
+
         }
 
         @media (max-height: 720px) {
+
             .screen {
+
                 padding: 10px 24px;
+
                 gap: 10px;
+
             }
 
             .patient-name {
+
                 font-size: clamp(42px, 6.4vw, 86px);
+
                 max-height: 24vh;
+
             }
 
             .side-card .info-item:nth-child(3) {
+
                 display: none;
+
             }
 
             .footer {
+
                 display: none;
+
             }
+
         }
 
         @media (max-width: 1300px) {
+
             .screen {
+
                 padding: 14px 22px;
+
             }
 
             .topbar {
+
                 grid-template-columns: 1fr auto;
+
             }
 
             .title-pill {
+
                 display: none;
+
             }
 
             .main {
+
                 grid-template-columns: 1fr;
+
             }
 
             .side-card {
+
                 display: none;
+
             }
 
             .patient-name {
+
                 font-size: clamp(46px, 9vw, 96px);
+
             }
+
         }
 
         @media (max-width: 1300px) {
+
             .screen {
+
                 padding: 28px 34px;
+
             }
 
             .topbar {
+
                 grid-template-columns: 1fr auto;
+
             }
 
             .title-pill {
+
                 display: none;
+
             }
 
             .main {
+
                 grid-template-columns: 1fr;
+
             }
 
             .side-card {
+
                 display: none;
+
             }
 
             .patient-name {
+
                 font-size: clamp(72px, 10vw, 130px);
+
             }
+
         }
 
         @media (max-width: 900px) {
+
             .topbar {
+
                 grid-template-columns: 1fr;
+
             }
 
             .clock-card {
+
                 justify-self: start;
+
             }
 
             .footer {
+
                 grid-template-columns: 1fr;
+
                 min-height: auto;
+
             }
 
             .footer-item {
+
                 border-right: none;
+
                 border-bottom: 1px solid rgba(255,255,255,0.18);
+
             }
 
             .footer-item:last-child {
+
                 border-bottom: none;
+
             }
+
         }
+
+    
+        /* Ajustes finais do painel para televisão */
+        .brand-card { min-width: 175px; }
+        .brand-logo { position: relative; }
+        .logo-fallback { display:none; color:#0f766e; font-size:17px; font-weight:900; text-align:center; }
+        .call-card { transition: box-shadow .25s ease; }
+        .patient-name { overflow-wrap:anywhere; font-size:clamp(44px, 6.5vw, 102px); letter-spacing:-.035em; line-height:1.06; max-height:none; }
+        .call-card.is-waiting .badge { opacity:.85; }
+        .call-card.is-calling { box-shadow:0 0 0 5px rgba(20,184,166,.35),0 30px 75px rgba(15,23,42,.16); }
+        .call-card.is-calling .label { color:#0b766e; }
+        .call-card.is-calling .bell { animation:pulseGlow 1.5s infinite; }
+        .side-card { justify-content:flex-start; }
+        .side-card .info-item { padding:12px 0; }
+        .history-list { display:grid; gap:8px; margin-top:10px; }
+        .history-row { padding:10px 12px; border:1px solid rgba(153,246,228,.25); border-radius:12px; background:rgba(255,255,255,.08); }
+        .history-row strong { display:block; font-size:clamp(13px,1.6vh,17px); overflow-wrap:anywhere; }
+        .history-row span { display:block; font-size:clamp(11px,1.4vh,14px); color:#ccfbf1; margin-top:3px; }
+        .history-empty { color:#ccfbf1; font-size:14px; }
+        .status-indicator { position:absolute; bottom:10px; right:20px; font-size:12px; color:#64748b; z-index:3; }
+        .audio-enable { position:fixed; z-index:30; left:50%; bottom:18px; transform:translateX(-50%); padding:12px 20px; background:#083344; color:white; border:2px solid #5eead4; border-radius:30px; cursor:pointer; font:700 15px Inter,sans-serif; box-shadow:0 8px 30px #0004; }
+        .audio-enable[hidden] { display:none; }
+        @media (max-width:1300px) {
+          .main { grid-template-columns:minmax(0,1fr) 280px; }
+          .side-card { display:flex; }
+          .title-pill { display:none; }
+          .topbar { grid-template-columns:1fr auto; }
+        }
+        @media (max-width:950px) {
+          .main { grid-template-columns:1fr; }
+          .side-card { display:none; }
+          .patient-name { font-size:clamp(38px,9vw,85px); }
+        }
+        @media (max-height:700px) {
+          .footer { display:none; }
+          .side-card .info-item { display:none; }
+          .patient-name { font-size:clamp(36px,6vw,80px); }
+        }
+        @media (prefers-reduced-motion:reduce) {
+          .bell,.sound-wave span { animation:none !important; }
+        }
+
     </style>
+
 </head>
 
 <body>
+
     <div class="screen">
 
         <header class="topbar">
+
             <div class="brand">
+
     <div class="brand-card">
 
         <div class="brand-logo">
+
             <img src="{{ url_for('static', filename='img/logo4.png') }}"
+
                  alt="Essencial Clínica"
-                 onerror="this.style.display='none';">
+
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <span class="logo-fallback">ESSENCIAL<br>CLÍNICA</span>
+
         </div>
 
     </div>
+
 </div>
 
             <div class="title-pill">
+
                 <div class="title-icon">
+
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+
                         <path d="M4 5h16v11H4V5Z" stroke="currentColor" stroke-width="2"/>
+
                         <path d="M9 21h6M12 16v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                         <path d="M16 9l3 3-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                     </svg>
+
                 </div>
+
                 Painel de Atendimento
+
             </div>
 
             <div class="clock-card">
+
                 <div class="clock-icon">
+
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+
                         <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+
                         <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                     </svg>
+
                 </div>
 
                 <div class="clock-box">
+
                     <strong id="hora">--:--</strong>
+
                     <span id="data">--/--/----</span>
+
                 </div>
+
             </div>
+
         </header>
 
         <main class="main">
+
             <section class="call-card" id="callCard">
+
                 <div class="badge">
+
                     <div class="bell">
+
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+
                             <path d="M15 17H9m9-1V11a6 6 0 1 0-12 0v5l-2 2h16l-2-2Z" fill="white"/>
+
                             <path d="M10 20a2 2 0 0 0 4 0" stroke="white" stroke-width="2" stroke-linecap="round"/>
+
                         </svg>
+
                     </div>
+
                     Paciente Chamado
+
                 </div>
 
-                <div class="label">Aguardando Chamada</div>
+                <div class="label" id="estadoChamada">Aguardando chamada</div>
 
                 <div class="sound-wave">
+
                     <span></span>
+
                     <span></span>
+
                     <span></span>
+
                     <span></span>
+
                     <span></span>
+
                 </div>
 
-                <div class="patient-name" id="paciente">Aguardando...</div>
+                <div class="patient-name" id="paciente">Bem-vindo!</div>
 
                 <div class="room-box">
+
                     <div class="room-icon">
+
                         <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+
                             <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
+
                             <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                             <path d="M19 8v4M17 10h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                         </svg>
+
                     </div>
 
                     <div class="room-info">
+
                         <strong id="consultorio">Recepção</strong>
+
                         <span id="medico">Aguarde sua vez</span>
+
                     </div>
+
                 </div>
+
             </section>
 
             <aside class="side-card">
+
                 <div class="side-title">
+
                     Sua saúde é nossa prioridade
+
                 </div>
+                <section aria-label="Últimas chamadas" style="margin-top:14px;">
+                    <div style="font-weight:900;color:#ccfbf1;font-size:17px;">ÚLTIMAS CHAMADAS</div>
+                    <div id="historicoChamadas" class="history-list"><p class="history-empty">Nenhuma chamada registrada nesta tela.</p></div>
+                </section>
 
                 <div>
+
                     <div class="info-item">
+
                         <div class="info-icon">
+
                             <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+
                                 <path d="M20.8 8.6c0 5.2-8.8 10.4-8.8 10.4S3.2 13.8 3.2 8.6A4.6 4.6 0 0 1 12 6.7a4.6 4.6 0 0 1 8.8 1.9Z" stroke="currentColor" stroke-width="2"/>
+
                                 <path d="M7 12h3l1-2 2 5 1-3h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                             </svg>
+
                         </div>
+
                         <div>
+
                             <strong>Atendimento humanizado</strong>
+
                             <span>Cada paciente é único para nós.</span>
+
                         </div>
+
                     </div>
 
                     <div class="info-item">
+
                         <div class="info-icon">
+
                             <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+
                                 <path d="M12 3 5 6v5c0 4.5 3 8.5 7 10 4-1.5 7-5.5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="2"/>
+
                                 <path d="m9 12 2 2 4-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
                             </svg>
+
                         </div>
+
                         <div>
+
                             <strong>Segurança e confiança</strong>
+
                             <span>Ambiente seguro e equipe qualificada.</span>
+
                         </div>
+
                     </div>
 
                     <div class="info-item">
+
                         <div class="info-icon">
+
                             <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+
                                 <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="2"/>
+
                                 <path d="M8 3v4M16 3v4M4 10h16M9 15l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                             </svg>
+
                         </div>
+
                         <div>
+
                             <strong>Organização e eficiência</strong>
+
                             <span>Mais agilidade para seu atendimento.</span>
+
                         </div>
+
                     </div>
+
                 </div>
 
                 <div class="thanks">Obrigado pela confiança!</div>
+
             </aside>
+
         </main>
 
         <footer class="footer">
+
             <div class="footer-item">
+
                 <div class="footer-icon">
+
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+
                         <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+
                         <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                     </svg>
+
                 </div>
+
                 <div>
+
                     <strong>Seja bem-vindo!</strong>
+
                     <span>Estamos aqui para cuidar de você.</span>
+
                 </div>
+
             </div>
 
             <div class="footer-item">
+
                 <div class="footer-icon">
+
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+
                         <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+
                         <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                     </svg>
+
                 </div>
+
                 <div>
+
                     <strong>Aguarde com tranquilidade.</strong>
+
                     <span>Em breve será a sua vez!</span>
+
                 </div>
+
             </div>
 
             <div class="footer-item">
+
                 <div class="footer-icon">
+
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+
                         <path d="M21 12a8 8 0 0 1-8 8H7l-4 2 2-4a8 8 0 1 1 16-6Z" stroke="currentColor" stroke-width="2"/>
+
                         <path d="M8 12h8M8 9h8M8 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+
                     </svg>
+
                 </div>
+
                 <div>
+
                     <strong>Dúvidas?</strong>
+
                     <span>Fale com nossa equipe na recepção.</span>
+
                 </div>
+
             </div>
+
         </footer>
+
     </div>
 
+    <button id="ativarSom" class="audio-enable" type="button">🔊 Ativar som da TV</button>
     <script>
+        // Mantém a API existente: /api/ultima-chamada.
+        // O histórico abaixo é local a esta TV; não exige uma rota nova.
+        const intervaloBuscaMs = 2500;
+        const tempoDestaqueMs = 60000;
         let ultimaChamadaId = null;
+        let primeiraConsulta = true;
         let audioLiberado = false;
         let audioContextoGlobal = null;
+        let filaAudio = Promise.resolve();
+        let tokenChamada = 0;
+        let horarioUltimaChamada = 0;
+        let buscando = false;
+        const historicoLocal = [];
+        const $ = (id) => document.getElementById(id);
 
         function atualizarRelogio() {
             const agora = new Date();
-
-            document.getElementById("hora").innerText = agora.toLocaleTimeString("pt-BR", {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-
-            document.getElementById("data").innerText = agora.toLocaleDateString("pt-BR", {
-                weekday: "long",
-                day: "2-digit",
-                month: "long",
-                year: "numeric"
-            });
+            $('hora').textContent = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+            $('data').textContent = agora.toLocaleDateString('pt-BR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'});
         }
-
-        function liberarAudio() {
-            audioLiberado = true;
-
+        function definirEspera() {
+            if (Date.now() - horarioUltimaChamada < tempoDestaqueMs) return;
+            $('callCard').classList.add('is-waiting');
+            $('callCard').classList.remove('is-calling');
+            $('estadoChamada').textContent = 'Aguardando chamada';
+            $('paciente').textContent = 'Bem-vindo!';
+            $('consultorio').textContent = 'Recepção';
+            $('medico').textContent = 'Por favor, aguarde sua vez.';
+        }
+        async function liberarAudio() {
             try {
-                audioContextoGlobal = new (window.AudioContext || window.webkitAudioContext)();
-
-                if (audioContextoGlobal.state === "suspended") {
-                    audioContextoGlobal.resume();
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (Ctx) {
+                    audioContextoGlobal ||= new Ctx();
+                    if (audioContextoGlobal.state === 'suspended') await audioContextoGlobal.resume();
                 }
-            } catch (erro) {
-                console.log("AudioContext indisponível:", erro);
-            }
-
-            console.log("Som do painel liberado.");
+                // Alguns navegadores exigem um clique para habilitar a síntese de voz.
+                if ('speechSynthesis' in window) speechSynthesis.getVoices();
+                audioLiberado = true;
+                $('ativarSom').hidden = true;
+            } catch (erro) { console.warn('Não foi possível ativar o áudio:', erro); }
         }
-
-        document.addEventListener("click", liberarAudio, { once: true });
-        document.addEventListener("touchstart", liberarAudio, { once: true });
+        $('ativarSom').addEventListener('click', liberarAudio);
 
         function tocarSino() {
+            if (!audioLiberado || !audioContextoGlobal) return;
             try {
-                const contexto = audioContextoGlobal || new (window.AudioContext || window.webkitAudioContext)();
-                const oscilador = contexto.createOscillator();
-                const ganho = contexto.createGain();
-
-                oscilador.type = "sine";
-                oscilador.frequency.setValueAtTime(880, contexto.currentTime);
-
-                ganho.gain.setValueAtTime(0.001, contexto.currentTime);
-                ganho.gain.exponentialRampToValueAtTime(0.28, contexto.currentTime + 0.03);
-                ganho.gain.exponentialRampToValueAtTime(0.001, contexto.currentTime + 0.85);
-
-                oscilador.connect(ganho);
-                ganho.connect(contexto.destination);
-
-                oscilador.start();
-                oscilador.stop(contexto.currentTime + 0.9);
-            } catch (erro) {
-                console.log("Áudio indisponível:", erro);
-            }
+                const ctx = audioContextoGlobal;
+                const osc = ctx.createOscillator();
+                const ganho = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880,ctx.currentTime);
+                ganho.gain.setValueAtTime(.001,ctx.currentTime);
+                ganho.gain.exponentialRampToValueAtTime(.2,ctx.currentTime+.03);
+                ganho.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.8);
+                osc.connect(ganho); ganho.connect(ctx.destination);
+                osc.start(); osc.stop(ctx.currentTime+.85);
+            } catch (erro) { console.warn('Sino indisponível:', erro); }
         }
-
-        function esperar(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        function tocarAudioMp3(urlAudio, textoFallback) {
-            return new Promise((resolve) => {
-                if (!audioLiberado) {
-                    console.log("Clique uma vez na tela para liberar o som do painel.");
-                }
-
-                if (!urlAudio) {
-                    falar(textoFallback).then(resolve);
-                    return;
-                }
-
-                try {
-                    const audio = new Audio(urlAudio + "?t=" + Date.now());
-                    audio.volume = 1;
-
-                    audio.onended = function () {
-                        resolve();
-                    };
-
-                    audio.onerror = function () {
-                        console.log("Erro ao carregar MP3, usando voz padrão.");
-                        falar(textoFallback).then(resolve);
-                    };
-
-                    const promessa = audio.play();
-
-                    if (promessa && typeof promessa.then === "function") {
-                        promessa.catch(function (erro) {
-                            console.log("Navegador bloqueou o MP3, usando voz padrão:", erro);
-                            falar(textoFallback).then(resolve);
-                        });
-                    } else {
-                        // Navegadores mais antigos podem não retornar Promise no audio.play().
-                        // Nesse caso, deixamos o onended resolver quando o áudio terminar.
-                    }
-                } catch (erro) {
-                    console.log("Erro ao tocar MP3:", erro);
-                    falar(textoFallback).then(resolve);
-                }
-            });
-        }
-
+        const esperar = ms => new Promise(resolve => setTimeout(resolve,ms));
         function falar(texto) {
-            return new Promise((resolve) => {
-                try {
-                    speechSynthesis.cancel();
-
-                    const msg = new SpeechSynthesisUtterance(texto);
-
-                    msg.lang = "pt-BR";
-                    msg.rate = 0.92;
-                    msg.pitch = 1;
-                    msg.volume = 1;
-
-                    const vozes = speechSynthesis.getVoices();
-
-                    msg.voice =
-                        vozes.find(v => v.name === "Google português do Brasil") ||
-                        vozes.find(v => v.name.includes("Maria")) ||
-                        vozes.find(v => v.name.includes("Daniel")) ||
-                        vozes.find(v => v.lang === "pt-BR");
-
-                    msg.onend = function () {
-                        resolve();
-                    };
-
-                    msg.onerror = function () {
-                        console.log("Erro na voz padrão.");
-                        resolve();
-                    };
-
-                    speechSynthesis.speak(msg);
-                } catch (erro) {
-                    console.log("Erro ao falar:", erro);
-                    resolve();
-                }
+            return new Promise(resolve => {
+                if (!audioLiberado || !('speechSynthesis' in window)) return resolve();
+                const msg = new SpeechSynthesisUtterance(texto);
+                msg.lang='pt-BR'; msg.rate=.92; msg.pitch=1; msg.volume=1;
+                const vozes = speechSynthesis.getVoices();
+                msg.voice = vozes.find(v=>v.lang.toLowerCase()==='pt-br') || vozes.find(v=>v.lang.startsWith('pt')) || null;
+                let terminou=false;
+                const concluir=()=>{ if(!terminou){ terminou=true; clearTimeout(limite); resolve(); } };
+                const limite=setTimeout(()=>{speechSynthesis.cancel(); concluir();},20000);
+                msg.onend=concluir; msg.onerror=concluir;
+                try { speechSynthesis.cancel(); speechSynthesis.speak(msg); }
+                catch(erro){ concluir(); }
             });
         }
-
-        async function repetirChamadaTresVezes(urlAudio, textoFallback) {
-            for (let tentativa = 1; tentativa <= 3; tentativa++) {
-                tocarSino();
-                await esperar(500);
-                await tocarAudioMp3(urlAudio, textoFallback);
-
-                if (tentativa < 3) {
-                    await esperar(4000);
-                }
+        function tocarAudioMp3(urlAudio,textoFallback) {
+            if (!audioLiberado) return Promise.resolve();
+            if (!urlAudio) return falar(textoFallback);
+            return new Promise(resolve=>{
+                let finalizado=false;
+                let audio;
+                const concluir=()=>{if(!finalizado){finalizado=true;clearTimeout(limite);if(audio){audio.pause();audio.src='';}resolve();}};
+                const fallback=()=>{if(finalizado)return; finalizado=true;clearTimeout(limite);if(audio){audio.pause();audio.src='';}falar(textoFallback).then(resolve);};
+                const limite=setTimeout(fallback,30000);
+                try {
+                    audio=new Audio(urlAudio);
+                    audio.volume=1;
+                    audio.onended=concluir;
+                    audio.onerror=fallback;
+                    const tentativa=audio.play();
+                    if(tentativa && typeof tentativa.catch==='function') tentativa.catch(fallback);
+                } catch(erro){ fallback(); }
+            });
+        }
+        async function repetirChamadaTresVezes(urlAudio,textoFallback,token) {
+            if (!audioLiberado) return;
+            for(let tentativa=1;tentativa<=3;tentativa++) {
+                if(token!==tokenChamada) return;
+                tocarSino(); await esperar(500);
+                if(token!==tokenChamada) return;
+                await tocarAudioMp3(urlAudio,textoFallback);
+                if(tentativa<3) await esperar(3000);
             }
         }
-
         function animarCard() {
-            const card = document.getElementById("callCard");
-
-            card.classList.remove("flash");
-            void card.offsetWidth;
-            card.classList.add("flash");
+            const card=$('callCard');
+            card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
         }
-
-        function formatarDestino(medico) {
-            if (!medico) {
-                return "Recepção";
+        function registrarHistorico(paciente,medico,consultorio) {
+            historicoLocal.unshift({paciente,medico,consultorio,hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+            historicoLocal.splice(4);
+            const container=$('historicoChamadas');
+            container.replaceChildren();
+            historicoLocal.forEach(item=>{
+                const linha=document.createElement('div'); linha.className='history-row';
+                const nome=document.createElement('strong'); nome.textContent=item.paciente;
+                const info=document.createElement('span'); info.textContent=`${item.consultorio} • ${item.hora}`;
+                linha.append(nome,info); container.append(linha);
+            });
+        }
+        function exibirChamada(dados,anunciar) {
+            const paciente=String(dados.paciente_nome||'Paciente');
+            const medico=String(dados.medico_nome||'Profissional');
+            const consultorio=String(dados.consultorio||`Consultório do ${medico}`);
+            $('paciente').textContent=paciente;
+            $('consultorio').textContent=consultorio;
+            $('medico').textContent=`Atendimento: ${medico}`;
+            $('estadoChamada').textContent='Paciente chamado';
+            $('callCard').classList.remove('is-waiting');
+            $('callCard').classList.add('is-calling');
+            horarioUltimaChamada=Date.now();
+            animarCard();
+            registrarHistorico(paciente,medico,consultorio);
+            if(anunciar) {
+                const texto=`${paciente}, por favor, dirija-se ao ${consultorio}.`;
+                const token=++tokenChamada;
+                // Fila serializa chamadas, evitando duas vozes ao mesmo tempo.
+                filaAudio=filaAudio.catch(()=>{}).then(()=>repetirChamadaTresVezes(dados.audio_url,texto,token));
             }
-
-            return "Consultório do " + medico;
         }
-
         async function buscarChamada() {
+            if(buscando)return;
+            buscando=true;
             try {
-                const resposta = await fetch("/api/ultima-chamada", { cache: "no-store" });
-                const dados = await resposta.json();
-
-                if (!dados.existe) {
-                    return;
+                const resposta=await fetch('/api/ultima-chamada',{cache:'no-store',credentials:'same-origin'});
+                if(!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+                const dados=await resposta.json();
+                if(!dados.existe) { primeiraConsulta=false; definirEspera(); return; }
+                // A API precisa fornecer um ID único por evento de chamada.
+                const id=dados.id;
+                if(id===undefined || id===null) {console.warn('API sem id da chamada');return;}
+                if(id!==ultimaChamadaId) {
+                    ultimaChamadaId=id;
+                    // Na primeira carga, apenas exibe a última chamada sem reproduzir som antigo.
+                    exibirChamada(dados,!primeiraConsulta);
                 }
-
-                if (dados.id !== ultimaChamadaId) {
-                    ultimaChamadaId = dados.id;
-
-                    const paciente = dados.paciente_nome || "Paciente";
-                    const medico = dados.medico_nome || "Médico";
-                    const destino = formatarDestino(medico);
-                    const textoFallback = `${paciente}, dirigir-se ao consultório do ${medico}, por favor.`;
-
-                    document.getElementById("paciente").innerText = paciente;
-                    document.getElementById("consultorio").innerText = destino;
-                    document.getElementById("medico").innerText = "Por favor, aguarde ser chamado.";
-
-                    animarCard();
-                    repetirChamadaTresVezes(dados.audio_url, textoFallback).catch((erro) => {
-                        console.log("Erro ao repetir chamada:", erro);
-                    });
-                }
-            } catch (erro) {
-                console.log("Erro ao buscar chamada:", erro);
-            }
+                primeiraConsulta=false;
+            } catch(erro) { console.warn('Falha ao consultar chamadas:',erro); }
+            finally { buscando=false; }
         }
-
-        atualizarRelogio();
-        setInterval(atualizarRelogio, 1000);
-
+        atualizarRelogio(); definirEspera();
+        setInterval(atualizarRelogio,1000);
         buscarChamada();
-        setInterval(buscarChamada, 2500);
+        setInterval(buscarChamada,intervaloBuscaMs);
+        setInterval(definirEspera,5000);
     </script>
+
 </body>
+
 </html>
