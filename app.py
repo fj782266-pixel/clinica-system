@@ -3172,7 +3172,7 @@ def chamar_paciente(agendamento_id):
 
     texto_chamada = (
 
-    f"Atenção, senhor(a) {paciente_nome}. "
+    f"Atenção, {paciente_nome}. "
 
     f"Favor dirigir-se ao consultório do {medico_nome}. "
 
