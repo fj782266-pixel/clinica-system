@@ -750,31 +750,49 @@ async def gerar_audio_chamada_async(texto, caminho_audio):
 
 
 
+
 def gerar_audio_chamada(texto, nome_arquivo):
-
     if edge_tts is None:
-
-        print("edge-tts não instalado. Instale com: pip install edge-tts")
-
+        app.logger.error("edge-tts não está disponível")
         return None
 
-
+    caminho_audio = None
 
     try:
-
         pasta = garantir_pasta_chamadas()
-
         caminho_audio = os.path.join(pasta, nome_arquivo)
 
-        asyncio.run(gerar_audio_chamada_async(texto, caminho_audio))
+        asyncio.run(
+            gerar_audio_chamada_async(texto, caminho_audio)
+        )
+
+        if not os.path.isfile(caminho_audio):
+            app.logger.error("Arquivo MP3 não foi criado")
+            return None
+
+        if os.path.getsize(caminho_audio) == 0:
+            app.logger.error("Arquivo MP3 está vazio")
+            os.remove(caminho_audio)
+            return None
+
+        app.logger.info(
+            "Áudio neural gerado com sucesso: %s",
+            nome_arquivo
+        )
 
         return f"/static/chamadas/{nome_arquivo}"
 
-    except Exception as erro:
+    except Exception:
+        app.logger.exception("Falha ao gerar áudio neural")
 
-        print("Erro ao gerar áudio da chamada:", erro)
+        if caminho_audio and os.path.isfile(caminho_audio):
+            try:
+                os.remove(caminho_audio)
+            except OSError:
+                pass
 
         return None
+
 
 
 
@@ -3204,20 +3222,19 @@ def chamar_paciente(agendamento_id):
 
 
     db.session.add(chamada)
-
-    db.session.commit()
-
-
+    db.session.flush()
 
     nome_arquivo = f"chamada_{chamada.id}_{uuid.uuid4().hex[:8]}.mp3"
 
-    gerar_audio_chamada(texto_chamada, nome_arquivo)
+    audio_url = gerar_audio_chamada(texto_chamada, nome_arquivo)
 
+    if audio_url is None:
+        app.logger.warning(
+            "Chamada %s: áudio neural indisponível",
+            chamada.id
+        )
 
-
-    flash(f"Paciente {chamada.paciente_nome} chamado no painel da recepção.")
-
-    return redirect(url_for("agendamentos"))
+    db.session.commit()
 
 
 
