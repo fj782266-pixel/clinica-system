@@ -3217,9 +3217,8 @@ def chamar_paciente(agendamento_id):
 
 
 
+    
     agendamento.status = "Chamado"
-
-
 
     db.session.add(chamada)
     db.session.flush()
@@ -3235,6 +3234,10 @@ def chamar_paciente(agendamento_id):
         )
 
     db.session.commit()
+
+    flash(f"Paciente {chamada.paciente_nome} chamado no painel da recepção.")
+    return redirect(url_for("agendamentos"))
+
 
 
 
