@@ -3283,61 +3283,57 @@ def api_ultima_chamada():
 
 
 
+
 @app.route("/api/tv/proxima-chamada", methods=["POST"])
 @login_obrigatorio
 def api_tv_proxima_chamada():
-    """Reserva a chamada mais antiga. A TV deve concluir antes de pedir outra."""
+    """Entrega somente novas chamadas da fila da TV."""
 
     if not acesso_tv_api():
         return jsonify({"erro": "Acesso negado"}), 403
 
     try:
-        # Impede reservas simultâneas entre workers do PostgreSQL.
+        # Impede que duas requisições reservem a mesma chamada.
         if db.engine.dialect.name == "postgresql":
             db.session.execute(
                 text("SELECT pg_advisory_xact_lock(78123456)")
             )
 
-        # Primeiro, verifica se existe chamada em reprodução.
+        # Busca somente chamadas que ainda não foram reproduzidas.
         chamada = (
             ChamadaPaciente.query
-            .filter(ChamadaPaciente.status == "reproduzindo")
+            .filter(
+                ChamadaPaciente.status.in_(
+                    ["aguardando", "chamando"]
+                )
+            )
             .order_by(ChamadaPaciente.id.asc())
             .first()
         )
 
-        # Se não houver, busca a próxima chamada da fila.
         if chamada is None:
-            chamada = (
-                ChamadaPaciente.query
-                .filter(
-                    ChamadaPaciente.status.in_(
-                        ["aguardando", "chamando"]
-                    )
-                )
-                .order_by(ChamadaPaciente.id.asc())
-                .first()
-            )
-
-            if chamada:
-                chamada.status = "reproduzindo"
-
-        if chamada:
             db.session.commit()
-            resposta = jsonify(dados_chamada_tv(chamada))
-        else:
-            db.session.commit()
+
             resposta = jsonify({"existe": False})
+            resposta.headers["Cache-Control"] = "no-store, private"
+            return resposta
 
+        # Reserva a chamada para reprodução.
+        chamada.status = "reproduzindo"
+        db.session.commit()
+
+        resposta = jsonify(dados_chamada_tv(chamada))
         resposta.headers["Cache-Control"] = "no-store, private"
         return resposta
 
     except Exception:
         db.session.rollback()
         app.logger.exception("Erro ao reservar chamada da TV")
+
         return jsonify({
             "erro": "Fila temporariamente indisponível"
         }), 503
+
 
 
 
