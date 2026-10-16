@@ -691,28 +691,20 @@ def int_ou_none(valor):
 
 
 def formatar_nome_medico_para_chamada(nome):
-
     nome = (nome or "").strip()
 
-
-
     if not nome:
-
         return "Médico"
-
-
 
     nome_lower = nome.lower()
 
+    if nome_lower.startswith(("dra.", "dra ", "doutora ")):
+        return "Doutora " + nome.split(maxsplit=1)[-1]
 
+    if nome_lower.startswith(("dr.", "dr ", "doutor ")):
+        return "Doutor " + nome.split(maxsplit=1)[-1]
 
-    if nome_lower.startswith("dr.") or nome_lower.startswith("dra.") or nome_lower.startswith("doutor") or nome_lower.startswith("doutora"):
-
-        return nome
-
-
-
-    return f"Dr. {nome}"
+    return f"Doutor {nome}"
 
 
 
