@@ -721,12 +721,42 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* INTERAÇÕES DO DASHBOARD */
+        button.menu-btn, button.action-icon, button.profile-circle {cursor:pointer; font:inherit;}
+        .menu-btn {flex-shrink:0;}
+        .profile-circle {border:0;}
+        .top-actions {position:relative;}
+        .top-popup {position:absolute; z-index:100; top:calc(100% + 12px); right:0; width:min(340px, 90vw); padding:18px; border-radius:16px; background:white; border:1px solid var(--border); box-shadow:var(--shadow); display:flex; flex-direction:column; gap:12px;}
+        .top-popup[hidden] {display:none !important;}
+        .top-popup input {width:100%; padding:10px; border:1px solid var(--border); border-radius:10px;}
+        .top-popup small {color:var(--muted); line-height:1.5;}
+        .popup-link {color:var(--primary); font-weight:700; text-decoration:none; padding:8px; border-radius:8px;}
+        .popup-link:hover,.search-result:hover {background:var(--primary-light);}
+        .calendar-entry {padding:7px 0; border-bottom:1px solid var(--border); font-size:.85rem;}
+        #calendarResults {max-height:260px; overflow:auto;}
+        .search-result {display:block; padding:10px; text-decoration:none; color:var(--text); border-radius:8px;}
+        @media(min-width:901px) {
+            body.sidebar-collapsed .sidebar {width:78px; padding:30px 10px;}
+            body.sidebar-collapsed .sidebar .brand h2, body.sidebar-collapsed .sidebar .brand span, body.sidebar-collapsed .sidebar .menu a {font-size:0;}
+            body.sidebar-collapsed .sidebar .brand img {width:54px;}
+            body.sidebar-collapsed .sidebar .menu a {justify-content:center; padding:14px 8px; gap:0;}
+            body.sidebar-collapsed .sidebar .menu a i {font-size:1.4rem;}
+            body.sidebar-collapsed .sidebar .user-box div:not(.user-avatar), body.sidebar-collapsed .sidebar .logout {display:none;}
+            body.sidebar-collapsed .sidebar .user-box {padding:4px;}
+            body.sidebar-collapsed .main {margin-left:78px; width:calc(100% - 78px);}
+        }
+        @media(max-width:900px) {
+            body.mobile-sidebar-hidden .sidebar {display:none;}
+            .topbar {position:relative;}
+        }
+
     </style>
 </head>
 
 <body>
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div>
             <div class="brand">
                 <img src="{{ url_for('static', filename='logo2.png') }}" alt="Essencial Clínica">
@@ -755,10 +785,10 @@
                     Agendamentos
                 </a>
 
-                <a href="/financeiro">
+                {% if session.get("tipo") == "admin" %}<a href="/financeiro">
                     <i class="bi bi-cash-coin"></i>
                     Financeiro
-                </a>
+                </a>{% endif %}
 
                 <a href="#">
                     <i class="bi bi-file-earmark-bar-graph"></i>
@@ -790,13 +820,13 @@
         </div>
     </aside>
 
-    <main class="main">
+    <main class="main" id="mainContent">
 
         <section class="topbar">
             <div class="welcome">
-                <div class="menu-btn">
+                <button type="button" class="menu-btn" id="menuToggle" aria-label="Recolher menu" aria-expanded="true">
                     <i class="bi bi-list"></i>
-                </div>
+                </button>
 
                 <div>
                     <h1>Olá, Administrador! 👋</h1>
@@ -807,7 +837,7 @@
             <div class="top-actions">
                 <div class="search-box">
                     <i class="bi bi-search"></i>
-                    <input type="text" placeholder="Buscar...">
+                    <input type="search" id="dashboardSearch" placeholder="Buscar pacientes, consultas..." aria-label="Buscar seções do sistema" autocomplete="off">
                 </div>
 
                 <div class="action-icon">
@@ -815,13 +845,21 @@
                     <span class="badge">3</span>
                 </div>
 
-                <div class="action-icon">
-                    <i class="bi bi-calendar-event"></i>
-                </div>
+                <button type="button" class="action-icon" id="calendarToggle" aria-label="Abrir calendário" aria-expanded="false"><i class="bi bi-calendar-event"></i></button>
 
-                <div class="profile-circle">
-                    A
+                <button type="button" class="profile-circle" id="profileToggle" aria-label="Abrir perfil" aria-expanded="false">{{ (session.get("usuario") or session.get("nome") or "A")[:1]|upper }}</button>
+                <div class="top-popup" id="calendarPopup" hidden>
+                    <label for="dashboardDate"><strong>Selecionar data</strong></label>
+                    <input type="date" id="dashboardDate">
+                    <a href="/agendamentos" id="calendarGo" class="popup-link">Ver agendamentos</a>
+                    <div id="calendarResults" aria-live="polite"><small>Escolha uma data para ver as consultas.</small></div>
                 </div>
+                <div class="top-popup" id="profilePopup" hidden>
+                    <strong>Minha conta</strong>
+                    <small>Perfil: {{ session.get('tipo', 'Usuário')|e }}</small>
+                    <a href="/logout" class="popup-link">Sair do sistema</a>
+                </div>
+                <div class="top-popup" id="searchPopup" hidden role="status"></div>
             </div>
         </section>
 
@@ -1008,7 +1046,7 @@
                 </div>
             </div>
 
-            <div class="stat-card">
+            {% if session.get("tipo") == "admin" %}<div class="stat-card">
                 <div class="stat-top">
                     <div class="stat-icon">
                         <i class="bi bi-currency-dollar"></i>
@@ -1026,7 +1064,7 @@
                     <i class="bi bi-arrow-up"></i>
                     total registrado
                 </div>
-            </div>
+            </div>{% endif %}
 
         </section>
 
@@ -1053,5 +1091,98 @@
 
     </main>
 
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const menu = $('menuToggle');
+  const search = $('dashboardSearch');
+  const calendar = $('calendarToggle');
+  const profile = $('profileToggle');
+  const popups = {search: $('searchPopup'), calendar: $('calendarPopup'), profile: $('profilePopup')};
+  const buttons = {calendar, profile};
+  function closePopups(except) {
+    Object.entries(popups).forEach(([key, el]) => { if (key !== except) el.hidden = true; });
+    Object.entries(buttons).forEach(([key, el]) => el.setAttribute('aria-expanded', String(key === except)));
+  }
+  menu.addEventListener('click', () => {
+    const mobile = window.matchMedia('(max-width:900px)').matches;
+    document.body.classList.toggle(mobile ? 'mobile-sidebar-hidden' : 'sidebar-collapsed');
+    menu.setAttribute('aria-expanded', String(!document.body.classList.contains(mobile ? 'mobile-sidebar-hidden' : 'sidebar-collapsed')));
+  });
+  for (const [key, button] of Object.entries(buttons)) {
+    button.addEventListener('click', () => {
+      const opening = popups[key].hidden;
+      closePopups(opening ? key : null);
+      popups[key].hidden = !opening;
+      button.setAttribute('aria-expanded', String(opening));
+    });
+  }
+  const sections = [['Dashboard', '/'], ['Profissionais', '/profissionais'], ['Pacientes', '/pacientes'], ['Agendamentos', '/agendamentos']];
+  const userType = {{ session.get('tipo', 'recepcao')|tojson }};
+  if (userType === 'admin') sections.push(['Financeiro', '/financeiro'], ['Usuários', '/usuarios']);
+  let searchSeq = 0;
+  async function updateSearch() {
+    const query = search.value.trim();
+    const popup = popups.search;
+    const seq = ++searchSeq;
+    popup.replaceChildren();
+    if (!query) { popup.hidden = true; return; }
+    closePopups('search'); popup.hidden = false;
+    const matches = sections.filter(([name]) => name.toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR')));
+    function addResult(name, href, detail='') {
+      const a = document.createElement('a'); a.href = href; a.className = 'search-result';
+      a.textContent = name + (detail ? ' — ' + detail : ''); popup.appendChild(a);
+    }
+    matches.forEach(([name, href]) => addResult(name, href));
+    if (query.length < 2) return;
+    try {
+      const response = await fetch('/api/dashboard/pesquisa?q=' + encodeURIComponent(query), {credentials:'same-origin'});
+      if (!response.ok) throw new Error('Falha na pesquisa');
+      const data = await response.json();
+      if (seq !== searchSeq) return;
+      (data.resultados || []).forEach(item => addResult(item.tipo + ': ' + item.nome, item.url, item.detalhe));
+      if (!popup.children.length) popup.textContent = 'Nenhum resultado encontrado.';
+    } catch (error) {
+      if (seq === searchSeq) { const message = document.createElement('small'); message.textContent = 'Não foi possível consultar os registros.'; popup.appendChild(message); }
+    }
+  }
+  let searchDebounce;
+  search.addEventListener('input', () => { clearTimeout(searchDebounce); searchDebounce = setTimeout(updateSearch, 250); });
+  search.addEventListener('keydown', event => {
+    if (event.key === 'Enter') { const first = popups.search.querySelector('a'); if (first) window.location.assign(first.href); }
+  });
+  const date = $('dashboardDate');
+  date.value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  async function updateCalendar() {
+    const selected = date.value;
+    $('calendarGo').href = '/agendamentos?data=' + encodeURIComponent(selected);
+    const target = $('calendarResults');
+    target.replaceChildren(); target.textContent = 'Carregando consultas...';
+    try {
+      const response = await fetch('/api/dashboard/agenda?data=' + encodeURIComponent(selected), {credentials:'same-origin'});
+      if (!response.ok) throw new Error('Falha no calendário');
+      const data = await response.json();
+      if (date.value !== selected) return;
+      target.replaceChildren();
+      if (!data.agendamentos.length) { target.textContent = 'Nenhum agendamento nesta data.'; return; }
+      const heading = document.createElement('strong'); heading.textContent = data.agendamentos.length + ' agendamento(s)'; target.appendChild(heading);
+      data.agendamentos.slice(0, 8).forEach(item => {
+        const line = document.createElement('div'); line.className = 'calendar-entry';
+        line.textContent = item.horario + ' — ' + item.paciente + (item.profissional ? ' (' + item.profissional + ')' : '');
+        target.appendChild(line);
+      });
+      if (data.agendamentos.length > 8) { const more = document.createElement('small'); more.textContent = 'Veja os demais na página de agendamentos.'; target.appendChild(more); }
+    } catch (error) { if (date.value === selected) target.textContent = 'Não foi possível carregar as consultas.'; }
+  }
+  date.addEventListener('change', updateCalendar);
+  calendar.addEventListener('click', () => { if (!popups.calendar.hidden) updateCalendar(); });
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.top-actions')) closePopups(null);
+  });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closePopups(null); });
+})();
+</script>
 </body>
 </html>

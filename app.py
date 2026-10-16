@@ -1151,6 +1151,10 @@ def bloquear_telas_medico():
 
         "home",
 
+        "api_dashboard_pesquisa",
+
+        "api_dashboard_agenda",
+
         "logout",
 
         "agendamentos",
@@ -1434,6 +1438,49 @@ def logout():
 # DASHBOARD
 
 # ============================================================
+
+
+
+@app.route("/api/dashboard/pesquisa")
+@login_obrigatorio
+def api_dashboard_pesquisa():
+    termo = (request.args.get("q") or "").strip()[:80]
+    if len(termo) < 2:
+        return jsonify(resultados=[])
+
+    resultados = []
+    tipo = session.get("tipo")
+    if tipo in ("admin", "recepcao"):
+        for paciente in Paciente.query.filter(Paciente.nome.ilike(f"%{termo}%")).order_by(Paciente.nome).limit(8).all():
+            resultados.append({"tipo": "Paciente", "nome": paciente.nome, "url": url_for("ficha_paciente", id=paciente.id)})
+        for profissional in Profissional.query.filter(Profissional.nome.ilike(f"%{termo}%")).order_by(Profissional.nome).limit(5).all():
+            resultados.append({"tipo": "Profissional", "nome": profissional.nome, "url": url_for("profissionais")})
+
+    consulta = aplicar_filtro_medico_agendamentos(Agendamento.query)
+    consulta = consulta.filter(Agendamento.cliente_nome.ilike(f"%{termo}%"))
+    for agendamento in consulta.order_by(Agendamento.data.desc()).limit(8).all():
+        resultados.append({"tipo": "Agendamento", "nome": agendamento.cliente_nome or "Paciente", "detalhe": f"{agendamento.data} às {agendamento.horario}", "url": url_for("agendamentos", data=agendamento.data)})
+    return jsonify(resultados=resultados[:20])
+
+
+@app.route("/api/dashboard/agenda")
+@login_obrigatorio
+def api_dashboard_agenda():
+    data_texto = request.args.get("data", "")
+    try:
+        data_selecionada = date.fromisoformat(data_texto)
+        if data_selecionada.isoformat() != data_texto:
+            raise ValueError()
+    except (ValueError, TypeError):
+        return jsonify(erro="Data inválida"), 400
+    query = aplicar_filtro_medico_agendamentos(Agendamento.query)
+    registros = query.filter(Agendamento.data == data_texto).order_by(Agendamento.horario.asc()).limit(100).all()
+    return jsonify(agendamentos=[{
+        "paciente": a.cliente_nome or (a.paciente.nome if a.paciente else "Paciente"),
+        "horario": a.horario,
+        "profissional": a.profissional.nome if a.profissional else "",
+        "status": a.status or ""
+    } for a in registros])
 
 
 
@@ -2037,6 +2084,17 @@ def agendamentos():
 
     periodo_filtro = request.args.get("periodo", "todas")
 
+    # Filtro opcional de data solicitado pelo calendário do Dashboard.
+    data_filtro = (request.args.get("data") or "").strip()
+    if data_filtro:
+        try:
+            if date.fromisoformat(data_filtro).isoformat() != data_filtro:
+                raise ValueError()
+        except ValueError:
+            flash("Data de filtro inválida.")
+            return redirect(url_for("agendamentos"))
+
+
 
 
     query = aplicar_filtro_medico_agendamentos(Agendamento.query)
@@ -2059,7 +2117,10 @@ def agendamentos():
 
 
 
-    if periodo_filtro == "hoje":
+    if data_filtro:
+        query = query.filter(Agendamento.data == data_filtro)
+
+    elif periodo_filtro == "hoje":
 
         query = query.filter(Agendamento.data == hoje.isoformat())
 
