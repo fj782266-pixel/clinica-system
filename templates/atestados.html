@@ -564,6 +564,60 @@
             }
             @page { size: A4; margin: 0; }
         }
+
+        /* Layout limpo: formulário à esquerda e folha A4 à direita */
+        .main{padding:28px 30px 45px}
+        .layout{grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:22px}
+        .card{padding:24px;max-height:calc(100vh - 140px);overflow-y:auto;position:sticky;top:18px}
+        .card h2{color:var(--primary-dark);margin-bottom:8px}
+        .card .field{margin-bottom:13px}
+        .card input,.card textarea{border-radius:10px;min-height:43px}
+        .card input[readonly]{background:#f1f5f9;color:#475569}
+        .certificate-wrap{display:flex;justify-content:center;align-items:flex-start;padding:24px 12px;overflow-x:auto}
+        .certificate{flex:none;width:794px;min-height:1123px;padding:42px 54px 110px;box-shadow:0 12px 38px rgba(15,23,42,.10)}
+        .certificate:after{opacity:.35;pointer-events:none}
+        .cert-header{grid-template-columns:1fr auto;gap:12px;padding-bottom:18px}
+        .brand-icon{width:65px;height:65px;font-size:36px;border-radius:13px}
+        .brand{gap:14px}
+        .brand-text strong{font-size:30px}
+        .brand-text span{font-size:14px;letter-spacing:5px}
+        .brand-text small{font-size:9px;letter-spacing:1.8px}
+        .clinic-identity{display:flex;flex-direction:column;gap:5px;text-align:right;align-items:flex-end;font-size:11px}
+        .clinic-identity strong{font-size:12px;letter-spacing:.7px}
+        .clinic-identity span{color:#64748b}
+        .cert-title{margin:34px 0 30px}
+        .cert-title h2{font-size:26px;letter-spacing:1.5px}
+        .cert-title .pulse{font-size:20px;margin-top:5px}
+        .cert-body{font-size:14px;line-height:1.55}
+        .declaration{margin:0 0 25px;color:#334155;font-size:15px;line-height:1.75}
+        .doc-section-title{font-size:11px;letter-spacing:1.2px;color:#0f766e;font-weight:800;border-bottom:1px solid #cbd5e1;padding-bottom:8px;margin:24px 0 14px}
+        .doc-data-row{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:13px}
+        .doc-data-row.two-cols{grid-template-columns:1fr 1fr}
+        .doc-data{min-width:0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 13px;min-height:61px}
+        .doc-data small{display:block;font-size:10px;color:#64748b;font-weight:700;margin-bottom:5px}
+        .doc-data strong{display:block;font-size:13px;color:#0f172a;font-weight:700;overflow-wrap:anywhere;white-space:pre-wrap}
+        .doc-data.observations{min-height:70px}
+        .city-date{font-size:13px;text-align:right;margin-top:24px;color:#475569}
+        .signature{width:310px;margin:30px auto 0}
+        .signature-line{height:34px}
+        .signature strong{font-size:14px}
+        .signature span{font-size:12px}
+        .cert-footer.clean-footer{left:54px;right:54px;bottom:42px;display:block;text-align:center;padding:12px;font-size:11px;color:#64748b;background:#f8fafc;box-shadow:none;border:1px solid #e2e8f0}
+        .clean-footer i{color:#0f766e;margin-right:5px}
+        @media(max-width:1450px){.layout{grid-template-columns:320px minmax(0,1fr)}.main{padding:24px 18px}.certificate-wrap{justify-content:flex-start}}
+        @media(max-width:1100px){.layout{grid-template-columns:1fr}.card{max-height:none;position:static}.certificate-wrap{justify-content:center}}
+        @media(max-width:900px){.certificate-wrap{justify-content:flex-start}}
+        @media print{
+            @page{size:A4;margin:0}
+            html,body{width:210mm!important;min-height:297mm!important;margin:0!important;padding:0!important;background:#fff!important}
+            .sidebar,.topbar,.card{display:none!important}
+            .main,.layout,.certificate-wrap{display:block!important;margin:0!important;padding:0!important;width:210mm!important;max-width:none!important;overflow:visible!important;background:#fff!important;border:0!important}
+            .certificate{width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;padding:12mm 14mm 22mm!important;margin:0!important;border:0!important;box-shadow:none!important;transform:none!important;page-break-inside:avoid!important;break-inside:avoid!important}
+            .cert-footer.clean-footer{bottom:16mm!important;left:14mm!important;right:14mm!important}
+            .certificate::before{height:10mm}
+            .certificate::after{opacity:.2}
+            *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+        }
     </style>
 </head>
 <body>
@@ -597,7 +651,7 @@
     <div class="topbar">
         <div class="page-title">
             <h1>Atestado Médico</h1>
-            <p>Modelo para preenchimento e impressão, com identificação profissional automática.</p>
+            <p>Preencha os campos e confira o documento A4 antes de imprimir.</p>
         </div>
         <button type="button" class="btn-print" onclick="window.print()">
             <i class="bi bi-printer"></i> Imprimir Atestado
@@ -607,7 +661,7 @@
     <div class="layout">
         <section class="card">
             <h2>Preenchimento rápido</h2>
-            <p>Você pode digitar alguns dados antes de imprimir ou deixar tudo em branco para preencher à mão.</p>
+            <p>Preencha os dados do paciente. O documento é atualizado automaticamente ao lado.</p>
 
             <div class="field">
                 <label>Nome do paciente</label>
@@ -687,10 +741,9 @@
                             </div>
                         </div>
 
-                        <div class="clinic-info">
-                            <div><i class="bi bi-geo-alt-fill"></i><span>Rua das Flores, 123 - Centro<br>São Paulo - SP - CEP: 01234-567</span></div>
-                            <div><i class="bi bi-telephone-fill"></i><span>(11) 99999-1111</span></div>
-                            <div><i class="bi bi-envelope-fill"></i><span>contato@ecenssialclinica.com.br</span></div>
+                        <div class="clinic-info clinic-identity">
+                            <strong>ATESTADO DE ATENDIMENTO</strong>
+                            <span>Documento emitido pela clínica</span>
                         </div>
                     </header>
 
@@ -700,51 +753,27 @@
                     </div>
 
                     <div class="cert-body">
-                        <p>Atesto para os devidos fins que o(a) paciente:</p>
+                        <p class="declaration">Atesto, para os devidos fins, que o(a) paciente abaixo identificado(a) foi atendido(a) nesta unidade de saúde.</p>
 
-                        <div class="row-line">
-                            <span class="label">Nome:</span>
-                            <span class="fill-line long" id="outPaciente"></span>
+                        <div class="doc-section-title">IDENTIFICAÇÃO DO PACIENTE</div>
+                        <div class="doc-data-row"><div class="doc-data full"><small>Nome completo</small><strong id="outPaciente">—</strong></div></div>
+                        <div class="doc-data-row two-cols">
+                            <div class="doc-data"><small>CPF</small><strong id="outCpf">—</strong></div>
+                            <div class="doc-data"><small>Data de nascimento</small><strong id="outNascimento">—</strong></div>
                         </div>
 
-                        <div class="row-line">
-                            <span class="label">CPF:</span>
-                            <span class="fill-line medium" id="outCpf"></span>
-                            <span class="label">Data de Nascimento:</span>
-                            <span class="fill-line short" id="outNascimento"></span>
+                        <div class="doc-section-title">INFORMAÇÕES DO ATENDIMENTO</div>
+                        <div class="doc-data-row two-cols">
+                            <div class="doc-data"><small>Data do atendimento</small><strong id="outDataAtendimento">—</strong></div>
+                            <div class="doc-data"><small>Período de afastamento</small><strong id="outPeriodo">—</strong></div>
                         </div>
-
-                        <div class="row-line">
-                            <span class="label">Foi atendido(a) nesta clínica no dia</span>
-                            <span class="fill-line short" id="outDataAtendimento"></span>
-                            <span class="label">, necessitando de</span>
-                            <span class="fill-line medium" id="outMotivo"></span>
-                        </div>
-
-                        <p>atividades por motivo de saúde.</p>
-
-                        <div class="row-line">
-                            <span class="label">CID:</span>
-                            <span class="fill-line medium" id="outCid"></span>
-                        </div>
-
-                        <div class="row-line">
-                            <span class="label">Período de afastamento:</span>
-                            <span class="fill-line long" id="outPeriodo"></span>
-                        </div>
-
-                        <div class="row-line">
-                            <span class="label">Observações:</span>
-                            <span class="textarea-line" id="outObservacoes"></span>
-                        </div>
-
-                        <div class="row-line">
-                            <span class="textarea-line blank">.</span>
-                        </div>
+                        <div class="doc-data-row"><div class="doc-data full"><small>Finalidade / motivo</small><strong id="outMotivo">—</strong></div></div>
+                        <div class="doc-data-row"><div class="doc-data full"><small>CID (somente quando autorizado)</small><strong id="outCid">—</strong></div></div>
+                        <div class="doc-data-row"><div class="doc-data full observations"><small>Observações</small><strong id="outObservacoes">—</strong></div></div>
                     </div>
 
                     <div class="city-date">
-                        São Paulo, <strong>____ de __________________ de ______</strong>.
+                        <span id="outLocalData">Data e local: ______________________________</span>
                     </div>
 
                     <div class="signature">
@@ -756,19 +785,8 @@
                     </div>
                 </div>
 
-                <footer class="cert-footer">
-                    <div class="footer-item">
-                        <i class="bi bi-clock"></i>
-                        <div><strong>Horário de Atendimento</strong>Segunda a Sexta: 08h às 18h<br>Sábado: 08h às 12h</div>
-                    </div>
-                    <div class="footer-item">
-                        <i class="bi bi-globe2"></i>
-                        <div><strong>www.ecenssialclinica.com.br</strong></div>
-                    </div>
-                    <div class="footer-item">
-                        <i class="bi bi-calendar2-check"></i>
-                        <div><strong>Agende sua consulta</strong>(11) 99999-1111</div>
-                    </div>
+                <footer class="cert-footer clean-footer">
+                    <div><i class="bi bi-shield-check"></i> Documento médico • Confira os dados antes de imprimir</div>
                 </footer>
             </div>
         </section>
@@ -782,7 +800,7 @@
 
     function preencher(id, texto, vazio) {
         const el = document.getElementById(id);
-        el.textContent = texto || vazio || "";
+        el.textContent = texto || vazio || "________________________";
         if (!texto && !vazio) {
             el.classList.add("blank");
         } else {
@@ -791,7 +809,7 @@
     }
 
     function atualizarAtestado() {
-        preencher("outPaciente", valor("paciente"));
+        preencher("outPaciente", valor("paciente"), "________________________________");
         preencher("outCpf", valor("cpf"));
         preencher("outNascimento", valor("nascimento"));
         preencher("outDataAtendimento", valor("data_atendimento"));
@@ -807,6 +825,8 @@
         outRqe.textContent = rqe ? "RQE " + rqe : "";
         outRqe.style.display = rqe ? "block" : "none";
         preencher("outEspecialidade", valor("especialidade"), "Especialidade / Cargo");
+        const dataAtendimento = valor("data_atendimento");
+        document.getElementById("outLocalData").textContent = dataAtendimento ? "Data do atendimento: " + dataAtendimento : "Data e local: ______________________________";
     }
 
     atualizarAtestado();
