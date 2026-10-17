@@ -597,7 +597,7 @@
     <div class="topbar">
         <div class="page-title">
             <h1>Atestado Médico</h1>
-            <p>Modelo profissional para imprimir e preencher à mão, com campo para CRM/COREN.</p>
+            <p>Modelo para preenchimento e impressão, com identificação profissional automática.</p>
         </div>
         <button type="button" class="btn-print" onclick="window.print()">
             <i class="bi bi-printer"></i> Imprimir Atestado
@@ -651,21 +651,26 @@
 
             <div class="field">
                 <label>Nome do profissional</label>
-                <input type="text" id="medico" oninput="atualizarAtestado()" placeholder="Ex: Dr. João Silva">
+                <input type="text" id="medico" oninput="atualizarAtestado()" placeholder="Nome do médico" value="{{ profissional.nome|e if profissional else '' }}" {{ 'readonly' if profissional else '' }}>
             </div>
 
             <div class="field">
-                <label>Registro profissional</label>
-                <input type="text" id="registro" oninput="atualizarAtestado()" placeholder="Ex: CRM/SP 123456 ou COREN/SP 123456">
+                <label>CRM / UF</label>
+                <input type="text" id="registro" oninput="atualizarAtestado()" placeholder="Ex: CRM-PE 12345" value="{% if profissional and profissional.crm and profissional.crm_uf %}CRM-{{ profissional.crm_uf|e }} {{ profissional.crm|e }}{% endif %}" {{ 'readonly' if profissional else '' }}>
             </div>
 
             <div class="field">
-                <label>Especialidade / cargo</label>
-                <input type="text" id="especialidade" oninput="atualizarAtestado()" placeholder="Ex: Clínico Geral">
+                <label>Especialidade</label>
+                <input type="text" id="especialidade" oninput="atualizarAtestado()" placeholder="Ex: Clínico Geral" value="{{ profissional.especialidade|e if profissional else '' }}" {{ 'readonly' if profissional else '' }}>
+            </div>
+
+            <div class="field">
+                <label>RQE (quando aplicável)</label>
+                <input type="text" id="rqe" oninput="atualizarAtestado()" placeholder="Número do RQE" value="{{ profissional.rqe|e if profissional and profissional.rqe else '' }}" {{ 'readonly' if profissional else '' }}>
             </div>
 
             <div class="hint">
-                Para deixar algum campo para preencher à mão, basta deixar o campo vazio. Na impressão ficará apenas a linha pontilhada.
+                Os dados profissionais são preenchidos automaticamente quando o médico está vinculado ao login. Os demais campos podem ser deixados em branco para preenchimento manual. Inclua CID somente com autorização do paciente ou representante legal, quando cabível.
             </div>
         </section>
 
@@ -745,7 +750,8 @@
                     <div class="signature">
                         <div class="signature-line"></div>
                         <strong id="outMedico">Nome do profissional</strong>
-                        <span id="outRegistro">CRM/COREN: __________________</span>
+                        <span id="outRegistro">CRM: __________________</span>
+                        <span id="outRqe" style="display:none"></span>
                         <span id="outEspecialidade">Especialidade / Cargo</span>
                     </div>
                 </div>
@@ -795,7 +801,11 @@
         preencher("outObservacoes", valor("observacoes"));
 
         preencher("outMedico", valor("medico"), "Nome do profissional");
-        preencher("outRegistro", valor("registro"), "CRM/COREN: __________________");
+        preencher("outRegistro", valor("registro"), "CRM: __________________");
+        const rqe = valor("rqe");
+        const outRqe = document.getElementById("outRqe");
+        outRqe.textContent = rqe ? "RQE " + rqe : "";
+        outRqe.style.display = rqe ? "block" : "none";
         preencher("outEspecialidade", valor("especialidade"), "Especialidade / Cargo");
     }
 

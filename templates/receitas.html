@@ -102,9 +102,10 @@
             <div class="field"><label>Nome do paciente</label><input id="paciente" placeholder="Nome completo"></div>
             <div class="two"><div class="field"><label>Data de nascimento</label><input id="nascimento" placeholder="dd/mm/aaaa"></div><div class="field"><label>CPF</label><input id="cpf" placeholder="000.000.000-00"></div></div>
             <div class="two"><div class="field"><label>Data da consulta</label><input id="dataConsulta" type="date"></div><div class="field"><label>Data impressa</label><input id="dataExtenso" placeholder="05 de julho de 2026"></div></div>
-            <div class="field"><label>Nome do médico</label><input id="medico" placeholder="Dr. João Silva"></div>
-            <div class="two"><div class="field"><label>CRM / COREN</label><input id="crm" placeholder="CRM/SP 123456 ou COREN/SP 123456"></div><div class="field"><label>Especialidade</label><input id="especialidade" placeholder="Clínico Geral"></div></div>
+            <div class="field"><label>Nome do médico</label><input id="medico" placeholder="Nome do médico" value="{{ profissional.nome|e if profissional else '' }}" {{ 'readonly' if profissional else '' }}></div>
+            <div class="two"><div class="field"><label>CRM / UF</label><input id="crm" placeholder="CRM-PE 12345" value="{% if profissional and profissional.crm and profissional.crm_uf %}CRM-{{ profissional.crm_uf|e }} {{ profissional.crm|e }}{% endif %}" {{ 'readonly' if profissional else '' }}></div><div class="field"><label>Especialidade</label><input id="especialidade" placeholder="Clínico Geral" value="{{ profissional.especialidade|e if profissional else '' }}" {{ 'readonly' if profissional else '' }}></div></div>
 
+            <div class="field"><label>RQE (quando aplicável)</label><input id="rqe" placeholder="Número do RQE" value="{{ profissional.rqe|e if profissional and profissional.rqe else '' }}" {{ 'readonly' if profissional else '' }}></div>
             <h2 style="margin-top:22px"><i class="bi bi-capsule"></i> Prescrição</h2>
             <div id="medicamentos" class="med-list"></div>
             <button class="btn secondary" type="button" onclick="adicionarMedicamento()"><i class="bi bi-plus-lg"></i> Adicionar medicamento</button>
@@ -121,13 +122,13 @@
                 <div class="doc-title"><h2>RECEITA MÉDICA</h2><div class="pulse"><i class="bi bi-activity"></i></div></div>
                 <div class="info-grid">
                     <div class="info-box"><h3><i class="bi bi-person-fill"></i> DADOS DO PACIENTE</h3><div class="info-row"><span>Nome:</span><b id="outPaciente">________________</b></div><div class="info-row"><span>Data de Nascimento:</span><b id="outNascimento">________________</b></div><div class="info-row"><span>CPF:</span><b id="outCpf">________________</b></div></div>
-                    <div class="info-box"><h3><i class="bi bi-stethoscope"></i> DADOS DA CONSULTA</h3><div class="info-row"><span>Data:</span><b id="outDataConsulta">________________</b></div><div class="info-row"><span>Médico:</span><b id="outMedico">________________</b></div><div class="info-row"><span>CRM/COREN:</span><b id="outCrm">________________</b></div></div>
+                    <div class="info-box"><h3><i class="bi bi-stethoscope"></i> DADOS DA CONSULTA</h3><div class="info-row"><span>Data:</span><b id="outDataConsulta">________________</b></div><div class="info-row"><span>Médico:</span><b id="outMedico">________________</b></div><div class="info-row"><span>CRM/UF:</span><b id="outCrm">________________</b></div></div>
                 </div>
                 <div class="section-title"><i class="bi bi-capsule"></i> PRESCRIÇÃO</div>
                 <div class="prescription-list" id="outMedicamentos"></div>
                 <div class="section-title"><i class="bi bi-file-earmark-text"></i> ORIENTAÇÕES / OBSERVAÇÕES</div>
                 <div class="obs" id="outObservacoes">____________________________________________________________</div>
-                <div class="signature"><div class="signature-line"></div><strong id="outMedicoAssinatura">Nome do profissional</strong><span id="outCrmAssinatura">CRM / COREN</span><span id="outEspecialidade">Especialidade</span></div>
+                <div class="signature"><div class="signature-line"></div><strong id="outMedicoAssinatura">Nome do profissional</strong><span id="outCrmAssinatura">CRM / UF</span><span id="outEspecialidade">Especialidade</span><span id="outRqe" style="display:none"></span></div>
                 <div class="footer-box"><div class="footer-item"><i class="bi bi-clock"></i><span>Horário de Atendimento<br>Segunda a Sexta: 08h às 18h<br>Sábado: 08h às 12h</span></div><div class="footer-item"><i class="bi bi-globe2"></i><span>www.ecenssialclinica.com.br</span></div><div class="footer-item"><i class="bi bi-calendar2-check"></i><span>Agende sua consulta<br>(11) 99999-1111</span></div></div>
                 <div class="wave"></div>
             </div>
@@ -148,6 +149,8 @@
         $('outMedicoAssinatura').textContent = $('medico').value || 'Nome do profissional';
         $('outCrmAssinatura').textContent = $('crm').value || 'CRM / COREN';
         $('outEspecialidade').textContent = $('especialidade').value || 'Especialidade';
+        $('outRqe').textContent = $('rqe').value ? 'RQE ' + $('rqe').value : '';
+        $('outRqe').style.display = $('rqe').value ? 'block' : 'none';
         $('outObservacoes').innerHTML = (($('observacoes').value || 'Uso conforme prescrição médica.').replace(/\n/g,'<br>'));
         renderMedicamentos();
     }
@@ -169,7 +172,7 @@
             return `<div class="prescription-item"><div class="num">${i+1}</div><div><div class="med-name">${nome}</div><div class="med-use">${uso}</div></div><div class="med-qty">${qtd}</div></div>`;
         }).join('');
     }
-    function limparFormulario(){ document.querySelectorAll('input,textarea').forEach(el=>el.value=''); $('medicamentos').innerHTML=''; adicionarMedicamento(); atualizar(); }
+    function limparFormulario(){ document.querySelectorAll('input:not([readonly]),textarea').forEach(el=>el.value=''); $('medicamentos').innerHTML=''; adicionarMedicamento(); atualizar(); }
     document.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',atualizar));
     adicionarMedicamento('','',''); atualizar();
 </script>

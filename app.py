@@ -117,6 +117,9 @@ class Profissional(db.Model):
     telefone = db.Column(db.String(20))
 
     email = db.Column(db.String(100))
+    crm = db.Column(db.String(30))
+    crm_uf = db.Column(db.String(2))
+    rqe = db.Column(db.String(30))
 
 
 
@@ -906,6 +909,18 @@ def garantir_colunas_usuario():
 
 
 
+def garantir_colunas_profissional():
+    """Adiciona campos sem remover registros existentes."""
+    inspector = inspect(db.engine)
+    if "profissional" not in inspector.get_table_names():
+        return
+    colunas = {c["name"] for c in inspector.get_columns("profissional")}
+    for nome, tipo in (("crm", "VARCHAR(30)"), ("crm_uf", "VARCHAR(2)"), ("rqe", "VARCHAR(30)")):
+        if nome not in colunas:
+            db.session.execute(text(f"ALTER TABLE profissional ADD COLUMN {nome} {tipo}"))
+    db.session.commit()
+
+
 def criar_servicos_padrao():
 
     if Servico.query.count() > 0:
@@ -1198,6 +1213,8 @@ with app.app_context():
     garantir_colunas_agendamento()
 
     garantir_colunas_usuario()
+
+    garantir_colunas_profissional()
 
     criar_servicos_padrao()
 
@@ -1579,8 +1596,15 @@ def profissionais():
         telefone = request.form.get("telefone")
 
         email = request.form.get("email")
-
-
+        crm = (request.form.get("crm") or "").strip()
+        crm_uf = (request.form.get("crm_uf") or "").strip().upper()
+        rqe = (request.form.get("rqe") or "").strip()
+        if crm_uf and (len(crm_uf) != 2 or not crm_uf.isalpha()):
+            flash("Informe uma UF válida para o CRM.")
+            return redirect(url_for("profissionais"))
+        if (crm and not crm_uf) or (crm_uf and not crm):
+            flash("Informe o número e a UF do CRM juntos.")
+            return redirect(url_for("profissionais"))
 
         if profissional_id:
 
@@ -1593,6 +1617,9 @@ def profissionais():
             profissional.telefone = telefone
 
             profissional.email = email
+            profissional.crm = crm or None
+            profissional.crm_uf = crm_uf or None
+            profissional.rqe = rqe or None
 
         else:
 
@@ -1604,7 +1631,10 @@ def profissionais():
 
                 telefone=telefone,
 
-                email=email
+                email=email,
+                crm=crm or None,
+                crm_uf=crm_uf or None,
+                rqe=rqe or None
 
             )
 
@@ -3158,7 +3188,8 @@ def receitas():
 
 
 
-    return render_template("receitas.html")
+    profissional = db.session.get(Profissional, session.get("profissional_id")) if session.get("tipo") == "medico" else None
+    return render_template("receitas.html", profissional=profissional)
 
 
 
@@ -3178,7 +3209,8 @@ def atestados():
 
 
 
-    return render_template("atestados.html")
+    profissional = db.session.get(Profissional, session.get("profissional_id")) if session.get("tipo") == "medico" else None
+    return render_template("atestados.html", profissional=profissional)
 
 
 

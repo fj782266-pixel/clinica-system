@@ -989,6 +989,24 @@
                     </div>
 
                     <div class="input-wrapper">
+                        <label>CRM (número)</label>
+                        <div class="input-box"><i class="bi bi-person-vcard"></i>
+                            <input name="crm" placeholder="Número do CRM" maxlength="30" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>UF do CRM</label>
+                        <div class="input-box"><i class="bi bi-geo-alt"></i>
+                            <input name="crm_uf" placeholder="Ex.: PE" maxlength="2" autocomplete="off" style="text-transform:uppercase">
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <label>RQE (quando aplicável)</label>
+                        <div class="input-box"><i class="bi bi-award"></i>
+                            <input name="rqe" placeholder="Registro de especialista" maxlength="30" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
                         <label>Telefone</label>
                         <div class="input-box">
                             <i class="bi bi-telephone"></i>
@@ -1089,7 +1107,10 @@
             data-nome="{{ p.nome|e }}"
             data-especialidade="{{ p.especialidade|e }}"
             data-telefone="{{ p.telefone|e if p.telefone else '' }}"
-            data-email="{{ p.email|e if p.email else '' }}">
+            data-email="{{ p.email|e if p.email else '' }}"
+             data-crm="{{ p.crm|e if p.crm else '' }}"
+             data-crm-uf="{{ p.crm_uf|e if p.crm_uf else '' }}"
+             data-rqe="{{ p.rqe|e if p.rqe else '' }}">
         <i class="bi bi-pencil"></i>
     </button>
 
@@ -1099,7 +1120,10 @@
             data-nome="{{ p.nome|e }}"
             data-especialidade="{{ p.especialidade|e }}"
             data-telefone="{{ p.telefone|e if p.telefone else '' }}"
-            data-email="{{ p.email|e if p.email else '' }}">
+            data-email="{{ p.email|e if p.email else '' }}"
+             data-crm="{{ p.crm|e if p.crm else '' }}"
+             data-crm-uf="{{ p.crm_uf|e if p.crm_uf else '' }}"
+             data-rqe="{{ p.rqe|e if p.rqe else '' }}">
         <i class="bi bi-eye"></i>
     </button>
 
@@ -1174,6 +1198,10 @@
                     </div>
                 </div>
 
+                <div class="modal-row"><div class="modal-row-icon"><i class="bi bi-person-vcard"></i></div>
+                    <div><small>CRM</small><strong id="modalCRM">-</strong></div></div>
+                <div class="modal-row"><div class="modal-row-icon"><i class="bi bi-award"></i></div>
+                    <div><small>RQE</small><strong id="modalRQE">-</strong></div></div>
                 <div class="modal-row">
                     <div class="modal-row-icon">
                         <i class="bi bi-telephone"></i>
@@ -1230,6 +1258,9 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementsByName("especialidade")[0].value = botao.dataset.especialidade || "";
             document.getElementsByName("telefone")[0].value = botao.dataset.telefone || "";
             document.getElementsByName("email")[0].value = botao.dataset.email || "";
+            document.getElementsByName("crm")[0].value = botao.dataset.crm || "";
+            document.getElementsByName("crm_uf")[0].value = botao.dataset.crmUf || "";
+            document.getElementsByName("rqe")[0].value = botao.dataset.rqe || "";
 
             document.querySelector(".form-title h2").innerText = "Editar profissional";
             document.querySelector(".form-title p").innerText = "Altere os dados abaixo e salve a atualização";
@@ -1245,6 +1276,8 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("modalEspecialidade").innerText = botao.dataset.especialidade || "-";
             document.getElementById("modalTelefone").innerText = botao.dataset.telefone || "-";
             document.getElementById("modalEmail").innerText = botao.dataset.email || "-";
+            document.getElementById("modalCRM").innerText = botao.dataset.crm ? ("CRM-" + (botao.dataset.crmUf || "") + " " + botao.dataset.crm) : "-";
+            document.getElementById("modalRQE").innerText = botao.dataset.rqe || "-";
 
             modalProfissional.classList.add("active");
         });
