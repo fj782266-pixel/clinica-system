@@ -1,180 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receita Médica - Ecenssial Clínica</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-        :root{
-            --primary:#0f766e;
-            --primary-light:#14b8a6;
-            --primary-dark:#064e55;
-            --sidebar:#063f46;
-            --bg:#f8fafc;
-            --card:#ffffff;
-            --text:#0f172a;
-            --muted:#64748b;
-            --border:#d8e6e3;
-        }
-
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',Arial,sans-serif;}
-        body{min-height:100vh;background:#f8fafc;color:var(--text);display:flex;}
-
-        .sidebar{width:270px;min-height:100vh;background:linear-gradient(180deg,#064e55 0%,#063f46 48%,#052e34 100%);position:fixed;left:0;top:0;padding:30px 18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:10px 0 35px rgba(15,23,42,.12);z-index:10;}
-        .logo{display:flex;align-items:center;gap:12px;color:#fff;font-size:24px;font-weight:800;margin-bottom:45px;padding-left:10px;}
-        .logo-icon{width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,#14b8a6,#0f766e);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(20,184,166,.35);}
-        .menu{list-style:none;display:flex;flex-direction:column;gap:8px;}
-        .menu a{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;color:#d1e7e8;text-decoration:none;font-size:15px;font-weight:700;transition:.25s;}
-        .menu a:hover,.menu li.active a{background:linear-gradient(135deg,#14b8a6,#0f766e);color:#fff;box-shadow:0 10px 25px rgba(20,184,166,.28);transform:translateX(4px);}
-        .sidebar-line{height:1px;background:rgba(255,255,255,.13);margin:18px 0;}
-        .user-box{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
-        .user-avatar{width:44px;height:44px;border-radius:50%;background:#fff;color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:22px;}
-        .user-info strong{display:block;font-size:14px;margin-bottom:3px;}.user-info span{color:#cbd5e1;font-size:12px;}
-
-        .main{margin-left:270px;width:calc(100% - 270px);padding:30px 38px 45px;}
-        .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:22px;}
-        h1{font-size:32px;font-weight:800;color:#0f172a;margin-bottom:6px;}.subtitle{color:var(--muted);font-size:15px;font-weight:500;}
-        .actions{display:flex;gap:12px;align-items:center;}
-        .btn{height:44px;border:0;border-radius:10px;padding:0 22px;background:linear-gradient(135deg,#14b8a6,#0f766e);color:#fff;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:9px;text-decoration:none;box-shadow:0 10px 22px rgba(20,184,166,.25);}
-        .btn.secondary{background:#fff;color:#0f766e;border:1px solid #9dd8d2;box-shadow:none;}
-        .layout{display:grid;grid-template-columns:420px 1fr;gap:22px;align-items:start;}
-        .card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 12px 32px rgba(15,23,42,.06);padding:22px;}
-        .card h2{font-size:18px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:10px;color:#0f172a;}
-        .card h2 i{color:#0f766e;}
-        .field{margin-bottom:14px;}.field label{display:block;font-size:12px;font-weight:800;color:#0f172a;margin-bottom:7px;}
-        input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:9px;background:#fff;padding:0 12px;color:#334155;font-size:13px;font-weight:600;outline:none;}
-        input,select{height:42px;} textarea{min-height:95px;padding-top:12px;resize:vertical;}
-        input:focus,textarea:focus,select:focus{border-color:#14b8a6;box-shadow:0 0 0 4px rgba(20,184,166,.12);}
-        .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-        .med-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
-        .med-row{display:grid;grid-template-columns:1.4fr .8fr 1.2fr 38px;gap:8px;align-items:center;}
-        .remove{height:38px;border:1px solid #fecaca;background:#fff;color:#dc2626;border-radius:8px;cursor:pointer;}
-
-        .paper-wrap{background:#eef7f5;border-radius:20px;padding:18px;overflow:auto;}
-        .paper{width:900px;min-height:1180px;margin:0 auto;background:#fff;border:2px solid #0f766e;position:relative;padding:42px 46px 28px;box-shadow:0 18px 45px rgba(15,23,42,.12);overflow:hidden;}
-        .paper:after{content:"";position:absolute;right:-70px;bottom:105px;width:315px;height:315px;border-radius:45px;border:45px solid rgba(15,118,110,.06);transform:rotate(0deg);z-index:0;}
-        .paper>*{position:relative;z-index:1;}
-        .doc-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0f766e;padding-bottom:24px;margin-bottom:28px;}
-        .brand{display:flex;align-items:center;gap:22px;}.brand-icon{width:105px;height:105px;border-radius:17px;background:linear-gradient(135deg,#0f766e,#052e34);display:flex;align-items:center;justify-content:center;color:#bff7ed;font-size:58px;box-shadow:0 0 18px rgba(20,184,166,.35) inset;}
-        .brand-title strong{font-size:46px;color:#064e55;letter-spacing:-1.2px;display:block;line-height:1;}.brand-title span{display:block;color:#0f766e;font-size:23px;font-weight:800;letter-spacing:9px;margin-top:8px;}.brand-title small{display:block;color:#164e4a;font-weight:800;letter-spacing:3px;margin-top:12px;}
-        .clinic-info{font-size:15px;color:#164e4a;font-weight:600;line-height:1.55;min-width:290px;}.clinic-info div{display:flex;gap:12px;margin-bottom:7px;}.clinic-info i{color:#0f766e;font-size:18px;}
-        .doc-title{text-align:center;margin:28px 0 34px;}.doc-title h2{font-size:34px;color:#0f766e;font-weight:800;letter-spacing:.5px;}.pulse{display:flex;align-items:center;justify-content:center;gap:12px;color:#14b8a6;margin-top:12px;}.pulse:before,.pulse:after{content:"";width:90px;height:1px;background:#14b8a6;}
-        .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:34px;}.info-box{border:1.8px solid #14a99c;border-radius:8px;padding:18px 20px;min-height:145px;}.info-box h3{font-size:15px;color:#0f766e;font-weight:800;margin-bottom:18px;display:flex;gap:10px;align-items:center;}.info-row{display:grid;grid-template-columns:135px 1fr;gap:10px;margin-bottom:18px;font-size:15px;}.info-row b{font-weight:800;color:#111827;}
-        .section-title{display:flex;align-items:center;gap:12px;color:#0f766e;font-size:18px;font-weight:800;margin:30px 0 22px;}.section-title:after{content:"";height:1px;background:#0f766e;flex:1;margin-left:18px;opacity:.65;}.section-title i{font-size:24px;}
-        .prescription-list{padding:0 18px;}.prescription-item{display:grid;grid-template-columns:38px 1fr 170px;gap:18px;padding:17px 0 23px;border-bottom:1px dashed #78918d;}.num{width:28px;height:28px;border-radius:50%;background:#14a99c;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;}.med-name{font-size:16px;font-weight:800;color:#111827;margin-bottom:10px;}.med-use{font-size:15px;color:#111827;line-height:1.45;}.med-qty{font-size:15px;color:#111827;text-align:right;padding-top:2px;}
-        .obs{min-height:90px;padding:0 18px;font-size:15px;line-height:1.6;color:#111827;}
-        .signature{text-align:center;margin-top:34px;}.signature-line{width:280px;height:1.8px;background:#0f766e;margin:50px auto 12px;}.signature strong{display:block;color:#064e55;font-size:16px;margin-bottom:5px;}.signature span{display:block;color:#111827;font-size:15px;margin-bottom:4px;}
-        .footer-box{position:absolute;left:45px;right:45px;bottom:52px;border:1px solid #8bcfc7;border-radius:10px;padding:15px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;color:#064e55;background:rgba(255,255,255,.88);}.footer-item{display:flex;align-items:center;gap:14px;font-size:13px;font-weight:700;border-right:1px solid #0f766e;}.footer-item:last-child{border-right:0;}.footer-item i{font-size:28px;color:#0f766e;}.wave{position:absolute;left:0;right:0;bottom:0;height:36px;background:linear-gradient(135deg,#052e34,#14b8a6);border-radius:50% 50% 0 0/80% 80% 0 0;}
-
-        @media print{
-            body{display:block;background:#fff}.sidebar,.topbar,.card{display:none!important}.main{margin:0;width:100%;padding:0}.layout{display:block}.paper-wrap{padding:0;background:#fff}.paper{box-shadow:none;margin:0 auto;border:2px solid #0f766e;transform:scale(.92);transform-origin:top center;}
-        }
-        @media(max-width:1100px){.layout{grid-template-columns:1fr}.paper{transform:scale(.78);transform-origin:top left}.paper-wrap{height:930px}.sidebar{position:relative;width:100%;min-height:auto}.main{margin-left:0;width:100%;}body{display:block}}
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receitas Médicas - ClínicaSys</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+:root{--teal:#0f766e;--dark:#064e55;--mint:#14b8a6;--ink:#142337;--muted:#65758b;--border:#dbe6e8;--bg:#f3f7f8}
+*{box-sizing:border-box}body{margin:0;font:14px Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.sidebar{position:fixed;inset:0 auto 0 0;width:238px;background:linear-gradient(170deg,#064e55,#052e34);color:white;padding:30px 16px;display:flex;flex-direction:column;justify-content:space-between}.logo{font-size:24px;font-weight:800;margin:0 8px 38px}.logo i{color:#5eead4;margin-right:9px}.nav a{display:flex;gap:12px;align-items:center;color:#d9f0ed;text-decoration:none;padding:15px 14px;border-radius:11px;font-weight:bold;margin-bottom:8px}.nav a.active,.nav a:hover{background:#0f9488;color:white}.user{padding:15px;border:1px solid #ffffff30;border-radius:12px;font-size:13px}
+.main{margin-left:238px;padding:28px 30px 55px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.top h1{font-size:27px;margin:0 0 6px}.top p{margin:0;color:var(--muted)}.buttons{display:flex;gap:9px}.btn{border:0;background:var(--teal);color:#fff;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer}.btn.secondary{background:white;color:var(--teal);border:1px solid #a7d6d1}.btn:hover{filter:brightness(.95)}
+.layout{display:grid;grid-template-columns:minmax(310px,365px) minmax(0,1fr);gap:22px;align-items:start}.panel{background:white;border:1px solid var(--border);border-radius:15px;padding:22px;box-shadow:0 10px 25px #163d4210}.panel h2{font-size:16px;color:var(--dark);margin:0 0 18px}.section-label{font-size:12px;letter-spacing:.7px;text-transform:uppercase;color:var(--teal);font-weight:800;border-bottom:1px solid var(--border);padding:15px 0 9px;margin-bottom:14px}.field{margin-bottom:12px}.field label{display:block;font-weight:bold;font-size:12px;margin-bottom:6px}.field input,.field textarea{display:block;width:100%;border:1px solid #cbd9df;border-radius:8px;padding:11px;font:13px Arial,sans-serif;min-width:0;background:white}.field input[readonly]{background:#f0f6f6;color:#345b59}.field textarea{min-height:90px;resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.med-row{border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;background:#f9fcfc}.med-row .remove{border:0;background:#fff0f0;color:#a72a2a;border-radius:8px;padding:8px 12px;cursor:pointer}.med-actions{display:flex;justify-content:flex-end}
+.preview{background:#e8f1f1;border:1px solid #d4e7e5;border-radius:15px;padding:22px;overflow:auto}.preview-caption{text-align:center;color:#587477;font-size:12px;font-weight:bold;margin-bottom:16px}.paper{background:#fff;width:210mm;min-height:297mm;margin:auto;box-shadow:0 14px 35px #10343d20;padding:20mm 18mm 17mm;display:flex;flex-direction:column;color:#1b2935}.doc-header{display:flex;justify-content:space-between;gap:20px;align-items:center;border-bottom:2px solid var(--teal);padding-bottom:15px}.doc-brand{display:flex;align-items:center;gap:12px}.doc-brand i{font-size:36px;color:var(--teal)}.doc-brand strong{font-size:24px;color:var(--dark);display:block}.doc-brand small{font-size:11px;letter-spacing:2px;color:var(--teal)}.doc-header .date{font-size:12px;color:#526b72;text-align:right}.doc-title{text-align:center;margin:32px 0 27px}.doc-title h2{font-size:22px;letter-spacing:1px;color:var(--dark);margin:0 0 8px}.doc-title div{width:70px;height:3px;background:var(--mint);margin:auto;border-radius:4px}.doc-section{margin-bottom:25px}.doc-section h3{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid #d9e8e6}.doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 22px}.doc-field{min-width:0}.doc-field.full{grid-column:1/-1}.doc-field label{display:block;color:#627480;font-size:11px;margin-bottom:5px}.doc-field strong{font-size:13px;display:block;overflow-wrap:anywhere;min-height:17px}.med-print{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;padding:14px 0;border-bottom:1px solid #e0e9e9;break-inside:avoid}.med-print .index{color:var(--teal);font-weight:bold}.med-print .name{font-weight:bold;overflow-wrap:anywhere}.med-print .use{margin-top:7px;color:#3e5060;white-space:pre-wrap;overflow-wrap:anywhere}.med-print .qty{color:#3e5060;max-width:110px;overflow-wrap:anywhere}.notes{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;font-size:13px}.sign{margin-top:auto;padding-top:45px;text-align:center;break-inside:avoid}.sign-line{border-top:1px solid #526b72;width:265px;max-width:100%;margin:0 auto 10px}.sign strong,.sign span{display:block;line-height:1.55}.sign strong{color:var(--dark)}.sign span{font-size:12px}.doc-footer{border-top:1px solid #e1e8e9;margin-top:35px;padding-top:10px;text-align:center;color:#82929b;font-size:10px}
+@media(max-width:1300px){.layout{grid-template-columns:1fr}.preview{overflow:auto}.paper{margin:0 auto}}@media(max-width:750px){.sidebar{position:static;width:auto;padding:15px}.logo{margin:0 0 12px}.nav{display:flex;flex-wrap:wrap}.nav a{padding:10px}.user{display:none}.main{margin:0;padding:18px}.top{flex-direction:column;align-items:flex-start}.two{grid-template-columns:1fr}.preview{padding:10px}}
+@page{size:A4;margin:0}@media print{html,body{background:#fff!important;margin:0;padding:0}.sidebar,.top,.panel,.preview-caption{display:none!important}.main,.layout,.preview{display:block!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important;overflow:visible!important}.paper{width:210mm;min-height:297mm;margin:0!important;box-shadow:none!important;padding:20mm 18mm 17mm!important;break-after:auto}.med-print,.doc-section,.sign{break-inside:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
 </head>
 <body>
-<aside class="sidebar">
-    <div>
-        <div class="logo"><div class="logo-icon"><i class="bi bi-heart-pulse-fill"></i></div>ClínicaSys</div>
-        <ul class="menu">
-            <li><a href="/agendamentos"><i class="bi bi-calendar3"></i> Agendamentos</a></li>
-            <li class="active"><a href="/receitas"><i class="bi bi-file-earmark-medical"></i> Receitas</a></li>
-            <li><a href="/atestados"><i class="bi bi-shield-check"></i> Atestados</a></li>
-            <div class="sidebar-line"></div>
-            <li><a href="/logout"><i class="bi bi-box-arrow-left"></i> Sair</a></li>
-        </ul>
-    </div>
-    <div class="user-box"><div class="user-avatar"><i class="bi bi-person-fill"></i></div><div class="user-info"><strong>Olá, {{ session.get('usuario','Médico') }}!</strong><span>Médico</span></div></div>
-</aside>
-
-<main class="main">
-    <div class="topbar">
-        <div><h1>Receitas Médicas</h1><p class="subtitle">Preencha os dados e imprima a receita no padrão da clínica</p></div>
-        <div class="actions"><button class="btn secondary" onclick="limparFormulario()"><i class="bi bi-eraser"></i> Limpar</button><button class="btn" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir Receita</button></div>
-    </div>
-
-    <div class="layout">
-        <section class="card">
-            <h2><i class="bi bi-pencil-square"></i> Dados da Receita</h2>
-            <div class="field"><label>Nome do paciente</label><input id="paciente" placeholder="Nome completo"></div>
-            <div class="two"><div class="field"><label>Data de nascimento</label><input id="nascimento" placeholder="dd/mm/aaaa"></div><div class="field"><label>CPF</label><input id="cpf" placeholder="000.000.000-00"></div></div>
-            <div class="two"><div class="field"><label>Data da consulta</label><input id="dataConsulta" type="date"></div><div class="field"><label>Data impressa</label><input id="dataExtenso" placeholder="05 de julho de 2026"></div></div>
-            <div class="field"><label>Nome do médico</label><input id="medico" placeholder="Nome do médico" value="{{ profissional.nome|e if profissional else '' }}" {{ 'readonly' if profissional else '' }}></div>
-            <div class="two"><div class="field"><label>CRM / UF</label><input id="crm" placeholder="CRM-PE 12345" value="{% if profissional and profissional.crm and profissional.crm_uf %}CRM-{{ profissional.crm_uf|e }} {{ profissional.crm|e }}{% endif %}" {{ 'readonly' if profissional else '' }}></div><div class="field"><label>Especialidade</label><input id="especialidade" placeholder="Clínico Geral" value="{{ profissional.especialidade|e if profissional else '' }}" {{ 'readonly' if profissional else '' }}></div></div>
-
-            <div class="field"><label>RQE (quando aplicável)</label><input id="rqe" placeholder="Número do RQE" value="{{ profissional.rqe|e if profissional and profissional.rqe else '' }}" {{ 'readonly' if profissional else '' }}></div>
-            <h2 style="margin-top:22px"><i class="bi bi-capsule"></i> Prescrição</h2>
-            <div id="medicamentos" class="med-list"></div>
-            <button class="btn secondary" type="button" onclick="adicionarMedicamento()"><i class="bi bi-plus-lg"></i> Adicionar medicamento</button>
-
-            <div class="field" style="margin-top:18px"><label>Orientações / Observações</label><textarea id="observacoes" placeholder="Uso conforme prescrição médica."></textarea></div>
-        </section>
-
-        <section class="paper-wrap">
-            <div class="paper" id="receita">
-                <div class="doc-header">
-                    <div class="brand"><div class="brand-icon"><i class="bi bi-heart-pulse"></i></div><div class="brand-title"><strong>Ecenssial</strong><span>Clínica</span><small>CUIDANDO DA SUA SAÚDE</small></div></div>
-                    <div class="clinic-info"><div><i class="bi bi-geo-alt-fill"></i><p>Rua das Flores, 123 - Centro<br>São Paulo - SP - CEP: 01234-567</p></div><div><i class="bi bi-telephone-fill"></i><p>(11) 99999-1111</p></div><div><i class="bi bi-envelope-fill"></i><p>contato@ecenssialclinica.com.br</p></div></div>
-                </div>
-                <div class="doc-title"><h2>RECEITA MÉDICA</h2><div class="pulse"><i class="bi bi-activity"></i></div></div>
-                <div class="info-grid">
-                    <div class="info-box"><h3><i class="bi bi-person-fill"></i> DADOS DO PACIENTE</h3><div class="info-row"><span>Nome:</span><b id="outPaciente">________________</b></div><div class="info-row"><span>Data de Nascimento:</span><b id="outNascimento">________________</b></div><div class="info-row"><span>CPF:</span><b id="outCpf">________________</b></div></div>
-                    <div class="info-box"><h3><i class="bi bi-stethoscope"></i> DADOS DA CONSULTA</h3><div class="info-row"><span>Data:</span><b id="outDataConsulta">________________</b></div><div class="info-row"><span>Médico:</span><b id="outMedico">________________</b></div><div class="info-row"><span>CRM/UF:</span><b id="outCrm">________________</b></div></div>
-                </div>
-                <div class="section-title"><i class="bi bi-capsule"></i> PRESCRIÇÃO</div>
-                <div class="prescription-list" id="outMedicamentos"></div>
-                <div class="section-title"><i class="bi bi-file-earmark-text"></i> ORIENTAÇÕES / OBSERVAÇÕES</div>
-                <div class="obs" id="outObservacoes">____________________________________________________________</div>
-                <div class="signature"><div class="signature-line"></div><strong id="outMedicoAssinatura">Nome do profissional</strong><span id="outCrmAssinatura">CRM / UF</span><span id="outEspecialidade">Especialidade</span><span id="outRqe" style="display:none"></span></div>
-                <div class="footer-box"><div class="footer-item"><i class="bi bi-clock"></i><span>Horário de Atendimento<br>Segunda a Sexta: 08h às 18h<br>Sábado: 08h às 12h</span></div><div class="footer-item"><i class="bi bi-globe2"></i><span>www.ecenssialclinica.com.br</span></div><div class="footer-item"><i class="bi bi-calendar2-check"></i><span>Agende sua consulta<br>(11) 99999-1111</span></div></div>
-                <div class="wave"></div>
-            </div>
-        </section>
-    </div>
-</main>
-
+<aside class="sidebar"><div><div class="logo"><i class="bi bi-heart-pulse-fill"></i>ClínicaSys</div><nav class="nav"><a href="/agendamentos"><i class="bi bi-calendar3"></i>Agendamentos</a><a href="/receitas" class="active"><i class="bi bi-file-earmark-medical"></i>Receitas</a><a href="/atestados"><i class="bi bi-shield-check"></i>Atestados</a><a href="/logout"><i class="bi bi-box-arrow-left"></i>Sair</a></nav></div><div class="user">Olá, {{ session.get('usuario', 'Médico') }}!</div></aside>
+<main class="main"><header class="top"><div><h1>Receitas Médicas</h1><p>Preencha os campos e confira a receita antes de imprimir.</p></div><div class="buttons"><button type="button" class="btn secondary" onclick="limparFormulario()"><i class="bi bi-eraser"></i> Limpar</button><button type="button" class="btn" onclick="window.print()"><i class="bi bi-printer"></i> Imprimir receita</button></div></header>
+<div class="layout"><section class="panel"><h2><i class="bi bi-pencil-square"></i> Preenchimento da receita</h2>
+<div class="section-label">Paciente e atendimento</div>
+<div class="field"><label for="paciente">Nome do paciente</label><input id="paciente" autocomplete="off" placeholder="Nome completo"></div>
+<div class="two"><div class="field"><label for="nascimento">Data de nascimento</label><input id="nascimento" placeholder="dd/mm/aaaa"></div><div class="field"><label for="cpf">CPF</label><input id="cpf" placeholder="000.000.000-00"></div></div>
+<div class="field"><label for="dataConsulta">Data da consulta</label><input id="dataConsulta" type="date"></div>
+<div class="section-label">Profissional responsável</div>
+<div class="field"><label for="medico">Nome do médico</label><input id="medico" value="{{ profissional.nome|e if profissional else '' }}" {{ 'readonly' if profissional else '' }} placeholder="Nome do médico"></div>
+<div class="two"><div class="field"><label for="crm">CRM / UF</label><input id="crm" value="{% if profissional and profissional.crm and profissional.crm_uf %}CRM-{{ profissional.crm_uf|e }} {{ profissional.crm|e }}{% endif %}" {{ 'readonly' if profissional else '' }} placeholder="CRM-PE 12345"></div><div class="field"><label for="especialidade">Especialidade</label><input id="especialidade" value="{{ profissional.especialidade|e if profissional else '' }}" {{ 'readonly' if profissional else '' }} placeholder="Especialidade"></div></div>
+<div class="field"><label for="rqe">RQE (quando aplicável)</label><input id="rqe" value="{{ profissional.rqe|e if profissional and profissional.rqe else '' }}" {{ 'readonly' if profissional else '' }} placeholder="Número do RQE"></div>
+<div class="section-label">Medicamentos prescritos</div><div id="medicamentos"></div><button type="button" class="btn secondary" onclick="adicionarMedicamento()"><i class="bi bi-plus-circle"></i> Adicionar medicamento</button>
+<div class="section-label">Orientações</div><div class="field"><label for="observacoes">Observações adicionais</label><textarea id="observacoes" placeholder="Orientações ao paciente"></textarea></div>
+</section>
+<section class="preview"><div class="preview-caption">PRÉ-VISUALIZAÇÃO · FORMATO A4</div><article class="paper" id="receita">
+<header class="doc-header"><div class="doc-brand"><i class="bi bi-heart-pulse-fill"></i><div><strong>ClínicaSys</strong><small>RECEITUÁRIO MÉDICO</small></div></div><div class="date" id="outDataTopo"></div></header>
+<div class="doc-title"><h2>RECEITA MÉDICA</h2><div></div></div>
+<section class="doc-section"><h3>Identificação do paciente</h3><div class="doc-grid"><div class="doc-field full"><label>Paciente</label><strong id="outPaciente">—</strong></div><div class="doc-field"><label>Data de nascimento</label><strong id="outNascimento">—</strong></div><div class="doc-field"><label>CPF</label><strong id="outCpf">—</strong></div><div class="doc-field full"><label>Data da consulta</label><strong id="outDataConsulta">—</strong></div></div></section>
+<section class="doc-section"><h3>Prescrição</h3><div id="outMedicamentos"></div></section>
+<section class="doc-section"><h3>Orientações / observações</h3><div class="notes" id="outObservacoes">—</div></section>
+<footer class="sign"><div class="sign-line"></div><strong id="outMedicoAssinatura">Nome do médico</strong><span id="outCrmAssinatura">CRM / UF</span><span id="outEspecialidade">Especialidade</span><span id="outRqe" hidden></span><div class="doc-footer">Assinatura do profissional responsável</div></footer>
+</article></section></div></main>
 <script>
-    const $ = id => document.getElementById(id);
-    function dataBR(valor){ if(!valor) return ''; const [a,m,d]=valor.split('-'); return `${d}/${m}/${a}`; }
-    function atualizar(){
-        $('outPaciente').textContent = $('paciente').value || '________________';
-        $('outNascimento').textContent = $('nascimento').value || '________________';
-        $('outCpf').textContent = $('cpf').value || '________________';
-        $('outDataConsulta').textContent = dataBR($('dataConsulta').value) || '________________';
-        $('outMedico').textContent = $('medico').value || '________________';
-        $('outCrm').textContent = $('crm').value || '________________';
-        $('outMedicoAssinatura').textContent = $('medico').value || 'Nome do profissional';
-        $('outCrmAssinatura').textContent = $('crm').value || 'CRM / COREN';
-        $('outEspecialidade').textContent = $('especialidade').value || 'Especialidade';
-        $('outRqe').textContent = $('rqe').value ? 'RQE ' + $('rqe').value : '';
-        $('outRqe').style.display = $('rqe').value ? 'block' : 'none';
-        $('outObservacoes').innerHTML = (($('observacoes').value || 'Uso conforme prescrição médica.').replace(/\n/g,'<br>'));
-        renderMedicamentos();
-    }
-    function adicionarMedicamento(nome='', qtd='', uso=''){
-        const div = document.createElement('div');
-        div.className='med-row';
-        div.innerHTML=`<input placeholder="Medicamento" value="${nome}"><input placeholder="Quantidade" value="${qtd}"><input placeholder="Modo de usar" value="${uso}"><button class="remove" onclick="this.parentElement.remove();atualizar()" type="button"><i class="bi bi-trash"></i></button>`;
-        div.querySelectorAll('input').forEach(i=>i.addEventListener('input',atualizar));
-        $('medicamentos').appendChild(div); atualizar();
-    }
-    function renderMedicamentos(){
-        const linhas = [...document.querySelectorAll('.med-row')];
-        if(!linhas.length){ $('outMedicamentos').innerHTML = '<div class="prescription-item"><div class="num">1</div><div><div class="med-name">____________________________</div><div class="med-use">________________________________________________________________</div></div><div class="med-qty">__________</div></div>'; return; }
-        $('outMedicamentos').innerHTML = linhas.map((row,i)=>{
-            const inp=row.querySelectorAll('input');
-            const nome=inp[0].value || '____________________________';
-            const qtd=inp[1].value || '__________';
-            const uso=inp[2].value || '________________________________________________________________';
-            return `<div class="prescription-item"><div class="num">${i+1}</div><div><div class="med-name">${nome}</div><div class="med-use">${uso}</div></div><div class="med-qty">${qtd}</div></div>`;
-        }).join('');
-    }
-    function limparFormulario(){ document.querySelectorAll('input:not([readonly]),textarea').forEach(el=>el.value=''); $('medicamentos').innerHTML=''; adicionarMedicamento(); atualizar(); }
-    document.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',atualizar));
-    adicionarMedicamento('','',''); atualizar();
+const $=id=>document.getElementById(id);
+const texto=id=>$(id).value.trim();
+function dataBR(v){if(!v)return '';const p=v.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:v;}
+function colocar(id,v,alternativa='—'){$(id).textContent=v||alternativa;}
+function atualizar(){colocar('outPaciente',texto('paciente'));colocar('outNascimento',texto('nascimento'));colocar('outCpf',texto('cpf'));colocar('outDataConsulta',dataBR(texto('dataConsulta')));colocar('outDataTopo',dataBR(texto('dataConsulta')),'');colocar('outMedicoAssinatura',texto('medico'),'Nome do médico');colocar('outCrmAssinatura',texto('crm'),'CRM / UF');colocar('outEspecialidade',texto('especialidade'),'');$('outEspecialidade').hidden=!texto('especialidade');colocar('outRqe',texto('rqe')?'RQE '+texto('rqe'):'','');$('outRqe').hidden=!texto('rqe');colocar('outObservacoes',texto('observacoes'));renderMedicamentos();}
+function adicionarMedicamento(nome='',qtd='',uso=''){const row=document.createElement('div');row.className='med-row';row.innerHTML='<div class="field"><label>Medicamento</label><input class="med-nome" placeholder="Nome e apresentação"></div><div class="two"><div class="field"><label>Quantidade</label><input class="med-qtd" placeholder="Ex.: 1 caixa"></div><div class="field"><label>Modo de usar</label><input class="med-uso" placeholder="Posologia"></div></div><div class="med-actions"><button type="button" class="remove"><i class="bi bi-trash"></i> Remover</button></div>';row.querySelector('.med-nome').value=nome;row.querySelector('.med-qtd').value=qtd;row.querySelector('.med-uso').value=uso;row.querySelector('.remove').addEventListener('click',()=>{row.remove();atualizar()});row.querySelectorAll('input').forEach(el=>el.addEventListener('input',atualizar));$('medicamentos').appendChild(row);atualizar();}
+function renderMedicamentos(){const target=$('outMedicamentos');target.replaceChildren();const rows=[...document.querySelectorAll('.med-row')];rows.forEach((r,i)=>{const nome=r.querySelector('.med-nome').value.trim(),qtd=r.querySelector('.med-qtd').value.trim(),uso=r.querySelector('.med-uso').value.trim();const item=document.createElement('div');item.className='med-print';const idx=document.createElement('span');idx.className='index';idx.textContent=(i+1)+'.';const middle=document.createElement('div');const n=document.createElement('div');n.className='name';n.textContent=nome||'________________________________';const u=document.createElement('div');u.className='use';u.textContent=uso||'Modo de usar: ________________________';middle.append(n,u);const q=document.createElement('div');q.className='qty';q.textContent=qtd;item.append(idx,middle,q);target.append(item)});if(!rows.length){const p=document.createElement('p');p.textContent='Nenhum medicamento adicionado.';target.append(p)}}
+function limparFormulario(){document.querySelectorAll('.panel input:not([readonly]),.panel textarea').forEach(el=>el.value='');$('medicamentos').replaceChildren();adicionarMedicamento();atualizar()}
+document.querySelectorAll('.panel input,.panel textarea').forEach(el=>el.addEventListener('input',atualizar));adicionarMedicamento();
 </script>
-</body>
-</html>
+</body></html>
