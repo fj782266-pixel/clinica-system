@@ -17,6 +17,9 @@ import os
 import asyncio
 
 import uuid
+import hashlib
+import hmac
+import time
 
 
 
@@ -323,6 +326,15 @@ class Usuario(db.Model):
 
 
 
+
+
+class TentativaLogin(db.Model):
+    __tablename__ = "tentativa_login"
+    id = db.Column(db.Integer, primary_key=True)
+    chave = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    falhas = db.Column(db.Integer, nullable=False, default=0)
+    inicio_janela = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    bloqueado_ate = db.Column(db.DateTime, nullable=True)
 
 
 class RecuperacaoSenha(db.Model):
@@ -1274,6 +1286,69 @@ def verificar_usuario():
 
 
 
+# Proteção persistente: conta (5 erros) e origem (20 erros) por 15 minutos.
+# A chave é um HMAC: nomes de usuários e endereços IP não são gravados na tabela.
+JANELA_LOGIN = timedelta(minutes=15)
+BLOQUEIO_LOGIN = timedelta(minutes=15)
+HASH_SENHA_FICTICIA = generate_password_hash("senha-ficticia-para-tempo-constante")
+
+
+def chave_limite_login(categoria, valor):
+    mensagem = f"{categoria}:{valor}".encode("utf-8")
+    return categoria + ":" + hmac.new(
+        app.secret_key.encode("utf-8"), mensagem, hashlib.sha256
+    ).hexdigest()
+
+
+def obter_chaves_login(nome_usuario):
+    # Não confiar em X-Forwarded-For fornecido diretamente pelo cliente.
+    # Em Render, REMOTE_ADDR pode ser o proxy, então o limite por conta é essencial.
+    origem = request.remote_addr or "desconhecida"
+    return [chave_limite_login("conta", nome_usuario.casefold()),
+            chave_limite_login("origem", origem)]
+
+
+def verificar_limite_login(chaves):
+    agora = datetime.utcnow()
+    for chave in chaves:
+        registro = TentativaLogin.query.filter_by(chave=chave).first()
+        if registro and registro.bloqueado_ate and registro.bloqueado_ate > agora:
+            return True
+    return False
+
+
+def registrar_falha_login(chaves):
+    agora = datetime.utcnow()
+    # Serializa alterações no PostgreSQL mesmo com vários workers.
+    # Os hashes são transformados em IDs de lock de 64 bits.
+    if db.engine.dialect.name == "postgresql":
+        for chave in sorted(chaves):
+            numero = int.from_bytes(hashlib.sha256(chave.encode()).digest()[:8], "big", signed=True)
+            db.session.execute(text("SELECT pg_advisory_xact_lock(:numero)"), {"numero": numero})
+    for chave in chaves:
+        registro = TentativaLogin.query.filter_by(chave=chave).first()
+        if registro is None:
+            registro = TentativaLogin(chave=chave, falhas=0, inicio_janela=agora)
+            db.session.add(registro)
+        if (agora - registro.inicio_janela >= JANELA_LOGIN or
+                (registro.bloqueado_ate and registro.bloqueado_ate <= agora)):
+            registro.falhas = 0
+            registro.inicio_janela = agora
+            registro.bloqueado_ate = None
+        registro.falhas += 1
+        limite = 5 if chave.startswith("conta:") else 20
+        if registro.falhas >= limite:
+            registro.bloqueado_ate = agora + BLOQUEIO_LOGIN
+    db.session.commit()
+
+
+def limpar_falhas_conta(chave_conta):
+    registro = TentativaLogin.query.filter_by(chave=chave_conta).first()
+    if registro:
+        db.session.delete(registro)
+        db.session.commit()
+
+
 @app.route("/login", methods=["GET", "POST"])
 
 def login():
@@ -1339,66 +1414,30 @@ def login():
 
 
     # Processar formulário de login
-
     if request.method == "POST":
-
-        nome_usuario = (request.form.get("usuario") or "").strip()
-
+        nome_usuario = (request.form.get("usuario") or "").strip()[:50]
         senha = request.form.get("senha") or ""
+        chaves = obter_chaves_login(nome_usuario)
+        mensagem_generica = "Não foi possível entrar. Verifique os dados ou tente novamente mais tarde."
 
-
-
-        if not nome_usuario or not senha:
-
-            flash("Informe o usuário e a senha.")
-
+        if verificar_limite_login(chaves):
+            flash("Muitas tentativas de acesso. Aguarde 15 minutos e tente novamente.")
             return redirect(url_for("login"))
 
-
-
-        user = Usuario.query.filter_by(
-
-            usuario=nome_usuario
-
-        ).first()
-
-
-
-        if not user or not check_password_hash(user.senha, senha):
-
-            flash("Usuário ou senha inválidos.")
-
+        user = Usuario.query.filter_by(usuario=nome_usuario).first() if nome_usuario else None
+        # Verifica um hash fictício para reduzir diferenças de tempo entre contas existentes e inexistentes.
+        senha_correta = check_password_hash(user.senha if user else HASH_SENHA_FICTICIA, senha)
+        tipo = (user.tipo or "recepcao") if user else None
+        autorizado = bool(user and user.ativo and tipo in ("admin", "recepcao", "medico", "tv")
+                           and (tipo != "medico" or user.profissional_id))
+        if not nome_usuario or not senha or not senha_correta or not autorizado:
+            registrar_falha_login(chaves)
+            app.logger.warning("Falha de autenticação no login")
+            flash(mensagem_generica)
             return redirect(url_for("login"))
 
-
-
-        if not user.ativo:
-
-            flash("Este usuário está bloqueado. Fale com o administrador.")
-
-            return redirect(url_for("login"))
-
-
-
-        tipo = user.tipo or "recepcao"
-
-
-
-        if tipo not in ("admin", "recepcao", "medico", "tv"):
-
-            flash("Perfil de usuário inválido.")
-
-            return redirect(url_for("login"))
-
-
-
-        if tipo == "medico" and not user.profissional_id:
-
-            flash("Usuário médico sem profissional vinculado.")
-
-            return redirect(url_for("login"))
-
-
+        limpar_falhas_conta(chaves[0])
+        app.logger.info("Autenticação bem-sucedida")
 
         # Criar sessão autenticada
 
@@ -3034,6 +3073,10 @@ def usuarios():
 
 
 
+            if senha.strip() and len(senha) < 10:
+                flash("A nova senha deve ter pelo menos 10 caracteres.")
+                return redirect(url_for("usuarios"))
+
             if senha.strip():
 
                 usuario_obj.senha = generate_password_hash(senha.strip())
@@ -3048,9 +3091,9 @@ def usuarios():
 
 
 
-            if not senha.strip():
+            if len(senha.strip()) < 10:
 
-                flash("Informe uma senha para o novo usuário.")
+                flash("Informe uma senha com pelo menos 10 caracteres para o novo usuário.")
 
                 return redirect(url_for("usuarios"))
 
