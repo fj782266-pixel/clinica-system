@@ -10,7 +10,7 @@ from functools import wraps
 
 from sqlalchemy import inspect, text
 
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 
 import os
 
@@ -19,6 +19,7 @@ import asyncio
 import uuid
 import hashlib
 import hmac
+import secrets
 import time
 
 
@@ -60,6 +61,7 @@ app.config["SESSION_COOKIE_SECURE"] = True
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=20)
 
 
 
@@ -315,6 +317,7 @@ class Usuario(db.Model):
     tipo = db.Column(db.String(20), default="recepcao")
 
     ativo = db.Column(db.Boolean, default=True)
+    versao_sessao = db.Column(db.Integer, nullable=False, default=0)
 
 
 
@@ -915,6 +918,9 @@ def garantir_colunas_usuario():
 
 
 
+    if "versao_sessao" not in colunas:
+        db.session.execute(text("ALTER TABLE usuario ADD COLUMN versao_sessao INTEGER NOT NULL DEFAULT 0"))
+
     db.session.commit()
 
 
@@ -1068,6 +1074,21 @@ def proteger_rotas():
         return redirect(url_for("login"))
 
 
+
+    # Sessão expira após 20 minutos sem atividade; TV é exceção operacional.
+    agora_sessao = int(time.time())
+    versao_atual = usuario_atual.versao_sessao or 0
+    if session.get("versao_sessao") != versao_atual:
+        session.clear()
+        flash("Sua sessão foi encerrada. Entre novamente.")
+        return redirect(url_for("login"))
+    if usuario_atual.tipo != "tv":
+        ultima_atividade = session.get("ultima_atividade")
+        if not isinstance(ultima_atividade, int) or agora_sessao - ultima_atividade > 1200:
+            session.clear()
+            flash("Sessão encerrada por inatividade. Entre novamente.")
+            return redirect(url_for("login"))
+        session["ultima_atividade"] = agora_sessao
 
     tipo = usuario_atual.tipo or "recepcao"
 
@@ -1395,7 +1416,10 @@ def login():
 
 
 
-        if usuario_atual and usuario_atual.ativo:
+        if (usuario_atual and usuario_atual.ativo
+                and session.get("versao_sessao") == (usuario_atual.versao_sessao or 0)
+                and (usuario_atual.tipo == "tv" or (isinstance(session.get("ultima_atividade"), int)
+                     and int(time.time()) - session["ultima_atividade"] <= 1200))):
 
             session["usuario"] = usuario_atual.usuario
 
@@ -1405,6 +1429,8 @@ def login():
 
 
 
+            if usuario_atual.tipo != "tv":
+                session["ultima_atividade"] = int(time.time())
             return redirecionar_usuario(session["tipo"])
 
 
@@ -1413,8 +1439,17 @@ def login():
 
 
 
+    # CSRF da tela pública de login (demais formulários serão tratados separadamente).
+    if request.method == "GET" and "csrf_login" not in session:
+        session["csrf_login"] = secrets.token_urlsafe(32)
+
     # Processar formulário de login
     if request.method == "POST":
+        token_esperado = session.get("csrf_login", "")
+        token_recebido = request.form.get("csrf_token", "")
+        if not token_esperado or not hmac.compare_digest(token_esperado, token_recebido):
+            flash("Formulário expirado. Atualize a página e tente novamente.")
+            return redirect(url_for("login"))
         nome_usuario = (request.form.get("usuario") or "").strip()[:50]
         senha = request.form.get("senha") or ""
         chaves = obter_chaves_login(nome_usuario)
@@ -1454,13 +1489,15 @@ def login():
         session["usuario_id"] = user.id
 
         session["profissional_id"] = user.profissional_id
-
-
+        session["versao_sessao"] = user.versao_sessao or 0
+        session["ultima_atividade"] = int(time.time())
 
         return redirecionar_usuario(tipo)
 
 
 
+    if "csrf_login" not in session:
+        session["csrf_login"] = secrets.token_urlsafe(32)
     return render_template("login.html")
 
 
@@ -3069,6 +3106,8 @@ def usuarios():
 
             usuario_obj.profissional_id = profissional_id
 
+            if usuario_obj.ativo != ativo:
+                usuario_obj.versao_sessao = (usuario_obj.versao_sessao or 0) + 1
             usuario_obj.ativo = ativo
 
 
@@ -3080,6 +3119,7 @@ def usuarios():
             if senha.strip():
 
                 usuario_obj.senha = generate_password_hash(senha.strip())
+                usuario_obj.versao_sessao = (usuario_obj.versao_sessao or 0) + 1
 
         else:
 
