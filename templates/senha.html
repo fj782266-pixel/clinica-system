@@ -88,6 +88,7 @@ button[name="gerar"]:hover {
     <h2>Definir senha para {{ pedido.usuario }}</h2>
 
     <form method="POST">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
 
         <input type="text" name="nova_senha" placeholder="Digite a senha manual">
 

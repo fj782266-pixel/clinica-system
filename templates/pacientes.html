@@ -1158,6 +1158,7 @@
 
             <div class="form-area">
                 <form method="POST" class="patient-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
 
                     <div class="form-group">
                         <label>Nome completo <span class="required">*</span></label>
@@ -1444,6 +1445,7 @@
                 </div>
 
                 <form method="POST" id="formEditarPaciente">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                     <div class="modal-body">
                         <div class="edit-grid">
                             <div class="form-group">

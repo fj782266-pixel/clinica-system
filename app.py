@@ -997,6 +997,30 @@ def criar_servicos_padrao():
 
 
 
+# CSRF para operações autenticadas (login mantém validação própria).
+@app.context_processor
+def disponibilizar_csrf():
+    if "csrf_operacoes" not in session:
+        session["csrf_operacoes"] = secrets.token_urlsafe(32)
+    return {"csrf_operacoes": session["csrf_operacoes"]}
+
+
+@app.before_request
+def validar_csrf_operacoes():
+    if request.method not in ("POST", "PUT", "PATCH", "DELETE"):
+        return
+    if request.endpoint in ("login", "static"):
+        return
+    esperado = session.get("csrf_operacoes")
+    recebido = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token")
+    if not esperado or not recebido or not hmac.compare_digest(esperado, recebido):
+        app.logger.warning("Requisição bloqueada por CSRF: %s", request.path)
+        if request.path.startswith("/api/"):
+            return jsonify({"erro": "Sessão ou formulário expirado. Atualize a página."}), 400
+        flash("Formulário expirado. Atualize a página e tente novamente.")
+        return redirect(request.referrer if request.referrer and request.referrer.startswith(request.host_url) else url_for("home"))
+
+
 @app.before_request
 
 def proteger_rotas():

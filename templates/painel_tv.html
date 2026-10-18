@@ -1878,21 +1878,52 @@
           speechSynthesis.speak(fala);
         });
       }
-      function audioMp3(url) {
-        return new Promise((resolve, reject) => {
-          const audio = new Audio(url);
-          let terminado = false;
-          const fim = erro => {
+      
+function audioMp3(url) {
+    return new Promise((resolve, reject) => {
+        if (!url) {
+            return reject(new Error("URL do MP3 não informada"));
+        }
+
+        const audio = new Audio();
+        audio.preload = "auto";
+
+        let terminado = false;
+        let timeout;
+
+        function finalizar(erro = null) {
             if (terminado) return;
-            terminado = true; clearTimeout(timeout);
-            audio.pause(); audio.removeAttribute('src'); audio.load();
-            erro ? reject(erro) : resolve();
-          };
-          const timeout = setTimeout(() => fim(new Error('Tempo de áudio excedido')), 45000);
-          audio.onended = () => fim();
-          audio.onerror = () => fim(new Error('MP3 indisponível'));
-          audio.play().catch(fim);
-        });
+
+            terminado = true;
+            clearTimeout(timeout);
+
+            audio.pause();
+            audio.removeAttribute("src");
+            audio.load();
+
+            if (erro) {
+                console.error("Erro no áudio neural:", erro);
+                reject(erro);
+            } else {
+                resolve();
+            }
+        }
+
+        timeout = setTimeout(() => {
+            finalizar(new Error("Tempo de áudio excedido"));
+        }, 45000);
+
+        audio.onended = () => finalizar();
+
+        audio.onerror = () => {
+            finalizar(new Error("Não foi possível carregar o MP3"));
+        };
+
+        audio.src = url;
+        audio.play().catch(finalizar);
+    });
+}
+
       }
       async function anunciar(chamada) {
         const paciente = String(chamada.paciente_nome || 'Paciente');
@@ -1925,7 +1956,7 @@
       async function requisicao(url) {
         const resposta = await fetch(url, {
           method:'POST', credentials:'same-origin', cache:'no-store',
-          headers:{'Accept':'application/json'}
+          headers:{'Accept':'application/json', 'X-CSRF-Token': '{{ csrf_operacoes }}'}
         });
         if (!resposta.ok) throw new Error(`Erro HTTP ${resposta.status} em ${url}`);
         return resposta.json();

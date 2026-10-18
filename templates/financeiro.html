@@ -936,6 +936,7 @@
             </div>
 
             <form method="POST" id="formFinanceiro">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                 <input type="hidden" name="financeiro_id" id="financeiro_id">
                 <div class="form-group">
                     <label>Tipo <span>*</span></label>

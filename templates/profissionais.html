@@ -970,6 +970,7 @@
 
         <div class="form-layout">
             <form method="POST" class="form-content" id="formProfissional">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                 <input type="hidden" name="profissional_id" id="profissional_id">
                 <div class="grid">
                     <div class="input-wrapper">
@@ -1131,6 +1132,7 @@
           action="/profissionais/excluir/{{ p.id }}"
           style="display:inline;"
           onsubmit="return confirm('Tem certeza que deseja excluir este profissional?');">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
         <button type="submit" class="btn-action btn-delete" title="Excluir">
             <i class="bi bi-trash"></i>
         </button>

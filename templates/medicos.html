@@ -1,0 +1,55 @@
+{% extends "index.html" %} {# Ajuste para o template base do seu projeto se necessário #}
+
+{% block content %}
+<div class="main">
+  <div class="cards">
+    <div class="card-info">
+      <h2>Minha Agenda de Atendimentos</h2>
+      <p>Agendamentos vinculados ao seu perfil profissional.</p>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">
+      <div class="circle">
+        <i class="bi bi-calendar-event"></i>
+      </div>
+      <div>
+        <h2>Atendimentos do Dia</h2>
+        <p>Acompanhe os pacientes agendados para você</p>
+      </div>
+    </div>
+
+    <div class="form-layout">
+      <table class="tabela-agendamentos" style="width: 100%; text-align: left; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid #ccc;">
+            <th style="padding: 10px;">Horário</th>
+            <th style="padding: 10px;">Paciente</th>
+            <th style="padding: 10px;">Motivo / Consulta</th>
+            <th style="padding: 10px;">Status</th>
+            <th style="padding: 10px;">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in agendamentos %}
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;">{{ item.data_hora }}</td>
+            <td style="padding: 10px;">{{ item.paciente_nome }}</td>
+            <td style="padding: 10px;">{{ item.procedimento }}</td>
+            <td style="padding: 10px;"><span class="badge {{ item.status }}">{{ item.status }}</span></td>
+            <td style="padding: 10px;">
+              <a href="/ficha_paciente?id={{ item.paciente_id }}" class="btn">Atender</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" style="padding: 20px; text-align: center;">Nenhum agendamento encontrado para o seu perfil.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

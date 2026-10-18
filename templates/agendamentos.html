@@ -1368,6 +1368,7 @@
 
         <div class="form-area">
             <form method="POST">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
 
                 <div class="form-box-grid">
 
@@ -1709,6 +1710,7 @@
 
                         <td>
                             <form method="POST" action="/agendamento/status/{{ ag.id }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                                 <select name="status" class="status-select" onchange="this.form.submit()">
                                     <option value="Aguardando" {% if ag.status == 'Aguardando' %}selected{% endif %}>Aguardando</option>
                                     <option value="Chamado" {% if ag.status == 'Chamado' %}selected{% endif %}>Chamado</option>
@@ -1724,6 +1726,7 @@
                                       action="/chamar-paciente/{{ ag.id }}"
                                       class="call-form"
                                       onsubmit="return confirm('Chamar este paciente no painel da TV?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                                     <input type="hidden" name="consultorio" value="Consultório 2">
                                     <button type="submit" class="action-btn call" title="Chamar Paciente">
                                         <i class="bi bi-megaphone-fill"></i>
@@ -1790,6 +1793,7 @@
                                       action="/agendamento/excluir/{{ ag.id }}"
                                       class="delete-form"
                                       onsubmit="return confirm('Deseja realmente apagar este agendamento? Esta ação não poderá ser desfeita.')">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                                     <button type="submit" class="action-btn delete" title="Apagar">
                                         <i class="bi bi-trash"></i>
                                     </button>
@@ -1977,6 +1981,7 @@
             </div>
 
             <form method="POST" id="formEditarAgendamento">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                 <div class="modal-body">
                     <div class="modal-form-grid">
                         <div class="form-group">

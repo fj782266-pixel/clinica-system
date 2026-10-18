@@ -380,6 +380,7 @@
                 </div>
                 <div class="panel-body">
                     <form method="POST" action="/usuarios" id="formUsuario">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                         <input type="hidden" name="usuario_id" id="usuario_id">
 
                         <div class="form-group">
@@ -479,6 +480,7 @@
                                             </button>
 
                                             <form method="POST" action="/usuarios/bloquear/{{ usuario.id }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                                                 <button type="submit" class="btn btn-warning">
                                                     {% if usuario.ativo %}
                                                         <i class="bi bi-lock"></i> Bloquear
@@ -489,6 +491,7 @@
                                             </form>
 
                                             <form method="POST" action="/usuarios/excluir/{{ usuario.id }}" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
+<input type="hidden" name="csrf_token" value="{{ csrf_operacoes }}">
                                                 <button type="submit" class="btn btn-danger">
                                                     <i class="bi bi-trash"></i> Excluir
                                                 </button>
